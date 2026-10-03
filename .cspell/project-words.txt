@@ -4,6 +4,7 @@
 # generated: no
 ADR
 AKIA
+Bron
 cjs
 cksum
 developable
@@ -13,9 +14,11 @@ graphify
 HMAC
 hotfixes
 inprogress
+Kerbosch
 localdomain
 lradermacher
 mktree
+mkv
 mts
 NNN
 Pixecutive

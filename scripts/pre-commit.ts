@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkBranchName } from './lib/guard/check-branch-name.ts';
 import { checkIdentity } from './lib/guard/check-identity.ts';
+import { checkImages } from './lib/guard/check-images.ts';
 import { forbiddenPaths } from './lib/guard/forbidden-paths.ts';
 import { readLocalConfig } from './lib/guard/read-local-config.ts';
 import { scanText, type ScanLine } from './lib/guard/scan-text.ts';
@@ -82,6 +83,8 @@ try {
 			.forEach((text, index) => scanLines.push({ location: `${path}:${index + 1}`, text }));
 	}
 	report('Not allowed in the history:', scanText(scanLines, config));
+	const sized = staged.filter((path) => existsSync(join(copy, path))).map((path) => ({ path, bytes: statSync(join(copy, path)).size }));
+	report('Images:', checkImages(sized));
 	if (!config.found) console.log(`  ℹ️  No denylist in ${config.path}: only secrets and local paths are checked.`);
 
 	const checksFile = join(copy, '.claude/data/precommit-checks.tsv');

@@ -55,8 +55,9 @@ false alarms is switched off, not obeyed ([ADR 0008](0008-testing-and-gates.md))
    broken goes into a rule, a hook or a lint. Data a mechanism reads goes into a data file with `schema`, `read-by`,
    `adr` and `generated` frontmatter, or comes from a generator. A skill never repeats a rule or a data set; it
    links them. `[Gate check-skills · Gate check-carriers]`
-2. **Every rule names its mechanism in brackets.** A rule without one says why none is possible.
-   `[Gate check-rules]`
+2. **Every rule names its mechanism in brackets.** A rule without one says why none is possible, as
+   `[Prose: <reason>]`. A mechanism that a later card builds is written `[Planned PIX-NNN: <mechanism>]`; that card
+   cannot reach Done while a rule still names it as planned (decided 2026-10-04). `[Gate check-rules · Hook guard-done]`
 3. **Every carrier has a template in `.claude/templates/`** (`rule.md`, `skill.md`, `agent.md`, `data.md`,
    `hook.ts`, `unit-readme.md`). Each template ends with an EXCLUDED block that names what does not belong in it and
    which carrier takes it instead. A structure gate checks the required fields of each carrier, not its content.

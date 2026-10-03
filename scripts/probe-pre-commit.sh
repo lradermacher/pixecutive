@@ -83,6 +83,17 @@ probe "the local config example passes" green \
 	"echo '{}' > pixecutive.local.example.json && git add pixecutive.local.example.json && $commit"
 
 echo
+echo "── Images ──────────────────────────────────────────────────────────────"
+probe "a screenshot is rejected" red \
+	"printf 'x' > shot.png && git add shot.png && $commit"
+probe "a PNG asset under apps/web/assets passes" green \
+	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.png && git add apps/web && $commit"
+probe "a JPEG asset is rejected" red \
+	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.jpg && git add apps/web && $commit"
+probe "an asset above 256 KB is rejected" red \
+	"mkdir -p apps/web/assets && head -c 300000 /dev/zero > apps/web/assets/desk.png && git add apps/web && $commit"
+
+echo
 echo "── Identity ────────────────────────────────────────────────────────────"
 probe "a mail without a real domain is rejected" red \
 	"git config user.email probe@probe && echo ok > a.txt && git add a.txt && $commit"

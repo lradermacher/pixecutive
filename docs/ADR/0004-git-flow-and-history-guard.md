@@ -67,10 +67,12 @@ maintainer's local check keeps unreviewed work off the remote.
    rejected. `[Hook pre-commit · Hook pre-push · Hook guard-shell]`
 7. **pre-commit checks a snapshot of exactly the staged state.** It runs a secret scan, the private denylist from
    the local config, an author-mail check that rejects host-derived mails, a check for forbidden paths such as
-   `.env` and the local config, and every gate registered in `.claude/data/precommit-checks.tsv`.
+   `.env` and the local config, a check that admits images and videos only as PNG or SVG product assets under
+   `apps/web/assets/` of at most 256 KB each (decided 2026-10-04), and every gate registered in
+   `.claude/data/precommit-checks.tsv`.
    `[Hook pre-commit · Config precommit-checks.tsv]`
-8. **pre-push scans every added line of every pushed commit**, for secrets and denylisted strings, and then runs
-   the full verify. `[Hook pre-push]`
+8. **pre-push scans every added line of every pushed commit**, for secrets, denylisted strings and images outside
+   the asset rule, and then runs the full verify. `[Hook pre-push]`
 9. **A finding names file, line and category, never the matched text.** The output of a guard lands in terminals,
    session transcripts and later in CI logs; printing the match would publish what the guard just stopped.
    `[Hook pre-commit · Hook pre-push]`

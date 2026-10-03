@@ -22,3 +22,5 @@ generated: no
 ^(\.githooks/pre-push|scripts/pre-push\.ts|scripts/lib/guard/|scripts/probe-pre-push\.sh)	bash scripts/probe-pre-push.sh
 ^(scripts/install-git-hooks\.sh|scripts/probe-main-lock\.sh)$	bash scripts/probe-main-lock.sh
 ^(scripts/verify-full\.ts|scripts/probe-verify-full\.sh)$	bash scripts/probe-verify-full.sh
+^(\.claude/rules/|CLAUDE\.md$|scripts/check-rules\.ts$|scripts/lib/rules/|scripts/lib/frontmatter\.ts$|docs/ADR/)	node scripts/check-rules.ts --all
+^(\.claude/rules/|CLAUDE\.md$|scripts/(check-rules|rules-for)\.ts$|scripts/lib/rules/|scripts/lib/frontmatter\.ts$|\.claude/hooks/rule-context\.ts$|scripts/probe-rules\.sh$)	bash scripts/probe-rules.sh

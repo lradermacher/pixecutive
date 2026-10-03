@@ -4,6 +4,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { checkImages } from './lib/guard/check-images.ts';
 import { forbiddenPaths } from './lib/guard/forbidden-paths.ts';
 import { readLocalConfig } from './lib/guard/read-local-config.ts';
 import { scanText, type ScanLine } from './lib/guard/scan-text.ts';
@@ -46,7 +47,12 @@ for (const row of readFileSync(0, 'utf8').split('\n')) {
 		else if (line.startsWith('+') && !secretPatterns.skip.test(file)) lines.push({ location: `${commit} ${file}`, text: line.slice(1) });
 	}
 	const paths = [...new Set(git(['log', '--format=', '--name-only', ...range]).split('\n').filter(Boolean))];
-	const findings = [...scanText(lines, config), ...forbiddenPaths(paths)];
+	// Every blob a pushed commit adds counts, also one a later commit shrinks or deletes again.
+	const blobs = git(['log', '--raw', '--no-abbrev', '--no-renames', '--format=', ...range])
+		.split('\n')
+		.map((row) => /^:\S+ \S+ \S+ (\S+) [AM]\t(.+)$/.exec(row))
+		.flatMap((match) => (match ? [{ path: match[2] ?? '', bytes: Number(git(['cat-file', '-s', match[1] ?? '']).trim()) }] : []));
+	const findings = [...scanText(lines, config), ...forbiddenPaths(paths), ...checkImages(blobs)];
 	if (findings.length > 0) {
 		console.error(`⛔ ${localRef.replace('refs/heads/', '')} → ${remoteRef.replace('refs/heads/', '')}: not allowed in the history`);
 		for (const finding of findings) console.error(`  ⛔ ${finding}`);

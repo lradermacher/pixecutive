@@ -80,6 +80,9 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-5 ADRs in step 7 | Written in step 1, before the rules that point to them | A rule enforces a decision; the decision has to exist first |
 | PIX-4 template `hook.sh` | `hook.ts` with the contract as a typed object | Hooks are TypeScript (F3) |
 | PIX-6 tracker IDs in the local config | The local config schema gains a `tracker` section | Self-sufficient public repo, operator values outside it |
+| PIX-4 rules without a mechanism | Every rule gets a bracket: a real mechanism, `[Prose: reason]`, or `[Planned PIX-NNN: mechanism]`; `check-rules mechanism` enforces it, and `guard-done` (step 5) keeps a card out of Done while a rule names it as planned | Sheet rule-mechanisms F1, F2, 2026-10-04 |
+| PIX-2 forbidden paths | Images and videos only as PNG or SVG assets under `apps/web/assets/`, at most 256 KB, checked in pre-commit and pre-push; the ops rule is scoped to screenshots, recordings and photos | Sheet rule-mechanisms F3, 2026-10-04 |
+| PIX-4 `paths:` of `core` and `ops` | `x/**` written as `x/*` for one-segment directories, so the pattern stays anchored at the root | `check-rules structure`: `x/**` shrinks to `x` and would match at every level |
 | PIX-7 German-identifier detector | Becomes an English-only check: identifiers must consist of English words or allowed technical terms | Maintainer's note on the plan approval, 2026-10-04 |
 
 ## Open design point
@@ -119,16 +122,16 @@ probe turns red and green. The status column is filled with the commit that clos
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | ADR README and template, then every public ADR of 2026-10-03 and 2026-10-04, then the rules, `CLAUDE.md` and templates that point to them | every link from a rule, template or `CLAUDE.md` to an ADR resolves; every rule has `adr:` and a summary ≤ 60 words (counted by script); maintainer reads ADRs and rules before step 2 | open |
-| 2 | Workspace root and shared libraries; comment, identifier and one-export gates with probes | `pnpm typecheck`; each probe red and green | open |
-| 3 | History guard rewritten under the rules: libraries in TypeScript, thin git hooks, install script, a branch-name check (`feat/pix-NNN-short`, ADR 0004), probes | all guard probes green; comment gate green on every guard file | open |
+| 1 | ADR README and template, then every public ADR of 2026-10-03 and 2026-10-04, then the rules, `CLAUDE.md` and templates that point to them | every link from a rule, template or `CLAUDE.md` to an ADR resolves; every rule has `adr:` and a summary ≤ 60 words (counted by script); maintainer reads ADRs and rules before step 2 | 19cac9a |
+| 2 | Workspace root and shared libraries; comment, identifier and one-export gates with probes | `pnpm typecheck`; each probe red and green | 19cac9a |
+| 3 | History guard rewritten under the rules: libraries in TypeScript, thin git hooks, install script, a branch-name check (`feat/pix-NNN-short`, ADR 0004), probes | all guard probes green; comment gate green on every guard file | 19cac9a |
 | 4 | Rule system: rule loader, `rule-context` hook, `check-rules`, `rules-for`, budget, probes | probe-rules red and green; rule budget measured | open |
 | 5 | State machine `ticket.ts` and the safety hooks, `settings.json` with a gate that rejects `bypassPermissions` and allow rules outside the repo (ADR 0010), data files, probes and guard tests | each hook red and green on real hook input | open |
 | 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | open |
 | 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | open |
 | 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | open |
 | 9 | `MIN_CLI` measured; full verify; independent review in fresh context; checklist per file against the rules | review report and checklist sent to the maintainer as a sheet | open |
-| 10 | The maintainer checks the branch locally; only after his yes is the branch pushed and the pull request opened | the maintainer's yes | open |
+| 10 | The maintainer checks the branch locally; only after the maintainer's yes is the branch pushed and the pull request opened | the maintainer's yes | open |
 
 ## Test plan
 

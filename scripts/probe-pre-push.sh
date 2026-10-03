@@ -54,6 +54,13 @@ probe "an environment file is rejected, its example is not" red \
 	"echo A=1 > .env.local && git add .env.local && $commit env && $push"
 probe "an environment example file passes" green \
 	"echo A= > .env.example && git add .env.example && $commit env && $push"
+probe "an image outside apps/web/assets is rejected" red \
+	"printf 'x' > shot.png && git add shot.png && $commit image && $push"
+probe "an oversized asset deleted again is still rejected" red \
+	"mkdir -p apps/web/assets && head -c 300000 /dev/zero > apps/web/assets/big.png && git add apps/web && $commit big &&
+	 git rm -q apps/web/assets/big.png && $commit gone && $push"
+probe "a small PNG asset passes" green \
+	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.png && git add apps/web && $commit asset && $push"
 probe "a new branch without a remote counterpart is scanned too" red \
 	"git checkout -q -b feat/new && echo 'key = $key' >> README.txt && $commit secret &&
 	 printf 'refs/heads/feat/new %s refs/heads/feat/new $zero\n' \"\$(git rev-parse HEAD)\" | .githooks/pre-push"

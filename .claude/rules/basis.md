@@ -19,26 +19,28 @@ type in hooks and gates, which Node runs directly and cannot run enums. A file t
 marker with the reason. `[Lint · Config tsconfig erasableSyntaxOnly · Gate check-one-export]`
 
 ## Every function uses its arguments and returns real data
-A test checks real code, never a stub.
+A test checks real code, never a stub. `[Config tsconfig noUnusedParameters · Agent adversarial-review]`
 
 ## No assumptions
 What is not measured is not claimed, and what cannot be measured is asked. A sentence in an existing file counts
 only once it is checked. A tool, a version or a compatibility is measured in the same session before it is proposed.
+`[Prose: whether a claim was measured shows only in the session]`
 
 ## What an outside source defines is fetched from there
 Brand colors, logos, legal texts, API signatures, tool versions: the bytes come from the source.
+`[Prose: a gate cannot tell copied bytes from remembered ones]`
 
 ## Nothing in this repo names, links or reads the private repo or another project of the maintainer
 Rules state the rule itself; private values come from the local config. `[Gate history guard denylist]`
 
 ## A criterion decides where new things go, not the most convenient place
-The placement criteria in the core rule decide; if none applies, ask.
+The placement criteria in the core rule decide; if none applies, ask. `[Agent adversarial-review]`
 
 ## A lesson is written in the same session, names its cause and becomes concrete
-"Marker was missing" is a symptom; the cause is what also hits the next five cases.
+"Marker was missing" is a symptom; the cause is what also hits the next five cases. `[Prose: the cause is a judgment]`
 
 ## Never invent work to look busy
-Having nothing to do is a finding: report it and groom the backlog.
+Having nothing to do is a finding: report it and groom the backlog. `[Skill pickup]`
 
 ## A rename is done only when the old name is gone everywhere
 Folders, frontmatter, links with their labels, headings, data rows, probes and hook configuration.
@@ -46,7 +48,7 @@ Folders, frontmatter, links with their labels, headings, data rows, probes and h
 
 ## A green run is not a yes
 A gate says that nothing measurable is broken, not that the thing works. The verdict comes from the maintainer or a
-measurement, never from an exit code.
+measurement, never from an exit code. `[Prose: this rule is about how to read a gate]`
 
 ## Memory holds incidents, preferences, project state and pointers, never a rule
 A stale statement in docs or memory is corrected in passing. `[Hook memory-guard · Gate check-memory]`
