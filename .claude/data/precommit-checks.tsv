@@ -1,0 +1,24 @@
+---
+schema: >
+  The checks of the pre-commit hook, one trigger and one command per row, separated by a tab. `trigger` is a
+  JavaScript regular expression over the paths of the commit, case-insensitive, deleted paths included; when it matches
+  a path, `command` runs from the root of a copy of the commit state. A gate runs when a file it reads changes; its
+  probe runs when the gate, its data or the probe itself changes. Every scripts/probe-* needs a row.
+read-by:
+  - scripts/pre-commit.ts
+adr: 0008
+generated: no
+---
+# trigger	command
+\.(ts|tsx|mts|cts|js|mjs|cjs|jsx|sh|md|json|ya?ml|txt)$|^\.githooks/|^cspell\.json$|^\.cspell/	node scripts/check-english.ts --staged
+\.(ts|tsx|mts|cts|js|mjs|cjs|jsx|sh)$|^\.githooks/	node scripts/check-comments.ts --staged
+\.(ts|tsx|mts|cts)$	node scripts/check-one-export.ts --staged
+^(scripts/lib/probe\.sh|scripts/probe-probe\.sh)$	bash scripts/probe-probe.sh
+^(scripts/check-english\.ts|scripts/lib/files-to-check\.ts|cspell\.json|\.cspell/|scripts/probe-check-english\.sh)	bash scripts/probe-check-english.sh
+^(scripts/check-comments\.ts|scripts/lib/comments/|scripts/probe-check-comments\.sh)	bash scripts/probe-check-comments.sh
+^(scripts/check-one-export\.ts|scripts/lib/files-to-check\.ts|scripts/probe-check-one-export\.sh)	bash scripts/probe-check-one-export.sh
+^(\.githooks/commit-msg|scripts/commit-msg\.ts|scripts/probe-commit-msg\.sh)$	bash scripts/probe-commit-msg.sh
+^(\.githooks/pre-commit|scripts/pre-commit\.ts|scripts/lib/guard/|\.claude/data/precommit-checks\.tsv|scripts/probe-pre-commit\.sh)	bash scripts/probe-pre-commit.sh
+^(\.githooks/pre-push|scripts/pre-push\.ts|scripts/lib/guard/|scripts/probe-pre-push\.sh)	bash scripts/probe-pre-push.sh
+^(scripts/install-git-hooks\.sh|scripts/probe-main-lock\.sh)$	bash scripts/probe-main-lock.sh
+^(scripts/verify-full\.ts|scripts/probe-verify-full\.sh)$	bash scripts/probe-verify-full.sh

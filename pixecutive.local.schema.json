@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pixecutive.local.schema.json",
+  "title": "Pixecutive local operator configuration",
+  "description": "Private values of whoever runs this checkout. The file itself (pixecutive.local.json) is gitignored and never committed; a Pixecutive instance supplies the same file to its agents. Secrets do not belong here but in .env.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "historyGuard": {
+      "type": "object",
+      "description": "Read by .githooks/pre-commit and .githooks/pre-push.",
+      "properties": {
+        "denylist": {
+          "type": "array",
+          "description": "Strings that must never enter the history.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Named in a finding instead of the matched text."
+              },
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "JavaScript regular expression, matched case-insensitively."
+              }
+            },
+            "required": [
+              "category",
+              "pattern"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "authors": {
+          "type": "array",
+          "description": "When set, only these mail addresses may author or commit in this checkout.",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

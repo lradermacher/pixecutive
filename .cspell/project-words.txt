@@ -1,0 +1,35 @@
+# schema: one allowed word per line that CSpell's English and software-term dictionaries do not know
+# read-by: cspell.json, scripts/check-english.ts
+# adr: docs/ADR/0014-english-everywhere.md
+# generated: no
+ADR
+AKIA
+cjs
+cksum
+developable
+env
+frontmatter
+graphify
+HMAC
+hotfixes
+inprogress
+localdomain
+lradermacher
+mktree
+mts
+NNN
+Pixecutive
+Radermacher
+sed
+shellcheck
+subshell
+subshells
+swp
+toplevel
+tsc
+unmatch
+unreviewed
+usr
+utf
+valueonly
+Zdun

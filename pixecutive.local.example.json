@@ -1,0 +1,26 @@
+{
+  "$schema": "./pixecutive.local.schema.json",
+  "historyGuard": {
+    "denylist": [
+      {
+        "category": "private infrastructure",
+        "pattern": "example-company\\.atlassian\\.net"
+      },
+      {
+        "category": "private infrastructure",
+        "pattern": "10\\.0\\.42\\.[0-9]+"
+      },
+      {
+        "category": "personal data",
+        "pattern": "jane\\.doe@example\\.org"
+      },
+      {
+        "category": "other projects",
+        "pattern": "EXAMPLE-[0-9]+"
+      }
+    ],
+    "authors": [
+      "jane.doe@example.org"
+    ]
+  }
+}

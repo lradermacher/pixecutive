@@ -1,0 +1,3 @@
+#!/bin/sh
+# commit-msg — git entry point; the logic lives in scripts/commit-msg.ts.
+exec node "$(git rev-parse --show-toplevel)/scripts/commit-msg.ts" "$@"

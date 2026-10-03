@@ -1,0 +1,3 @@
+#!/bin/sh
+# pre-push — git entry point; the logic lives in scripts/pre-push.ts.
+exec node "$(git rev-parse --show-toplevel)/scripts/pre-push.ts" "$@"
