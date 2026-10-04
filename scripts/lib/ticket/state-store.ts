@@ -13,7 +13,6 @@ export const stateKind = Object.freeze({
 	ticket: 'ticket',
 	unblock: 'unblock',
 	push: 'push',
-	agents: 'agents',
 	review: 'review',
 	card: 'card',
 } as const);

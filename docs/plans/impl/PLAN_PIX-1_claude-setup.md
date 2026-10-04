@@ -95,6 +95,7 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-4 "basis (12 rules), workflow, core, ops, each with `paths:`" | `basis` and `workflow` carry no `paths:`, and `basis` holds 13 rules | ADR 0001 point 4 decides both are always loaded, which is what no `paths:` means; the rule that nothing names the private repo came with ADR 0015, after the card |
 | PIX-3 `protected-paths.txt` | Free without a package are `docs/`, the root README and `*.spec.ts`/`*.test.ts`; every `.md` under `.claude/` and `CLAUDE.md` is protected | Independent review: the reference setup's `!*.md` let rules, skills and agents be written without a package, against ADR 0003 point 3 |
 | PIX-5 ADR 0010 point 7 | Superseded by ADR 0016: only skills that open a window of the maintainer carry `disable-model-invocation` | Sheet skills-and-lessons F1, 2026-10-04 |
+| PIX-3 hook `agent-done` and the agent counter of ADR 0009 point 4 | Removed; the harness limit `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=2` holds the number, `check-settings` requires it, `agent-guard` checks only the family (ADR 0017) | Measured 2026-10-04: `SubagentStop` does not name the stopped agent and a failed start is never counted down, so the counter blocked a real start; sheet tool-evaluation F8 |
 | PIX-7 German-identifier detector | Becomes an English-only check: identifiers must consist of English words or allowed technical terms | Maintainer's note on the plan approval, 2026-10-04 |
 
 ## Open design point

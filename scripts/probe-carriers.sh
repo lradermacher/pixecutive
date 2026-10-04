@@ -14,7 +14,7 @@ mkdir -p "$work/scripts/lib" "$work/docs/ADR" "$work/.claude/rules" "$work/.clau
 	"$work/.claude/agents" "$work/.claude/data"
 cp "$root/scripts/check-carriers.ts" "$work/scripts/"
 cp "$root/scripts/lib/frontmatter.ts" "$work/scripts/lib/"
-cp "$root/.claude/hooks/agent-done.ts" "$work/.claude/hooks/"
+cp "$root/.claude/hooks/agent-guard.ts" "$work/.claude/hooks/"
 printf '%s\n' '# probe' >"$work/scripts/probe-hooks.sh"
 printf '%s\n' '# code' >"$work/.claude/skills/code/SKILL.md"
 printf '%s\n' '// ticket' >"$work/scripts/ticket.ts"
@@ -29,7 +29,7 @@ adr() { printf '%s\n' '---' "status: ${2:-accepted}" '---' '' '# ADR 0001' '' "A
 echo "── named ───────────────────────────────────────────────────────────────"
 probe "an existing skill" green "adr 'Skill code' && $check named"
 probe "a missing skill" red "adr 'Skill missing' && $check named"
-probe "an existing hook beside a gate of free text" green "adr 'Hook agent-done · Gate history guard denylist' && $check named"
+probe "an existing hook beside a gate of free text" green "adr 'Hook agent-guard · Gate history guard denylist' && $check named"
 probe "a script with a subcommand" green "adr 'Gate ticket.ts open' && $check named"
 probe "a missing script with a subcommand" red "adr 'Gate card.ts open' && $check named"
 probe "a missing hook with a dash before free text" red "adr 'Hook guard-gone on every write' && $check named"
@@ -38,6 +38,9 @@ probe "a missing agent" red "adr 'Agent reviewer' && $check named"
 probe "a harness agent needs no file" green "adr 'Agent Explore' && $check named"
 probe "a planned mechanism is no claim" green "adr 'Planned PIX-7: Hook architecture-guard' && $check named"
 probe "a superseded ADR may name what is gone" green "adr 'Skill missing' superseded && $check named"
+partial() { printf '%s\n' '---' 'status: accepted' "superseded-by: 2 # point $1 only; the rest stands" '---' '' '1. **Kept.** `[Skill code]`' '2. **Replaced.** `[Hook gone]`' >docs/ADR/0001-probe.md; }
+probe "a point another ADR replaced may name what is gone" green "partial 2 && $check named"
+probe "the points it did not replace are still measured" red "partial 1 && $check named"
 probe "the same line in a rule is measured" red "printf '%s\n' '# Probe' 'A rule. \`[Hook missing]\`' > .claude/rules/probe.md && $check named"
 probe "a bracket across a line break" red \
 	"printf '%s\n' '---' 'status: accepted' '---' '' 'Point. \`[Gate ticket.ts open ·' 'Hook missing]\`' > docs/ADR/0001-probe.md && $check named"
@@ -46,11 +49,11 @@ echo
 echo "── hooks ───────────────────────────────────────────────────────────────"
 probe "a hook with its contract" green "$check hooks"
 probe "a hook without a contract" red "printf '%s\n' '// x.ts — probe' > .claude/hooks/x.ts && $check hooks"
-probe "a contract without its probe field" red "perl -ni -e 'print unless /^\\tprobe: /' .claude/hooks/agent-done.ts && $check hooks"
+probe "a contract without its probe field" red "perl -ni -e 'print unless /^\\tprobe: /' .claude/hooks/agent-guard.ts && $check hooks"
 probe "an empty matcher on a prompt event" green \
-	"cp .claude/hooks/agent-done.ts .claude/hooks/prompt.ts && perl -pi -e \"s/event: 'SubagentStop'/event: 'UserPromptSubmit'/; s/matcher: '\\\\*'/matcher: ''/\" .claude/hooks/prompt.ts && $check hooks"
+	"cp .claude/hooks/agent-guard.ts .claude/hooks/prompt.ts && perl -pi -e \"s/event: 'PreToolUse'/event: 'UserPromptSubmit'/; s/matcher: 'Agent'/matcher: ''/\" .claude/hooks/prompt.ts && $check hooks"
 probe "an empty matcher on a tool event" red \
-	"perl -pi -e \"s/matcher: '\\\\*'/matcher: ''/\" .claude/hooks/agent-done.ts && $check hooks"
+	"perl -pi -e \"s/matcher: 'Agent'/matcher: ''/\" .claude/hooks/agent-guard.ts && $check hooks"
 probe "a contract naming a probe that does not exist" red "rm scripts/probe-hooks.sh && $check hooks"
 
 echo

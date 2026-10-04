@@ -41,8 +41,12 @@ function named(): void {
 	const harness = new Set(['Explore', 'Plan', 'general-purpose', 'claude', 'statusline-setup', 'fork', 'workflow-subagent']);
 	for (const path of sources) {
 		const text = read(path);
+		// A point another ADR superseded may name what that ADR removed: `superseded-by: 17 # point 4 only; …`.
+		const replaced = new Set((/^superseded-by:\s*\d+\s*#\s*points?\s+([\d, and]+?)\s+only/m.exec(text)?.[1] ?? '').match(/\d+/g) ?? []);
 		for (const tag of text.matchAll(/`\[([^\]`]+)\]`/g)) {
 			const line = text.slice(0, tag.index).split('\n').length;
+			const point = [...text.slice(0, tag.index).matchAll(/^(\d+)\. \*\*/gm)].at(-1)?.[1] ?? '';
+			if (replaced.has(point)) continue;
 			for (const part of (tag[1] ?? '').replace(/\s+/g, ' ').split('·')) {
 				const match = /^(Hook|Gate|Skill|Agent|Data) (\S+)(.*)$/.exec(part.trim());
 				if (!match) continue;

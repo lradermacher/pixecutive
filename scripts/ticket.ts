@@ -1,5 +1,5 @@
 // ticket.ts — the work package of this session: exactly one open card, without which no write lands on a protected
-// path, plus the maintainer's push and unblock windows, review records and the agent counter. Every state goes
+// path, plus the maintainer's push and unblock windows and review records. Every state goes
 // through state-store.ts. Usage: node scripts/ticket.ts without arguments lists the subcommands.
 
 import { execFileSync } from 'node:child_process';
@@ -14,8 +14,6 @@ const packageHours = 8;
 const unblockMinutes = 45;
 const pushMinutes = 30;
 const sweepHours = 24;
-const agentMinutes = 90;
-const maxAgents = 2;
 const maxReviews = 2;
 
 function git(args: readonly string[]): string {
@@ -198,25 +196,6 @@ function reviewOk(): void {
 	process.exit(state && target !== '' && state['sha'] === target ? 0 : 1);
 }
 
-function agentsRunning(id: string): string[] {
-	const state = readState(statePath(root, stateKind.agents, id));
-	const started = Array.isArray(state?.['started']) ? (state['started'] as unknown[]).map(String) : [];
-	return started.filter((stamp) => ageSeconds(stamp) < agentMinutes * 60);
-}
-
-function agents(action: string): void {
-	const id = positional() ?? session;
-	if (id === '') process.exit(action === 'agent-start' ? 1 : 0);
-	const running = agentsRunning(id);
-	if (action === 'agent-count') say(String(running.length));
-	if (action === 'agent-start') {
-		if (running.length >= maxAgents) process.exit(1);
-		writeState(statePath(root, stateKind.agents, id), { session: id, started: [...running, now()] });
-	}
-	// SubagentStop does not say which agent ended, so the oldest entry goes.
-	if (action === 'agent-stop' && running.length > 0) writeState(statePath(root, stateKind.agents, id), { session: id, started: running.slice(1) });
-}
-
 function isProtected(path: string): boolean {
 	const file = join(root, '.claude', 'data', 'protected-paths.txt');
 	if (!existsSync(file)) return true;
@@ -264,7 +243,6 @@ function sweep(): void {
 		const state = name.endsWith('.json') ? readState(path) : null;
 		const stale = statSync(path).mtimeMs < Date.now() - sweepHours * 3600 * 1000;
 		if (/^(ticket|unblock|push)\./.test(name) && (state === null ? stale : ageSeconds(state['openedAt']) >= sweepHours * 3600)) rmSync(path, { force: true });
-		if (/^agents\./.test(name) && stale) rmSync(path, { force: true });
 		// A review record holds across sessions until its commit lies on no branch any more.
 		if (/^review\./.test(name) && (state === null || git(['branch', '--contains', String(state['sha'])]) === '')) rmSync(path, { force: true });
 	}
@@ -306,11 +284,6 @@ switch (command) {
 	case 'review-ok':
 		reviewOk();
 		break;
-	case 'agent-start':
-	case 'agent-stop':
-	case 'agent-count':
-		agents(command);
-		break;
 	case 'check':
 		check();
 		break;
@@ -324,7 +297,7 @@ switch (command) {
 			'  show · close [--force] · boxes [PIX-N] · plan-required PIX-N',
 			'  review-done [--sha X] [--findings N] · review-ok [--at <ref>] [<session>]',
 			'  push-allowed [<session>] · check --path <file> · sweep',
-			'  unblock, push-ok, agent-start, agent-stop, agent-count: called by hooks only',
+			'  unblock, push-ok: called by hooks only',
 		);
 		process.exit(1);
 }

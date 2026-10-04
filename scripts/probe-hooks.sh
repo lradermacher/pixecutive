@@ -88,7 +88,7 @@ probe "end closes the package of the session" green \
 	"$package; prompt x | hook session-end; node scripts/ticket.ts show | grep -q 'no work package'"
 
 echo
-echo "── agent-guard and agent-done ──────────────────────────────────────────"
+echo "── agent-guard ─────────────────────────────────────────────────────────"
 probe "an agent from the table with its family" green "agent research opus | hook agent-guard"
 probe "an agent from the table without a model" green "agent Explore '' | hook agent-guard"
 probe "haiku as a parameter" red "agent research haiku | hook agent-guard"
@@ -98,9 +98,8 @@ probe "an agent without a row" red "agent invented opus | hook agent-guard"
 probe "a call that overrides the table" red "agent Explore opus | hook agent-guard"
 probe "a definition that drifts from the table" red \
 	"mkdir -p .claude/agents && printf -- '---\nname: research\nmodel: fable\n---\n' > .claude/agents/research.md; agent research '' | hook agent-guard"
-probe "a third agent while two run" red "agent research opus | hook agent-guard && agent research opus | hook agent-guard && agent research opus | hook agent-guard"
-probe "after agent-done a third may start" green \
-	"agent research opus | hook agent-guard && agent research opus | hook agent-guard && prompt x | hook agent-done && agent research opus | hook agent-guard"
+probe "the guard keeps no count; the harness limit does" green \
+	"agent research opus | hook agent-guard && agent research opus | hook agent-guard && agent research opus | hook agent-guard"
 probe "without the table every agent is unknown" red "rm .claude/data/model-routing.md; agent research opus | hook agent-guard"
 probe "another tool passes" green "tool Read file_path x | hook agent-guard"
 
@@ -133,12 +132,16 @@ probe "bypassPermissions as default mode" red \
 	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);s.permissions.defaultMode=\"bypassPermissions\";require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
 probe "bypass mode no longer disabled" red \
 	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);delete s.permissions.disableBypassPermissionsMode;require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
+probe "the agent limit lifted" red \
+	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);s.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=\"8\";require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
+probe "the agent limit missing" red \
+	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);delete s.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS;require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
 probe "an allow rule outside the repo" red \
 	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);s.permissions.allow=[\"Read(~/secrets/**)\"];require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
 probe "an allow rule inside the repo" green \
 	"node -e 'const f=\".claude/settings.json\",s=require(\"./\"+f);s.permissions.allow=[\"Bash(npm run test)\"];require(\"fs\").writeFileSync(f,JSON.stringify(s))'; node scripts/check-settings.ts"
-probe "a hook file that is wired nowhere" red "cp .claude/hooks/agent-done.ts .claude/hooks/orphan.ts; node scripts/check-settings.ts"
-probe "a wired hook that does not exist" red "rm .claude/hooks/agent-done.ts; node scripts/check-settings.ts"
+probe "a hook file that is wired nowhere" red "cp .claude/hooks/agent-guard.ts .claude/hooks/orphan.ts; node scripts/check-settings.ts"
+probe "a wired hook that does not exist" red "rm .claude/hooks/session-end.ts; node scripts/check-settings.ts"
 
 echo
 probe_done

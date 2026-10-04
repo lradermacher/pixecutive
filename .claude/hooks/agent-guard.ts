@@ -1,8 +1,5 @@
-// agent-guard.ts — rejects an agent start with a family other than its row in model-routing.md, any haiku, or a third
-// agent while two are running.
-
-import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
+// agent-guard.ts — rejects an agent start with a family other than its row in model-routing.md, or any haiku. The
+// harness limit CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS in settings.json holds the number of agents (ADR 0017).
 
 /**
  * The contract the harness relies on. Every field is required; the probe named here must turn this hook red.
@@ -11,7 +8,7 @@ export const contract = {
 	rule: 'docs/ADR/0009-models-and-agents.md',
 	event: 'PreToolUse',
 	matcher: 'Agent',
-	stdin: 'tool_name, tool_input.subagent_type, tool_input.model, session_id',
+	stdin: 'tool_name, tool_input.subagent_type, tool_input.model',
 	exit: '0 = pass · 2 = rejected, the reason on stderr · anything else = an error in the hook itself',
 	probe: 'scripts/probe-hooks.sh',
 } as const;
@@ -33,12 +30,6 @@ try {
 	const { verdict, detail } = judgeAgent(root, input.subagentType, input.model);
 	if (verdict !== 'pass') {
 		process.stderr.write(`⛔ ${detail}: ${messages[verdict] ?? verdict}\n`);
-		process.exit(2);
-	}
-	// Counted only once the routing holds; the counter lives in ticket.ts, the only writer of the state.
-	const start = spawnSync('node', [join(root, 'scripts/ticket.ts'), 'agent-start', input.sessionId], { cwd: root, env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
-	if (input.sessionId !== '' && start.status !== 0) {
-		process.stderr.write('⛔ Two agents are already running (ADR 0009); wait until one finishes or split the order differently.\n');
 		process.exit(2);
 	}
 } catch (error) {

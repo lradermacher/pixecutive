@@ -17,11 +17,10 @@ Measured in the binary of CLI 2.1.288 and observed in a running session of it:
 | `hookSpecificOutput.additionalContext` | rule-context injects the summary of an area's rule |
 | `SessionStart` from every source, `compact` included | session-start resets the rule marker so area rules return after compaction |
 | `SessionEnd`, not `Stop` | session-end; `Stop` fires after every turn |
-| `SubagentStop` | agent-done counts down the agent counter |
 | `CLAUDE_CODE_SESSION_ID` in the shell of a command | ticket.ts finds the state of its session |
 | `CLAUDE_CODE_EXECPATH` | session-start compares the running CLI, not whatever `claude` is on the path |
 | `permissions.disableBypassPermissionsMode` | settings.json; check-settings requires it |
-| `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | the second limit behind agent-guard |
+| `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | holds at most two agents at once (ADR 0017); check-settings requires it |
 | `disable-model-invocation` in a skill | the push and unblock skills, which only the maintainer starts |
 
 The version is the one measured against, not a proven floor; lowering it needs a measurement first. A change of the
