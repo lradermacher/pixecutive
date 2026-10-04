@@ -23,52 +23,52 @@ them, so work never again happens without ticket, plan or rules.
 Taken verbatim from the cards; changes against the cards are listed under "Changes against the cards".
 
 ### PIX-4 — rules, templates, registers
-- [ ] `CLAUDE.md` points to the rules and names the canon
-- [ ] Rules `basis` (12 rules), `workflow`, `core` (our hexagon), `ops` (pruned), each with `paths:`, `adr:` and a summary of at most 60 words, all in English
-- [ ] Templates `rule`, `skill`, `agent`, `data`, `hook.sh`, `unit-readme` with their EXCLUDED blocks
-- [ ] `rule-context`, `rules_lib`, `check-rules`, `rules-for`, `check-skills`, `check-carriers`, `check-memory`, `memory-guard`, `find-references` ported with probes
-- [ ] `SKILLS.md` is generated, and pre-commit rejects a stale register
-- [ ] `MIN_CLI` re-measured against the CLI in use
+- [x] `CLAUDE.md` points to the rules and names the canon
+- [x] Rules `basis` (12 rules), `workflow`, `core` (our hexagon), `ops` (pruned), each with `paths:`, `adr:` and a summary of at most 60 words, all in English
+- [x] Templates `rule`, `skill`, `agent`, `data`, `hook.sh`, `unit-readme` with their EXCLUDED blocks
+- [x] `rule-context`, `rules_lib`, `check-rules`, `rules-for`, `check-skills`, `check-carriers`, `check-memory`, `memory-guard`, `find-references` ported with probes
+- [x] `SKILLS.md` is generated, and pre-commit rejects a stale register
+- [x] `MIN_CLI` re-measured against the CLI in use
 
 ### PIX-5 — ADR process and decisions
-- [ ] `docs/ADR/README.md` and `TEMPLATE.md` in both repos; the README states the two-register criterion
-- [ ] The ADR state table is generated from frontmatter and checked in pre-commit
-- [ ] Public ADRs for: hexagonal architecture, git flow and history guard (incl. push only when the PR is ready), rules and carriers, feature flow and ticket state, code documentation, typing and lint zones, tooling (measured versions), testing and gates, models and agents, security in agent operation, no write without ticket, AI employees and compute sources, local operator config, everything English, the self-sufficient public repo
-- [ ] Private ADRs for: what the private repo is for, Jira project, commit identity, series format, content skills stay outside
-- [ ] Every ADR has a Rejected section and a mechanism in brackets on every decision point
-- [ ] No public ADR names or links the private repo or other projects of the maintainer
+- [x] `docs/ADR/README.md` and `TEMPLATE.md` in both repos; the README states the two-register criterion
+- [x] The ADR state table is generated from frontmatter and checked in pre-commit
+- [x] Public ADRs for: hexagonal architecture, git flow and history guard (incl. push only when the PR is ready), rules and carriers, feature flow and ticket state, code documentation, typing and lint zones, tooling (measured versions), testing and gates, models and agents, security in agent operation, no write without ticket, AI employees and compute sources, local operator config, everything English, the self-sufficient public repo
+- [x] Private ADRs for: what the private repo is for, Jira project, commit identity, series format, content skills stay outside
+- [x] Every ADR has a Rejected section and a mechanism in brackets on every decision point
+- [x] No public ADR names or links the private repo or other projects of the maintainer
 
 ### PIX-2 — history guard
-- [ ] `install-git-hooks.sh` sets `core.hooksPath` and installs the `main` lock; it fails loudly when it cannot install
-- [ ] `commit-msg` enforces a Conventional Commits subject, exactly one Co-Authored-By line, at most two text lines
-- [ ] `pre-commit` runs on a snapshot of exactly the staged state: secret scan, private denylist, author-mail check, forbidden paths, and every gate registered in `precommit-checks.tsv`
-- [ ] `pre-push` scans every added line of every pushed commit for secrets and denylisted strings, then runs the full verify
-- [ ] The private denylist and allowed authors come from the gitignored `pixecutive.local.json` (schema and example committed); the public repo never reads from the private companion repo
-- [ ] A finding names file, line and category, never the matched text
-- [ ] `.gitignore` covers `.env*`, the local config, `.claude/state/`, `.claude/settings.local.json`, caches and graphify output
-- [ ] Every hook has a probe that turns red and green
+- [x] `install-git-hooks.sh` sets `core.hooksPath` and installs the `main` lock; it fails loudly when it cannot install
+- [x] `commit-msg` enforces a Conventional Commits subject, exactly one Co-Authored-By line, at most two text lines
+- [x] `pre-commit` runs on a snapshot of exactly the staged state: secret scan, private denylist, author-mail check, forbidden paths, and every gate registered in `precommit-checks.tsv`
+- [x] `pre-push` scans every added line of every pushed commit for secrets and denylisted strings, then runs the full verify
+- [x] The private denylist and allowed authors come from the gitignored `pixecutive.local.json` (schema and example committed); the public repo never reads from the private companion repo
+- [x] A finding names file, line and category, never the matched text
+- [x] `.gitignore` covers `.env*`, the local config, `.claude/state/`, `.claude/settings.local.json`, caches and graphify output
+- [x] Every hook has a probe that turns red and green
 
 ### PIX-3 — safety hooks and ticket state machine
-- [ ] `ticket.sh` is the only writer of `.claude/state/`, HMAC-signed with a key outside the repo, key format `PIX-NNN`
-- [ ] Hooks `guard-shell`, `guard-state`, `protect-env`, `require-ticket`, `push-window`, `unblock-window`, `session-start`, `session-end`, `gate-before-pr`, `guard-inprogress`, `guard-done`, `agent-guard`, `agent-done` are ported and wired in `settings.json`
-- [ ] Skills `push` and `unblock` can only be invoked by the maintainer
-- [ ] `ticket-types.tsv`, `protected-paths.txt` and `model-routing.md` carry Pixecutive's values
-- [ ] Jira status and transition IDs come from the local config, never from the repo
-- [ ] `settings.json` contains no `bypassPermissions` and no allow rule for a path outside this repo
-- [ ] Every hook has a red/green probe or a guard test
+- [x] `ticket.sh` is the only writer of `.claude/state/`, HMAC-signed with a key outside the repo, key format `PIX-NNN`
+- [x] Hooks `guard-shell`, `guard-state`, `protect-env`, `require-ticket`, `push-window`, `unblock-window`, `session-start`, `session-end`, `gate-before-pr`, `guard-inprogress`, `guard-done`, `agent-guard`, `agent-done` are ported and wired in `settings.json`
+- [x] Skills `push` and `unblock` can only be invoked by the maintainer
+- [x] `ticket-types.tsv`, `protected-paths.txt` and `model-routing.md` carry Pixecutive's values
+- [x] Jira status and transition IDs come from the local config, never from the repo
+- [x] `settings.json` contains no `bypassPermissions` and no allow rule for a path outside this repo
+- [x] Every hook has a red/green probe or a guard test
 
 ### PIX-6 — flow skills, agents, tracker configuration
-- [ ] Skills `plan`, `ticket`, `pickup`, `implementation-plan`, `code`, `review`, `decision-sheet`, `comment-audit` ported and in English
-- [ ] The decision-sheet skill and its template live in the public repo, branded with the Pixecutive design system
-- [ ] Agents `research`, `adversarial-review`, `design` (on the Pixecutive design system) ported
-- [ ] Jira site, status, transition and type IDs measured on PIX and supplied through the local config; skills and hooks read them from there
-- [ ] Every skill passes `check-skills` and appears in the generated register
+- [x] Skills `plan`, `ticket`, `pickup`, `implementation-plan`, `code`, `review`, `decision-sheet`, `comment-audit` ported and in English
+- [x] The decision-sheet skill and its template live in the public repo, branded with the Pixecutive design system
+- [x] Agents `research`, `adversarial-review`, `design` (on the Pixecutive design system) ported
+- [x] Jira site, status, transition and type IDs measured on PIX and supplied through the local config; skills and hooks read them from there
+- [x] Every skill passes `check-skills` and appears in the generated register
 
 ### Pulled forward from PIX-7
-- [ ] Comment gate: the code-documentation ADR as a rule set, run on every write and in pre-commit, with a probe per rule
-- [ ] Identifier gate: every identifier and file name is English (checked against an English word list plus a list of allowed technical terms, not against a list of German words), run on every write and in pre-commit, with probes
-- [ ] One-export gate, run on every write and in pre-commit, with probes
-- [ ] Minimal workspace root so the TypeScript gates are type-checked: `package.json` with `packageManager`, strict `tsconfig.json`, `typecheck` script, TypeScript and Node types at versions measured on the day
+- [x] Comment gate: the code-documentation ADR as a rule set, run on every write and in pre-commit, with a probe per rule
+- [x] Identifier gate: every identifier and file name is English (checked against an English word list plus a list of allowed technical terms, not against a list of German words), run on every write and in pre-commit, with probes
+- [x] One-export gate, run on every write and in pre-commit, with probes
+- [x] Minimal workspace root so the TypeScript gates are type-checked: `package.json` with `packageManager`, strict `tsconfig.json`, `typecheck` script, TypeScript and Node types at versions measured on the day
 
 ## Changes against the cards
 
