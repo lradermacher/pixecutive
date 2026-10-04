@@ -8,7 +8,7 @@
     "node": ">=26"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p packages/core && tsc -p packages/infrastructure && tsc -p packages/protocol && tsc -p apps/server && tsc -p apps/client && tsc -p apps/web && tsc -p apps/asset-pipeline"
   },
   "devDependencies": {
     "@types/node": "26.6.4",

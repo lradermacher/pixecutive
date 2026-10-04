@@ -176,6 +176,58 @@ importers:
         specifier: 7.0.2
         version: 7.0.2
 
+  apps/asset-pipeline:
+    dependencies:
+      '@pixecutive/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pixecutive/infrastructure':
+        specifier: workspace:*
+        version: link:../../packages/infrastructure
+      '@pixecutive/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
+
+  apps/client:
+    dependencies:
+      '@pixecutive/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pixecutive/infrastructure':
+        specifier: workspace:*
+        version: link:../../packages/infrastructure
+      '@pixecutive/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
+
+  apps/server:
+    dependencies:
+      '@pixecutive/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pixecutive/infrastructure':
+        specifier: workspace:*
+        version: link:../../packages/infrastructure
+      '@pixecutive/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
+
+  apps/web:
+    dependencies:
+      '@pixecutive/protocol':
+        specifier: workspace:*
+        version: link:../../packages/protocol
+
+  packages/core: {}
+
+  packages/infrastructure:
+    dependencies:
+      '@pixecutive/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/protocol: {}
+
 packages:
 
   '@cspell/cspell-bundled-dicts@10.3.6':

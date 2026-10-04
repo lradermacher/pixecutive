@@ -3,6 +3,7 @@ paths:
   - "packages/*"
   - "apps/server/**"
   - "apps/client/**"
+  - "apps/asset-pipeline/**"
 adr: docs/ADR/0011-hexagonal-architecture.md
 summary: >
   Hexagonal: the core imports no framework, no infrastructure, no app. Ports are domain-typed interfaces, adapters map
