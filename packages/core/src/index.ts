@@ -16,6 +16,7 @@ export { AssetExceptionKey } from './application/exception/assetExceptionKey.enu
 export { ReferenceDevelopmentService } from './application/service/referenceDevelopment.service.ts';
 export { ReferencePromptService } from './application/service/referencePrompt.service.ts';
 export type { IClock } from './port/outgoing/clock.interface.ts';
+export type { IReferenceCutout } from './port/outgoing/referenceCutout.interface.ts';
 export type { IReferenceRenderer } from './port/outgoing/referenceRenderer.interface.ts';
 export type { IVerdictLog } from './port/outgoing/verdictLog.interface.ts';
 export type { IVisionChecker } from './port/outgoing/visionChecker.interface.ts';

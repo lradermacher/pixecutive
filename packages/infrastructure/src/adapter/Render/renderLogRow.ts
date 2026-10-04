@@ -1,8 +1,8 @@
-// log-row.ts — one tab-separated row of the render log, the same columns for a finished and an aborted render.
+// renderLogRow.ts — one tab-separated row of the render log, the same columns for a finished and a stopped render.
 
 /** What one render leaves in the log. */
 export interface RenderRecord {
-	readonly date: string;
+	readonly at: Date;
 	readonly name: string;
 	readonly seed: number;
 	readonly model: string;
@@ -17,10 +17,10 @@ export interface RenderRecord {
 }
 
 /** Formats a record as one log row; a value that was never measured is written as a dash. */
-export function logRow(record: RenderRecord): string {
+export function renderLogRow(record: RenderRecord): string {
 	const or = (value: number | null): string => (value === null ? '-' : String(value));
 	return [
-		record.date,
+		record.at.toISOString().slice(0, 16).replace('T', ' '),
 		`${record.name}·s${String(record.seed)}`,
 		record.model,
 		String(record.steps),

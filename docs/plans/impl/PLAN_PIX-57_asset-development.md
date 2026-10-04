@@ -32,9 +32,9 @@ The first figure through the pipeline is the male base character.
 | Reference loop: render, check, at most three retries, verdict | new | `packages/core/src/application/service/referenceDevelopment.service.ts` |
 | Exception and keys | new | `packages/core/src/application/exception/asset.exception.ts`, `assetExceptionKey.enum.ts` |
 | Ports: clock, reference renderer, vision checker, verdict log | new | `packages/core/src/port/outgoing/*.interface.ts` |
-| Qwen renderer under the memory guard | extend (moves from `scripts/lib/render/`) | `packages/infrastructure/src/adapter/qwen/` |
-| Vision checker through the local Ollama model `qwen3-vl` | new | `packages/infrastructure/src/adapter/vision/` |
-| Chroma-key cutout as a headless Blender script | new | `packages/infrastructure/src/adapter/blender/cutout.py` and its runner |
+| Qwen renderer under the memory guard | extend (moved from `scripts/lib/render/`) | `packages/infrastructure/src/adapter/Render/referenceRenderer-qwen.adapter.ts` |
+| Vision checker through the local Ollama model `qwen3-vl` | new | `packages/infrastructure/src/adapter/Vision/visionChecker-ollama.adapter.ts` |
+| Chroma-key cutout as a headless Blender script | new | `packages/infrastructure/src/adapter/Blender/cutout.py`, `referenceCutout-blender.adapter.ts` |
 | Blender helpers: reference planes, silhouette match, pixel render | new | `packages/infrastructure/src/adapter/blender/*.py` |
 | Data: design line, template, base specs M and F, error types, joints and animations | new | `apps/asset-pipeline/data/*.json` |
 | Composition root with the commands `reference`, `cutout`, `render` | extend | `apps/asset-pipeline/src/` |
@@ -122,8 +122,8 @@ These are the basis and core rules applied to this card:
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Domain types, schemas, prompt builder, reference loop, ports | `pnpm test` in core | 73241cb, reworked to the pattern in the next commit |
-| 2 | Data files from the approved sheet | schema tests green | open |
-| 3 | Qwen, vision and cutout adapters with probes | the adapter probes | open |
+| 2 | Data files from the approved sheet | schema tests green | 8b28e12 |
+| 3 | Qwen, vision, verdict log, clock and cutout adapters; the old render script deleted (F4) | adapter specs, `bash scripts/probe-cutout.sh` | this commit |
 | 4 | App commands `reference`, `cutout`, `render` | `node apps/asset-pipeline/src/main.ts reference base-m` dry run | open |
 | 5 | Skill `blender-character`, ruleset, Blender helpers with probe | `node scripts/check-skills.ts`, silhouette probe | open |
 | 5b | Asset layout and its gate with probe cases | `bash scripts/probe-pre-commit.sh` | open |

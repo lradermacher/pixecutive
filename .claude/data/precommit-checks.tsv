@@ -45,4 +45,4 @@ generated: no
 ^(\.claude/hooks/architecture-guard\.ts|scripts/lib/architecture/|scripts/lib/hooks/|scripts/probe-architecture\.sh)	bash scripts/probe-architecture.sh
 ^(packages|apps)/	node scripts/check-tests.ts --staged
 ^(scripts/check-tests\.ts|scripts/probe-tests\.sh)$	bash scripts/probe-tests.sh
-^(scripts/render\.ts|scripts/lib/render/|scripts/probe-render\.sh)	bash scripts/probe-render.sh
+^(packages/infrastructure/src/adapter/Blender/|scripts/probe-cutout\.sh)	bash scripts/probe-cutout.sh

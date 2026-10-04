@@ -2,14 +2,17 @@
 # read-by: cspell.json, scripts/check-english.ts
 # adr: docs/ADR/0014-english-everywhere.md
 # generated: no
+abspath
 ack
 ADR
 AKIA
 awk
+bpy
 Bron
 cjs
 cksum
 CLI
+colorspace
 developable
 Doto
 env
@@ -36,6 +39,7 @@ mlx
 mts
 NNN
 nohup
+numpy
 Ollama
 oneline
 OOM
