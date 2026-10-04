@@ -102,6 +102,10 @@ probe "open a second card while the first is open" red \
 probe "after close the same session opens the next card" green \
 	"$bug; $ticket close >/dev/null; git branch -m feat/pix-997-series; $ticket open PIX-997 --type bug --title Second >/dev/null && $ticket show | grep -q PIX-997; rc=\$?; git branch -m feat/pix-998-probe; exit \$rc"
 probe "open on a branch of another card" red "$ticket open PIX-997 --type bug --title Probe"
+probe "series: a further card opens on the branch once its card is closed" green \
+	"$bug; $ticket close >/dev/null; $ticket open PIX-997 --type bug --title Second >/dev/null && $ticket show | grep -q PIX-997"
+probe "series: a further card stays shut while the branch card was closed by force" red \
+	"$bug; $ticket close --force >/dev/null; $ticket open PIX-997 --type bug --title Second"
 probe "two reviews per card pass" green "$bug; $ticket review-done >/dev/null && $ticket review-done >/dev/null"
 probe "the third review is rejected" red "$bug; $ticket review-done >/dev/null; $ticket review-done >/dev/null; $ticket review-done"
 probe "PIX_REVIEW_AGAIN=1 lets the third pass" green \

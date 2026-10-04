@@ -75,8 +75,19 @@ function open(): void {
 	if (branch === '' || branch === 'main' || branch === 'master')
 		fail(`⛔ No work on '${branch || 'a detached HEAD'}'. git switch -c feat/${ticket.toLowerCase()}-short`);
 	const branchTicket = /pix-[0-9]+/i.exec(branch)?.[0].toUpperCase();
-	if (branchTicket !== ticket)
-		fail(`⛔ Branch '${branch}' carries ${branchTicket ?? 'no card'}, the package would be ${ticket}.`);
+	// A series shares one branch (ADR 0002): a further card opens on it only once the card the branch carries
+	// left a closing record, so two cards are never open at once and the first one is never skipped.
+	const series =
+		branchTicket !== undefined &&
+		branchTicket !== ticket &&
+		readState(statePath(root, stateKind.card, branchTicket)) !== null;
+	if (branchTicket !== ticket && !series)
+		fail(
+			`⛔ Branch '${branch}' carries ${branchTicket ?? 'no card'}, the package would be ${ticket}.`,
+			branchTicket === undefined
+				? ''
+				: `   A series continues here only after ${branchTicket} is closed: node scripts/ticket.ts close.`,
+		);
 	const current = packageState();
 	if (current && current['ticket'] !== ticket) {
 		fail(
@@ -105,6 +116,7 @@ function open(): void {
 		type,
 		title,
 		branch,
+		...(series ? { series: branchTicket } : {}),
 		plan: cardVerdict({ root, ticket, stage: verdictStage.entry, session, type }).lines[0]?.split(' plan ')[1] ?? '',
 		acceptanceLines: acceptance,
 		openedAt: now(),
