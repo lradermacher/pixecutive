@@ -27,8 +27,8 @@
     },
     {
       "key": "pixel-grid",
-      "value": "a standing figure is 110 to 125 art pixels tall in the 480 x 270 office, about 63 pixels per metre",
-      "source": "sheet pix57-plan F2; measured on the office render 2026-10-04"
+      "value": "pixel art at a high resolution, shown at Full HD or more; the pixel density (art pixels per metre) is fixed, each room has its own size; the figure height in art pixels is open",
+      "source": "chat 2026-10-05: pixel but a relatively high resolution, Full HD at least; the office size scales per room. The earlier 480 x 270 office was a measurement of a draft render, never a decision"
     },
     {
       "key": "view",
