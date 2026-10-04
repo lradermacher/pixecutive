@@ -1,0 +1,28 @@
+# schema: one pattern per line against the path relative to the repo root; `*` also crosses `/`; `!pattern` is an
+#   exception and always wins; a path that matches nothing is free
+# read-by: scripts/ticket.ts
+# adr: docs/ADR/0003-no-write-without-ticket.md
+# generated: no
+
+!docs/*
+!README.md
+!*.spec.ts
+!*.test.ts
+
+CLAUDE.md
+apps/*
+packages/*
+scripts/*
+.githooks/*
+.github/*
+.claude/*
+.cspell/*
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tsconfig*.json
+cspell.json
+.editorconfig
+.gitignore
+pixecutive.local.schema.json
+pixecutive.local.example.json

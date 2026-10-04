@@ -1,0 +1,54 @@
+{
+  "$schema": "./pixecutive.local.schema.json",
+  "historyGuard": {
+    "denylist": [
+      {
+        "category": "private infrastructure",
+        "pattern": "example-company\\.atlassian\\.net"
+      },
+      {
+        "category": "private infrastructure",
+        "pattern": "10\\.0\\.42\\.[0-9]+"
+      },
+      {
+        "category": "personal data",
+        "pattern": "jane\\.doe@example\\.org"
+      },
+      {
+        "category": "other projects",
+        "pattern": "EXAMPLE-[0-9]+"
+      }
+    ],
+    "authors": [
+      "jane.doe@example.org"
+    ]
+  },
+  "tracker": {
+    "site": "example.atlassian.net",
+    "cloudId": "00000000-0000-0000-0000-000000000000",
+    "projectKey": "PIX",
+    "transitions": {
+      "backlog": "11",
+      "toDo": "21",
+      "inProgress": "31",
+      "inReview": "41",
+      "done": "51",
+      "wontDo": "61"
+    },
+    "statuses": {
+      "backlog": "10038",
+      "toDo": "10039",
+      "inProgress": "10040",
+      "inReview": "10041",
+      "done": "10042",
+      "wontDo": "10043"
+    },
+    "issueTypes": {
+      "epic": "10039",
+      "story": "10040",
+      "task": "10042",
+      "bug": "10041",
+      "subtask": "10038"
+    }
+  }
+}

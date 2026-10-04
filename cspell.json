@@ -1,0 +1,14 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "minWordLength": 3,
+  "dictionaryDefinitions": [
+    {
+      "name": "project-words",
+      "path": "./.cspell/project-words.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": ["project-words"],
+  "ignorePaths": ["node_modules/**", "pnpm-lock.yaml", "pixecutive.local.json"]
+}

@@ -1,0 +1,25 @@
+---
+schema: >
+  Two tab-separated columns: `type` (the value behind `typ:` in the Jira label and the argument of `ticket.ts open
+  --type`) and `plan` (`yes` = without an implementation plan the card is neither opened nor moved to In Progress).
+  A card without a `typ:` label is `feature`.
+read-by:
+  - scripts/lib/ticket/ticket-types.ts
+adr: docs/ADR/0003-no-write-without-ticket.md
+generated: no
+---
+
+<!-- From here on only data. No explaining prose: the explanation is the `schema:` above. -->
+
+type	plan
+feature	yes
+setup	yes
+research	yes
+bug	no
+hotfix	no
+
+<!--
+EXCLUDED, does not belong in a data file:
+  ⛔ prose, reasons, examples → the ADR named in `adr:`
+  ⛔ the same list elsewhere  → one data set, one carrier (ADR 0001)
+-->

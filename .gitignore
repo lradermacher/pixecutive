@@ -1,0 +1,29 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.cache/
+
+# Environment and secrets: only *.example files belong in the repo
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# The operator's private configuration (format: pixecutive.local.schema.json)
+pixecutive.local.json
+
+# Claude Code session state and personal settings
+.claude/state/
+.claude/settings.local.json
+
+# Local tooling
+graphify-out/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.swp

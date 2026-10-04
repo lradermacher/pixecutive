@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pixecutive.local.schema.json",
+  "title": "Pixecutive local operator configuration",
+  "description": "Private values of whoever runs this checkout. The file itself (pixecutive.local.json) is gitignored and never committed; a Pixecutive instance supplies the same file to its agents. Secrets do not belong here but in .env.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "historyGuard": {
+      "type": "object",
+      "description": "Read by .githooks/pre-commit and .githooks/pre-push.",
+      "properties": {
+        "denylist": {
+          "type": "array",
+          "description": "Strings that must never enter the history.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Named in a finding instead of the matched text."
+              },
+              "pattern": {
+                "type": "string",
+                "minLength": 1,
+                "description": "JavaScript regular expression, matched case-insensitively."
+              }
+            },
+            "required": [
+              "category",
+              "pattern"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "authors": {
+          "type": "array",
+          "description": "When set, only these mail addresses may author or commit in this checkout.",
+          "items": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "tracker": {
+      "type": "object",
+      "description": "The Jira site of this checkout and the measured IDs of its workflow. Read by scripts/lib/ticket/tracker-config.ts.",
+      "properties": {
+        "site": {
+          "type": "string",
+          "description": "Host name of the Jira site, e.g. example.atlassian.net."
+        },
+        "cloudId": {
+          "type": "string"
+        },
+        "projectKey": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9]+$"
+        },
+        "transitions": {
+          "type": "object",
+          "description": "Transition IDs by target, measured on the board.",
+          "properties": {
+            "backlog": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "toDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inProgress": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inReview": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "done": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "wontDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "required": [
+            "inProgress",
+            "done"
+          ],
+          "additionalProperties": false
+        },
+        "statuses": {
+          "type": "object",
+          "description": "Status IDs by name, measured on the board.",
+          "properties": {
+            "backlog": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "toDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inProgress": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inReview": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "done": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "wontDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "issueTypes": {
+          "type": "object",
+          "description": "Issue type IDs by name, measured on the project.",
+          "properties": {
+            "epic": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "story": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "task": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "bug": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "subtask": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "transitions"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
