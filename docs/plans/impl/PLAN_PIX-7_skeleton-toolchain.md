@@ -129,7 +129,7 @@ tool-evaluation sheet, not a new decision.
 | 1 | Skeleton: seven packages (ADR 0011, and `apps/asset-pipeline` with ADR 0019) with `package.json`, `tsconfig` from `tsconfig.base.json`, `src/index.ts`, the core folders, workspace links | `pnpm install && pnpm typecheck` | 60abcbd |
 | 2 | Vitest projects and one spec per package; root `test` | `pnpm test` | 9fade8c |
 | 3 | Prettier and `.editorconfig`; root `format`, `format:check` | `pnpm format:check` | d465d35 |
-| 4 | ESLint flat config with the rules of ADR 0005, 0006 and the core rule, lint on TypeScript 6; its probe | `bash scripts/probe-lint.sh && pnpm lint` | open |
+| 4 | ESLint flat config with the rules of ADR 0005, 0006 and the core rule, lint on TypeScript 6; its probe | `bash scripts/probe-lint.sh && pnpm lint` | 347bac6 |
 | 5 | Import zones with eslint-plugin-boundaries; ADR 0018; their probe | `bash scripts/probe-lint.sh && node scripts/check-docs.ts --all` | open |
 | 6 | `architecture-guard` with its probe, then wired | `bash scripts/probe-hooks.sh && node scripts/check-settings.ts` | open |
 | 7 | `check-tests` with its probe, then registered | `bash scripts/probe-tests.sh && node scripts/check-carriers.ts --all` | open |

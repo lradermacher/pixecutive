@@ -56,3 +56,4 @@ valueonly
 vitest
 Zdun
 zgrep
+zod

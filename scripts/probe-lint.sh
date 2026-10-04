@@ -61,4 +61,40 @@ probe "an eslint-disable that disables nothing" red \
 probe "@ts-expect-error without a reason" red \
 	"plant '// @ts-expect-error' 'export const a: number = \"x\";' && $lint $core"
 
+echo
+echo "── import zones (ADR 0006 point 8, ADR 0018) ───────────────────────────"
+at() { mkdir -p "$(dirname "$1")" && printf '%s\n' "${@:2}" >"$1"; }
+domain='packages/core/src/domain/probe.ts'
+service='packages/core/src/application/service/probe.ts'
+# Red only when the zone rule itself reports; another lint error would hide a hole in the zones.
+zone() { local out; out="$($lint "$1" 2>&1)"; case "$out" in *boundaries/dependencies*) return 1 ;; esac; }
+probe "the domain imports a service" red \
+	"at $service 'export const s = 1;' && at $domain \"import { s } from '../application/service/probe.ts';\" 'export const d = s;' && zone $domain"
+probe "a service imports the domain" green \
+	"at $domain 'export const d = 1;' && at $service \"import { d } from '../../domain/probe.ts';\" 'export const s = d;' && $lint $service"
+for form in static dynamic require; do
+	case "$form" in
+	static) fs="import { readFileSync } from 'node:fs'; export const f = readFileSync;" ;;
+	dynamic) fs="export async function f(): Promise<unknown> { return import('node:fs'); }" ;;
+	require) fs="declare const require: (id: string) => unknown; export const f = require('node:fs');" ;;
+	esac
+	probe "the core imports node:fs ($form)" red "at $domain \"$fs\" && zone $domain"
+	probe "the core imports the infrastructure ($form)" red \
+		"at $domain \"$(printf '%s' "$fs" | sed 's#node:fs#@pixecutive/infrastructure#')\" && zone $domain"
+	probe "the office UI imports the core ($form)" red \
+		"at apps/office-ui/src/probe.ts \"$(printf '%s' "$fs" | sed 's#node:fs#@pixecutive/core#')\" && zone apps/office-ui/src/probe.ts"
+	probe "the office UI imports node:fs ($form)" red "at apps/office-ui/src/probe.ts \"$fs\" && zone apps/office-ui/src/probe.ts"
+done
+probe "the core imports a framework package" red "at $domain \"import { z } from 'zod';\" 'export const n = z;' && zone $domain"
+probe "the infrastructure imports an app" red \
+	"at packages/infrastructure/src/probe.ts \"import { packageName } from '../../../apps/company-server/src/index.ts';\" 'export const n = packageName;' && zone packages/infrastructure/src/probe.ts"
+probe "the infrastructure imports the core" green \
+	"at packages/infrastructure/src/probe.ts \"import { packageName } from '@pixecutive/core';\" 'export const n = packageName;' && $lint packages/infrastructure/src/probe.ts"
+probe "the asset pipeline imports the infrastructure" green \
+	"at apps/asset-pipeline/src/probe.ts \"import { packageName } from '@pixecutive/infrastructure';\" 'export const n = packageName;' && $lint apps/asset-pipeline/src/probe.ts"
+probe "the company server uses node:child_process" green \
+	"at apps/company-server/src/probe.ts \"import { spawn } from 'node:child_process';\" 'export const n = spawn;' && $lint apps/company-server/src/probe.ts"
+probe "the office UI imports the protocol" green \
+	"at apps/office-ui/src/probe.ts \"import { packageName } from '@pixecutive/protocol';\" 'export const n = packageName;' && $lint apps/office-ui/src/probe.ts"
+
 probe_done
