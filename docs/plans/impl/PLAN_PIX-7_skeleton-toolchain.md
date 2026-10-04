@@ -22,6 +22,20 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
 - App names, sheet app-names of 2026-10-04 (maintainer: option A): `apps/company-server`, `apps/companion`,
   `apps/office-ui` instead of the names in ADR 0011; ADR 0020 supersedes ADR 0011 points 3 and 4 and the app names in
   ADR 0004 and 0012. The rename lands after step 3, before lint builds on the names.
+- Decided on the way, from review runs 1 and 2 (each traced to the ADR that settles it):
+  - Every mechanism covers `.ts`, `.tsx`, `.mts` and `.cts`; the office UI is a browser app and may use JSX.
+  - Inside the core, the domain may import the core exceptions, because a domain rule fails with a key (ADR 0011
+    point 7); the infrastructure may import the protocol, because an outgoing adapter to another part of Pixecutive
+    sends its messages. Both stand in ADR 0018 point 1, which therefore also supersedes the zone mechanism and the zone
+    directions of ADR 0011's Confirmation and Mechanics.
+  - Only JavaScript's built-in error classes are forbidden in a core `throw`; a core exception may end in `Error`.
+  - `check-tests` asks for a spec only where the syntax tree holds logic (a function, class, accessor, branch, loop,
+    `?:`, `&&`, `||` or `??`); types, constants, enums and re-exports need none, so no spec is written only for the
+    gate. Without a main ref to compare against it is red.
+  - The pre-commit copy rebuilds each package's `node_modules`: workspace links point into the copy, so the staged
+    state of another package is read; a link that points nowhere stops the commit and names `pnpm install`.
+  - The architecture guard judges the `src` folders, finds imports at a line start or after a semicolon, and rejects a
+    relative path that leaves its package.
 
 ## Acceptance
 

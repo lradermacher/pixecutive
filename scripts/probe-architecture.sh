@@ -72,8 +72,11 @@ probe "a relative path from the office UI into the core" red \
 probe "a relative path inside the core" green "write packages/core/src/application/service/s.ts \"import { value } from '../../domain.ts';\" | guard"
 probe "a string that reads like an import" green "write $core \"export const hint = 'go from \\\"lobby\\\" to the desk';\" | guard"
 
+probe "a second import on the same line" red "write $core \"import { value } from '../domain.ts'; import { readFileSync } from 'node:fs';\" | guard"
+
 echo
 echo "── outside its scope ───────────────────────────────────────────────────"
+probe "a package's own config beside src" green "write packages/core/vitest.config.ts \"import { defineConfig } from 'vitest/config';\" | guard"
 probe "tooling may use node:fs" green "write scripts/check-x.ts \"import { readFileSync } from 'node:fs';\" | guard"
 probe "the company server may use node:fs" green "write apps/company-server/src/main.ts \"import { readFileSync } from 'node:fs';\" | guard"
 probe "input that is no JSON" green "printf 'nonsense' | guard"

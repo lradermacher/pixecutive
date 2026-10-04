@@ -84,6 +84,7 @@ try {
 	// rebuilt in the copy: a link to another workspace package points into the copy, so the staged state of that package
 	// is read; every other entry points to its real target.
 	const realRoot = realpathSync(root);
+	const dangling: string[] = [];
 	for (const group of ['apps', 'packages']) {
 		if (!existsSync(join(root, group))) continue;
 		for (const unit of readdirSync(join(root, group))) {
@@ -93,14 +94,25 @@ try {
 				name.startsWith('@') ? readdirSync(join(modules, name)).map((inner) => `${name}/${inner}`) : [name],
 			);
 			for (const entry of entries) {
-				const target = realpathSync(join(modules, entry));
-				const inside = target.startsWith(`${realRoot}/apps/`) || target.startsWith(`${realRoot}/packages/`);
+				let target: string;
+				try {
+					target = realpathSync(join(modules, entry));
+				} catch {
+					dangling.push(`${group}/${unit}/node_modules/${entry} points nowhere — run pnpm install`);
+					continue;
+				}
+				// Only a workspace package itself is read from the copy; a folder inside node_modules, like .bin, is not.
+				const inside =
+					(target.startsWith(`${realRoot}/apps/`) || target.startsWith(`${realRoot}/packages/`)) &&
+					!target.includes('/node_modules/');
 				const link = join(copy, group, unit, 'node_modules', entry);
 				mkdirSync(dirname(link), { recursive: true });
 				symlinkSync(inside ? join(copy, target.slice(realRoot.length + 1)) : target, link);
 			}
 		}
 	}
+
+	report('Workspace links:', dangling);
 
 	const scanLines: ScanLine[] = [];
 	for (const path of staged) {

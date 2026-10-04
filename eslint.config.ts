@@ -26,7 +26,7 @@ const coreOnly = [
 	},
 	{
 		selector:
-			'ThrowStatement > NewExpression[callee.name=/Error$/], ThrowStatement > CallExpression[callee.name=/Error$/]',
+			'ThrowStatement > NewExpression[callee.name=/^(Aggregate|Eval|Range|Reference|Syntax|Type|URI)?Error$/], ThrowStatement > CallExpression[callee.name=/^(Aggregate|Eval|Range|Reference|Syntax|Type|URI)?Error$/]',
 		message: 'Throw a core exception with a key (core rule).',
 	},
 	{

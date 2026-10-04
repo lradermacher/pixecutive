@@ -11,6 +11,9 @@ probe_tree_init tests
 
 mkdir -p "$work/scripts" "$work/packages/core/src/domain" "$work/packages/core/src/port/outgoing"
 cp "$root/scripts/check-tests.ts" "$work/scripts/"
+# check-tests reads the syntax tree through TypeScript, so the throwaway repo borrows the real node_modules.
+ln -s "$root/node_modules" "$work/node_modules"
+printf '%s\n' 'node_modules' >"$work/.gitignore"
 printf '%s\n' 'export function desk(): number { return 1; }' >"$work/packages/core/src/domain/desk.ts"
 printf '%s\n' 'export const deskTest = 1;' >"$work/packages/core/src/domain/desk.spec.ts"
 git -C "$work" checkout -q -b main
@@ -42,6 +45,12 @@ probe "a port interface needs no spec" green \
 	"mkdir -p packages/core/src/port/outgoing && printf '%s\n' 'export interface IDesk { n: number; }' > packages/core/src/port/outgoing/desk.interface.ts && git add -A && $check --staged"
 probe "a port token needs no spec" green \
 	"mkdir -p packages/core/src/port/outgoing && printf '%s\n' 'export const DESK = Symbol();' > packages/core/src/port/outgoing/desk.token.ts && git add -A && $check --staged"
+probe "types written with arrows need no spec" green \
+	"printf '%s\n' 'export type F = (a: number) => number;' 'export interface E { move: (x: number) => void; }' 'export type Make = new () => object;' > packages/core/src/domain/types.ts && git add -A && $check --staged"
+probe "a word inside a string is no logic" green \
+	"printf '%s\n' \"export const s = 'a function in a string, if (x) return';\" > packages/core/src/domain/text.ts && git add -A && $check --staged"
+probe "a decision inside an expression is logic" red \
+	"printf '%s\n' 'export const pick = (a: number): number => (a > 1 ? a : 1);' > packages/core/src/domain/pick.ts && git add -A && $check --staged"
 probe "tooling is out of scope" green "printf '%s\n' 'export const t = 1;' > scripts/tool.ts && git add -A && $check --staged"
 
 echo

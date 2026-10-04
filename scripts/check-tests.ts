@@ -4,20 +4,47 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import ts from 'typescript';
 
 const unit = /^(packages|apps)\/[^/]+\/src\/.+\.(ts|tsx|mts|cts)$/;
 const specOf = (path: string): string => path.replace(/\.(ts|tsx|mts|cts)$/, '.spec.$1');
 // A spec, a port's interface, its token and a declaration file run no code of their own.
 const exempt = /\.(spec|interface|token|d)\.(ts|tsx|mts|cts)$/;
-// Logic is what a test can check: a function, a class, a branch or a loop. Types, constants, enums and re-exports
-// have none, and a spec written only to satisfy the gate would test nothing.
-const logic = /\bfunction\b|\bclass\b|=>|\bnew\s|\b(if|for|while|switch)\s*\(|\breturn\b/;
+// Logic is what a test can check: a function, a class, an accessor, a branch, a loop or a decision inside an
+// expression. Types, constants, enums and re-exports have none, and a spec written only to satisfy the gate would test
+// nothing. The syntax tree decides, so a type written with `=>` or a word inside a string is no logic.
+const logicKinds = new Set([
+	ts.SyntaxKind.FunctionDeclaration,
+	ts.SyntaxKind.FunctionExpression,
+	ts.SyntaxKind.ArrowFunction,
+	ts.SyntaxKind.MethodDeclaration,
+	ts.SyntaxKind.GetAccessor,
+	ts.SyntaxKind.SetAccessor,
+	ts.SyntaxKind.Constructor,
+	ts.SyntaxKind.ClassDeclaration,
+	ts.SyntaxKind.ClassExpression,
+	ts.SyntaxKind.IfStatement,
+	ts.SyntaxKind.ForStatement,
+	ts.SyntaxKind.ForOfStatement,
+	ts.SyntaxKind.ForInStatement,
+	ts.SyntaxKind.WhileStatement,
+	ts.SyntaxKind.DoStatement,
+	ts.SyntaxKind.SwitchStatement,
+	ts.SyntaxKind.ConditionalExpression,
+]);
+const logicOperators = new Set([
+	ts.SyntaxKind.AmpersandAmpersandToken,
+	ts.SyntaxKind.BarBarToken,
+	ts.SyntaxKind.QuestionQuestionToken,
+]);
 const hasLogic = (path: string): boolean => {
 	if (!existsSync(path)) return true;
-	const code = readFileSync(path, 'utf8')
-		.replace(/\/\*[\s\S]*?\*\//g, '')
-		.replace(/\/\/.*$/gm, '');
-	return logic.test(code);
+	const source = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true);
+	const visit = (node: ts.Node): boolean =>
+		logicKinds.has(node.kind) ||
+		(ts.isBinaryExpression(node) && logicOperators.has(node.operatorToken.kind)) ||
+		(ts.forEachChild(node, (child) => (visit(child) ? true : undefined)) ?? false);
+	return visit(source);
 };
 
 const git = (args: readonly string[]): string[] => {

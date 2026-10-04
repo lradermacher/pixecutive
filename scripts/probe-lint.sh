@@ -114,4 +114,7 @@ probe "the domain imports a core exception" green \
 probe "the infrastructure imports the protocol" green \
 	"at packages/infrastructure/src/probe.ts \"import { packageName } from '@pixecutive/protocol';\" 'export const n = packageName;' && zone packages/infrastructure/src/probe.ts"
 
+probe "a core exception of its own named …Error" green \
+	"at $service 'export class DeskNotFoundError extends Error {}' 'export function f(): never { throw new DeskNotFoundError(\"desk\"); }' && $lint $service"
+
 probe_done

@@ -4,15 +4,17 @@
 import { builtinModules } from 'node:module';
 import { basename, dirname, posix } from 'node:path';
 
-const core = /^packages\/core\//;
-const officeUi = /^apps\/office-ui\//;
+// The source folders are judged; a package's own config files beside src (vitest.config.ts) use its tools.
+const core = /^packages\/core\/src\//;
+const officeUi = /^apps\/office-ui\/src\//;
 const token = /^packages\/core\/src\/port\/outgoing\/(.+)\.token\.ts$/;
 const portInterface = /^packages\/core\/src\/port\/outgoing\/(.+)\.interface\.ts$/;
 const adapter = /^packages\/infrastructure\/src\/.*\/([^/]+)-[^/-]+\.adapter\.ts$/;
 const builtins = new Set(builtinModules);
 
 /**
- * Every module specifier the text names: static and type imports and re-exports at the start of a statement, and
+ * Every module specifier the text names: static and type imports and re-exports at the start of a line or after a
+ * semicolon, and
  * `import()` and `require()` anywhere, in single or double quotes or backticks without interpolation. Comments are
  * removed first, so an example in a doc comment raises no alarm; a `//` right after a colon or a quote is kept,
  * because it starts a URL inside a string.
@@ -21,8 +23,8 @@ function moduleSpecifiers(text: string): string[] {
 	const found: string[] = [];
 	const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 	const forms = [
-		/^\s*(?:import|export)\b[^'"`;]*?\bfrom\s*(['"`])([^'"`$]+)\1/gm,
-		/^\s*import\s*(['"`])([^'"`$]+)\1/gm,
+		/(?:^|;)\s*(?:import|export)\b[^'"`;]*?\bfrom\s*(['"`])([^'"`$]+)\1/gm,
+		/(?:^|;)\s*import\s*(['"`])([^'"`$]+)\1/gm,
 		/\bimport\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
 		/\brequire\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
 	];

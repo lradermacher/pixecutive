@@ -16,9 +16,18 @@ cp "$root/scripts/pre-commit.ts" "$work/scripts/"
 cp -R "$root/scripts/lib/guard" "$work/scripts/lib/"
 # A table with one gate that fails whenever `gate-input/` is touched, so the probe depends on no real gate.
 printf '%s\n' '---' 'schema: probe table' '---' '# trigger	command' \
-	'^gate-input/	bash scripts/failing-gate.sh' '^scripts/probe-listed\.sh$	bash scripts/probe-listed.sh' >"$work/.claude/data/precommit-checks.tsv"
+	'^gate-input/	bash scripts/failing-gate.sh' '^scripts/probe-listed\.sh$	bash scripts/probe-listed.sh' \
+	'^(packages|apps)/	bash scripts/read-linked.sh' >"$work/.claude/data/precommit-checks.tsv"
 printf '%s\n' '#!/usr/bin/env bash' 'echo "⛔ probe gate is red"; exit 1' >"$work/scripts/failing-gate.sh"
 echo "input" >"$work/gate-input/data.txt"
+# A workspace in miniature: apps/b reaches packages/a through a relative link in its node_modules, as pnpm builds it.
+mkdir -p "$work/packages/a" "$work/apps/b/node_modules/@x"
+echo "good" >"$work/packages/a/index.txt"
+echo "app" >"$work/apps/b/main.txt"
+ln -s ../../../../packages/a "$work/apps/b/node_modules/@x/a"
+printf '%s\n' 'node_modules' >"$work/.gitignore"
+printf '%s\n' '#!/usr/bin/env bash' 'grep -q good apps/b/node_modules/@x/a/index.txt || { echo "⛔ the linked package reads broken"; exit 1; }' \
+	>"$work/scripts/read-linked.sh"
 echo "start" >"$work/README.txt"
 probe_tree_commit
 git -C "$work" checkout -q -b feat/pix-1-probe
@@ -30,7 +39,7 @@ git -C "$work" config core.hooksPath .git/probe-hooks
 git -C "$work" config user.name probe
 git -C "$work" config user.email probe@example.com
 printf '%s\n' '{ "historyGuard": { "denylist": [{ "category": "codename", "pattern": "zebra-falcon" }] } }' >"$work/.probe-config.json"
-PROBE_CLEAN_EXCLUDES=(.probe-config.json)
+PROBE_CLEAN_EXCLUDES=(.probe-config.json apps/b/node_modules)
 probe_env() { export PIXECUTIVE_LOCAL_CONFIG="$work/.probe-config.json"; }
 probe_restore_extra() { git -C "$work" config user.email probe@example.com; }
 
@@ -172,4 +181,13 @@ probe "the first commit on an empty branch runs with the repo's tools" red \
 	"git checkout -q --orphan feat/pix-2-empty && echo 'key = $key' > a.txt && git add a.txt && $commit"
 
 echo
+echo
+echo "── Workspace links in the snapshot ─────────────────────────────────────"
+probe "a linked package is read as staged, not as on disk" green \
+	"echo 'good v2' > packages/a/index.txt && git add packages/a/index.txt && echo broken > packages/a/index.txt && $commit"
+probe "a broken linked package that is staged is caught" red \
+	"echo broken > packages/a/index.txt && git add packages/a/index.txt && echo good > packages/a/index.txt && $commit"
+probe "a link that points nowhere stops the commit and names pnpm install" green \
+	"ln -s ../../../../packages/gone apps/b/node_modules/@x/gone; echo 'app v2' > apps/b/main.txt && git add apps/b/main.txt; out=\$($commit 2>&1); rc=\$?; rm -f apps/b/node_modules/@x/gone; [ \$rc -ne 0 ] && grep -q 'pnpm install' <<<\"\$out\""
+
 probe_done
