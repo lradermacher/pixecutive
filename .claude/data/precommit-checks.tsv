@@ -43,3 +43,5 @@ generated: no
 ^(packages/|apps/|vitest\.config\.ts$|tsconfig\.base\.json$)	node_modules/.bin/vitest run
 ^(eslint\.config\.ts|scripts/probe-lint\.sh)$	bash scripts/probe-lint.sh
 ^(\.claude/hooks/architecture-guard\.ts|scripts/lib/architecture/|scripts/lib/hooks/|scripts/probe-architecture\.sh)	bash scripts/probe-architecture.sh
+^(packages|apps)/	node scripts/check-tests.ts --staged
+^(scripts/check-tests\.ts|scripts/probe-tests\.sh)$	bash scripts/probe-tests.sh
