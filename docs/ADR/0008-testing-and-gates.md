@@ -78,7 +78,7 @@ intermediate state.
    not the place. `[Config precommit-checks.tsv]`
 5. **Tests per layer.** Pure domain functions are tested directly. Use cases are tested with hand-written in-memory
    fakes that implement the port. Adapters have unit specs and integration specs; the integration specs are skipped
-   when no database URL is set. `[Planned PIX-7: Gate full verify with Vitest · Agent adversarial-review]`
+   when no database URL is set. `[Gate verify-full · Agent adversarial-review]`
 
 ### Consequences
 

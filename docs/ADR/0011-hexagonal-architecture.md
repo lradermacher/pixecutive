@@ -65,15 +65,15 @@ server and the client unchanged.
 1. **The core is framework-free.** `packages/core` (`@pixecutive/core`) holds `domain/<Context>/`,
    `application/service/`, `application/exception/` and `port/outgoing/`. It imports no framework, no
    `@pixecutive/infrastructure`, no app and no IO module.
-   `[Planned PIX-7: Lint · Planned PIX-7: Hook architecture-guard]`
+   `[Lint · Hook architecture-guard]`
 2. **Adapters live in their own package.** `packages/infrastructure` (`@pixecutive/infrastructure`) implements the
    outgoing ports. Persistence is a port like any other; no use case touches a database client.
-   `[Planned PIX-7: Hook architecture-guard]`
+   `[Hook architecture-guard]`
 3. **Apps are composition roots and driving adapters.** `apps/server` and `apps/client` wire ports to adapters and
    receive requests from HTTP, WebSocket or the command line. Wiring may use a dependency-injection container; where
-   one binds a port, a token file names it. `[Planned PIX-7: Lint]`
+   one binds a port, a token file names it. `[Lint]`
 4. **The browser UI stands outside the hexagon.** `apps/web` never imports the core. The wire contract between UI,
-   client and server lives in `packages/protocol` as zod schemas of the messages. `[Planned PIX-7: Lint]`
+   client and server lives in `packages/protocol` as zod schemas of the messages. `[Lint]`
 5. **Ports are domain-typed.** A port speaks in domain types only; no port is generic over a persistence record.
    Adapters map with `toDomain`, and no persistence record leaves the infrastructure package.
    `[Agent adversarial-review]`
@@ -87,7 +87,7 @@ server and the client unchanged.
    validates its configuration at start; a missing secret stops the start instead of falling back to a default.
    `[Agent adversarial-review]`
 9. **Names follow one scheme** (table below), so a file name tells its role and the guard can pair ports with their
-   tokens and adapters. `[Planned PIX-7: Hook architecture-guard]`
+   tokens and adapters. `[Hook architecture-guard]`
 10. **The first bounded contexts are Company, Office, Workforce, Work, Conversation, Runtime and Inbox.** A context
     folder is created when its first code arrives, and a domain model with its entity relationships is planned before
     any implementation. `[Prose]`, because a context boundary is a modelling judgment no check can make.

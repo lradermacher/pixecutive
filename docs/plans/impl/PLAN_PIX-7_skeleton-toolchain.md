@@ -134,5 +134,5 @@ tool-evaluation sheet, not a new decision.
 | 6 | `architecture-guard` with its probe, then wired | `bash scripts/probe-hooks.sh && node scripts/check-settings.ts` | 9afdddf |
 | 7 | `check-tests` with its probe, then registered | `bash scripts/probe-tests.sh && node scripts/check-carriers.ts --all` | f1f2001 |
 | 8 | Gates into `precommit-checks.tsv` and `verify-full` | `node scripts/verify-full.ts` | no own commit: each gate entered pre-commit with its step; verify-full stage 2 green and all 23 probes green on f1f2001 |
-| 9 | CI workflow with pinned actions and gitleaks | the workflow's own run on this card's pull request | open |
+| 9 | CI workflow with pinned actions and gitleaks | the workflow's own run on this card's pull request | 1dbaaf5 (its first run is on the pull request of this card) |
 | 10 | Every `Planned PIX-7` bracket names its mechanism | `node scripts/check-carriers.ts --all && grep -rn 'Planned PIX-7' .claude/rules docs/ADR` (empty) | open |

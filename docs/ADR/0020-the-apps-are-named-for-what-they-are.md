@@ -62,10 +62,10 @@ taking a word the domain needs.
 1. **Apps are composition roots and driving adapters.** `apps/company-server` (one company instance, hosted) and
    `apps/companion` (the process `npx pixecutive` starts on a person's machine) wire ports to adapters and receive
    requests from HTTP, WebSocket or the command line. Wiring may use a dependency-injection container; where one binds
-   a port, a token file names it. This restates ADR 0011 point 3 with the new names. `[Planned PIX-7: Lint]`
+   a port, a token file names it. This restates ADR 0011 point 3 with the new names. `[Lint]`
 2. **The browser UI stands outside the hexagon.** `apps/office-ui` never imports the core. The wire contract between
    the office UI, the companion and the company server lives in `packages/protocol` as zod schemas of the messages.
-   This restates ADR 0011 point 4 with the new names. `[Planned PIX-7: Lint]`
+   This restates ADR 0011 point 4 with the new names. `[Lint]`
 3. **Older ADRs keep their words; these names replace them.** Where ADR 0004, 0011 and 0012 say `apps/server`,
    `apps/client` or `apps/web`, the part is `apps/company-server`, `apps/companion` or `apps/office-ui`; product assets
    live under `apps/office-ui/assets/`. The published package stays `pixecutive`. `[Hook pre-commit]`

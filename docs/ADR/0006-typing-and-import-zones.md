@@ -66,24 +66,24 @@ state behind.
 1. **TypeScript `strict` plus `noUncheckedIndexedAccess`, `noImplicitOverride`, `noImplicitReturns`,
    `noUnusedLocals` and `noFallthroughCasesInSwitch`.** `[Config tsconfig.json]`
 2. **No `any`, explicit function return types, explicit module boundary types, no non-null assertion.**
-   `[Planned PIX-7: Lint]`
+   `[Lint]`
 3. **A set of values has one named place, never a string-literal union.** In compiled product code it is an `enum`. In
    hooks and gates, which Node runs directly, it is a frozen `as const` object with a type derived from it: Node's
    type stripping rejects `enum` (measured on Node 26.5: `ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX`, and the flag that once
    allowed it no longer exists). The tooling configuration sets `erasableSyntaxOnly`, so an `enum` there fails the
-   type check. `[Planned PIX-7: Lint · Config tsconfig.json]`
+   type check. `[Lint · Config tsconfig.json]`
 4. **No umlauts in identifiers**; identifiers consist of English words or allowed technical terms.
    `[Gate check-english · Hook quality-guard]`
 5. **One value export per file.** A file that intends to export several values carries a marker with the reason.
    `[Gate check-one-export · Hook quality-guard]`
-6. **Lint runs with `--max-warnings 0`.** There is no warning level; red is red. `[Planned PIX-7: Lint]`
+6. **Lint runs with `--max-warnings 0`.** There is no warning level; red is red. `[Lint]`
 7. **Size and complexity limits on new files:** `max-lines` 400, `max-lines-per-function` 120, `complexity` 12.
-   `[Planned PIX-7: Lint]`
+   `[Lint]`
 8. **Import zones hold the hexagon.** ESLint `no-restricted-imports` patterns forbid the core to import a
    framework, `@pixecutive/infrastructure`, an app or an IO module, and the browser UI to import the core. The
-   patterns also catch `import()` and `require()`, and the zones have a probe. `[Planned PIX-7: Lint import zones]`
+   patterns also catch `import()` and `require()`, and the zones have a probe. `[Lint import zones]`
 9. **An architecture guard runs on every write**: port pairs, no adapter import in the core, no IO module in the
-   core. It arrives with the first package. `[Planned PIX-7: Hook architecture-guard]`
+   core. It arrives with the first package. `[Hook architecture-guard]`
 
 The hexagon itself, its packages and its naming are decided in [ADR 0011](0011-hexagonal-architecture.md); this one
 decides how the code is checked against it.

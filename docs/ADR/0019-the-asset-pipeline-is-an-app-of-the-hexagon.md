@@ -60,15 +60,14 @@ Chosen: **A**, because only it keeps the asset model in one tested place that th
 
 1. **What an asset is lives in the core.** Kind, footprint in tiles, anchor, directions, animations, layers, color
    slots and texture variants are domain types in `packages/core`, with the use case that builds and validates an
-   asset set and the ports for rendering and storing it. `[Planned PIX-7: Lint import zones]`
+   asset set and the ports for rendering and storing it. `[Lint import zones]`
 2. **Only an adapter knows Blender.** The headless Blender call and its script live in `packages/infrastructure`
-   behind the core's rendering port; the core never starts a process. `[Planned PIX-7: Lint import zones · Planned
-   PIX-7: Hook architecture-guard]`
+   behind the core's rendering port; the core never starts a process. `[Lint import zones · Hook architecture-guard]`
 3. **The browser reads assets only through the manifest.** The manifest's shape is a schema in `packages/protocol`;
    it carries layers, color slots and texture variants as data, so a viewer can show any combination without the core
-   and without a new render. `[Planned PIX-7: Lint import zones]`
+   and without a new render. `[Lint import zones]`
 4. **`apps/asset-pipeline` is the composition root.** It is a workspace package like the other apps and stands under
-   the same import zones. `[Config pnpm-workspace.yaml · Planned PIX-7: Lint import zones]`
+   the same import zones. `[Config pnpm-workspace.yaml · Lint import zones]`
 
 ### Consequences
 

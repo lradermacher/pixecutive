@@ -59,10 +59,10 @@ Chosen: **A** (maintainer, tool-evaluation sheet F2), because only it forbids by
 1. **The parts of the hexagon are elements, and what is not allowed is forbidden.** `core-domain`, `core-port`,
    `core-exception`, `core-service` and `core-entry` inside `packages/core`; `infrastructure`; `protocol`; `office-ui`;
    and `hexagon-app` for `company-server`, `companion` and `asset-pipeline`. A policy per element names whom it may
-   import; every other dependency is an error. `[Planned PIX-7: Lint import zones]`
+   import; every other dependency is an error. `[Lint import zones]`
 2. **The core imports no package and no Node module; the office UI imports no Node module and neither the core nor
    an adapter.** Packages and Node modules are allowed only to the infrastructure and the apps; a spec file may import
-   the test runner. `[Planned PIX-7: Lint import zones]`
+   the test runner. `[Lint import zones]`
 3. **The resolver is eslint-import-resolver-typescript 4.4.5**, so package names resolve through the workspace links
    to the files they point at. `[Config eslint.config.ts]`
 4. **The probe proves each zone by the zone rule's own message,** for a static import, `import()` and `require()`; a

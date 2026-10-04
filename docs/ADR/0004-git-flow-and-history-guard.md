@@ -90,7 +90,7 @@ maintainer's local check keeps unreviewed work off the remote.
    session transcripts and later in CI logs; printing the match would publish what the guard just stopped.
    `[Hook pre-commit · Hook pre-push]`
 10. **The platform adds a second layer:** secret scanning with push protection (PIX-9), and CI on every pull request
-    including forks (PIX-7). `[Planned PIX-9: Config GitHub ruleset · Planned PIX-7: Gate CI]`
+    including forks (PIX-7). `[Planned PIX-9: Config GitHub ruleset · Config .github/workflows/ci.yml]`
 
 ### Consequences
 

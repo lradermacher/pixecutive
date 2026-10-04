@@ -84,7 +84,7 @@ Chosen: **A**, because the place decides whether a comment is justified better t
 8. **No end-of-line comments.** `[Gate check-comments]`
 9. **No comments in JSX.** A part that needs explaining gets a name of its own. `[Gate check-comments]`
 10. **Tests follow the same rules.** `[Gate check-comments]`
-11. **`eslint-disable` and `@ts-expect-error` carry their reason.** `[Gate check-comments · Planned PIX-7: Lint]`
+11. **`eslint-disable` and `@ts-expect-error` carry their reason.** `[Gate check-comments · Lint]`
 12. **A TODO needs a ticket; FIXME, HACK and XXX are forbidden.** `[Gate check-comments]`
 13. **A generated file says who generated it.** `[Gate check-comments · Gate check-generated]`
 

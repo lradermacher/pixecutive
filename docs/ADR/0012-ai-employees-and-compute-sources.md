@@ -80,7 +80,7 @@ work on the server.
    given access to. `[Prose]`, until the access rules exist as code with their tests.
 6. **One runtime port, one adapter per source.** The core defines a single runtime port; each provider CLI gets its
    own adapter, and the API gets one. The core never knows which provider or CLI runs a task.
-   `[Planned PIX-7: Hook architecture-guard · Planned PIX-7: Lint]`
+   `[Hook architecture-guard · Lint]`
 7. **The providers' terms are checked before any runtime work.** Whether a provider allows its CLI to be driven this
    way is checked and recorded as its own ADR before the first runtime card is built; that ADR is a prerequisite of
    the card's implementation plan. `[Hook require-ticket]`
