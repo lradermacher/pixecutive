@@ -27,7 +27,6 @@ const mergeAlways = [
 const branchMover = /(?<![\w/-])(?:merge|pull|cherry-pick|revert|rebase|am)(?![\w-])/.source;
 const movesTheBranch = [
 	new RegExp(`\\bgit\\b[^|;&]*${branchMover}(?![^|;&]*--(?:abort|continue|quit|skip))`),
-	/\bgit\b[^|;&]*(?<![\w/-])reset(?![\w-])[^|;&]*--hard/,
 	/\bgit\b[^|;&]*\bcommit\b[^|;&]*--amend/,
 	/\bgit\b[^|;&]*\bstash\b[^|;&]*\b(?:pop|apply)\b/,
 ];
@@ -45,9 +44,11 @@ const movesMain = [
 ];
 
 const untracked = /\bgit\b[^|;&]*\bclean\b[^|;&]*(?:-[A-Za-z]*f|--force)/;
-// One path may be restored; the sweep over everything changed may not.
+// One path may be restored; the sweep over everything changed may not, on any branch.
+// Taking files out of the index discards nothing.
 const discard = [
-	/\bgit\b[^|;&]*\brestore\b[^|;&]*\s(?:\.|:\/)(?=\s|$)/,
+	/\bgit\b[^|;&]*\brestore\b(?![^|;&]*(?:--staged|\s-S\b)(?![^|;&]*(?:--worktree|\s-W\b)))[^|;&]*\s(?:\.|:\/)(?=\s|$)/,
+	/\bgit\b[^|;&]*(?<![\w/-])reset(?![\w-])[^|;&]*--hard/,
 	/\bgit\b[^|;&]*\bcheckout\b[^|;&]*\s(?:--\s+)?(?:\.|:\/)(?=\s|$)/,
 	/\bgit\b[^|;&]*\bcheckout\b[^|;&]*\s-f(?![A-Za-z])/,
 	/\bgit\b[^|;&]*\bstash\b[^|;&]*\bclear\b/,
@@ -57,15 +58,19 @@ const discard = [
 const writers = ['tee', 'rm', 'mv', 'cp', 'touch', 'truncate', 'install', 'ln', 'chmod', 'mkdir', 'dd', 'cd', 'pushd'];
 const operators = `(?:[0-9]*&?>{1,2}\\|?|\\b(?:${writers.join('|')})\\b)`;
 const stateDir = /\.claude\/+(?:\.\/)*state(?![A-Za-z0-9_-])/.source;
+const interpreterWrites =
+	/\b(?:python3?|perl|ruby|node|awk)\b(?=[^\n|;&]*(?:writeFile|appendFile|createWriteStream|unlink|rmSync|rmdir|rename|mkdir|copyFile|truncate|write_text|write_bytes|open\s*\([^)]*["'][wax]|>))/
+		.source;
 const nearStateDir = /[^\n|;&]*[\s=][^\s;|&]*/.source + stateDir;
 const stateWrites = [
 	new RegExp(`${operators}${/[ \t]*(?:-{1,2}[^\s]+[ \t]+)*["']?[^\s"';|&]*/.source}${stateDir}`),
 	// Without the `.claude/` literal as well: `cd .claude && echo x > state/p.json`.
 	new RegExp(`${operators}${/[ \t]*(?:-{1,2}[^\s]+[ \t]+)*["']?state\/[A-Za-z0-9_.-]+\.json\b/.source}`),
-	new RegExp(/\b(?:python3?|perl|ruby|node|awk)\b[^\n|;&]*/.source + stateDir),
+	// An interpreter that only reads the state is allowed; it counts once its line writes, deletes or redirects.
+	new RegExp(`${interpreterWrites}[^\\n|;&]*${stateDir}`),
 	// Two-argument commands, flags with a value and `sed -i`: the same line counts as near enough.
 	new RegExp(/\b(?:cp|mv|install|ln|rsync|truncate|chmod|chown|dd|shred|tee|split)\b/.source + nearStateDir),
-	new RegExp(/\b(?:sed|perl)\b[^\n|;&]*/.source + stateDir),
+	new RegExp(/\b(?:sed|perl|ruby)\b[^\n|;&]*\s-[A-Za-z]*i/.source + /[^\n|;&]*/.source + stateDir),
 ];
 
 // `--help` holds per segment: a word of another command must never lift the rule for this one.

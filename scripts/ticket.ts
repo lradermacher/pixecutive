@@ -245,7 +245,7 @@ function check(): void {
 			`   File: ${path}`,
 			'   Way:  /code PIX-N reads the card, checks the plan and sets the package;',
 			'         the maintainer types /unblock <reason> for a 45-minute window.',
-			'   Free without a package: docs/, tests and every *.md.',
+			'   Free without a package: docs/, the README and *.spec.ts or *.test.ts files.',
 		);
 		process.exit(1);
 	}

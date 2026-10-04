@@ -12,6 +12,8 @@ probe_tree_init commit-msg
 mkdir -p "$work/.githooks" "$work/scripts"
 cp "$root/.githooks/commit-msg" "$work/.githooks/commit-msg"
 cp "$root/scripts/commit-msg.ts" "$work/scripts/"
+mkdir -p "$work/scripts/lib" && cp -R "$root/scripts/lib/guard" "$work/scripts/lib/"
+printf '%s\n' '{ "historyGuard": { "denylist": [{ "category": "codename", "pattern": "zebra-falcon" }] } }' >"$work/.probe-config.json"
 probe_tree_commit
 
 co='Co-Authored-By: Probe Model <probe@example.com>'
@@ -56,6 +58,14 @@ probe "a merge message with many lines passes" green \
 	"check_msg 'Merge branch feat/x' '' 'a' 'b' 'c' 'd' 'e'"
 probe "a fixup! with many lines passes" green \
 	"check_msg 'fixup! feat(x): one' '' 'a' 'b' 'c'"
+
+echo
+echo "── What the history guard forbids ──────────────────────────────────────"
+key="AKIA$(printf 'ABCDEFGHIJKLMNOP')"
+probe "a denylisted word in the message is rejected" red "PIXECUTIVE_LOCAL_CONFIG=$work/.probe-config.json check_msg 'feat(x): ship zebra-falcon' '' \"\$co\""
+probe "a key in the message is rejected" red "PIXECUTIVE_LOCAL_CONFIG=$work/.probe-config.json check_msg 'feat(x): one' '' \"key $key\" '' \"\$co\""
+probe "a merge message with a denylisted word is rejected too" red "PIXECUTIVE_LOCAL_CONFIG=$work/.probe-config.json check_msg 'Merge zebra-falcon'"
+probe "a clean message with the config passes" green "PIXECUTIVE_LOCAL_CONFIG=$work/.probe-config.json check_msg 'feat(x): one' '' \"\$co\""
 
 echo
 probe_done

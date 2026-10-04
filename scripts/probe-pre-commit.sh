@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # probe-pre-commit.sh — the pre-commit hook on real commits in a throwaway repo, red once and green once per case:
 # content, paths, identity, branch name, the gate table, and that the hook checks the commit, not the disk.
+# cspell:ignore ATA
 set -uo pipefail
 
 root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
@@ -47,6 +48,15 @@ probe "a key is rejected" red \
 	"echo 'key = $key' > a.txt && git add a.txt && $commit"
 probe "the report names file and line, never the key" green \
 	"echo 'key = $key' > a.txt && git add a.txt && ! out=\$($commit 2>&1) && ! grep -q '$key' <<<\"\$out\" && grep -q 'a.txt:1' <<<\"\$out\""
+openai="sk-$(printf 'a%.0s' $(seq 40))"
+atlassian="ATA""TT3xFfGF0$(printf 'b%.0s' $(seq 30))"
+credentials="postgres:/""/app:hunter22@db/x"
+scratch="/private/tmp/claude-501/-Us""ers-someone-Code-x/"
+probe "an OpenAI key is rejected" red "echo 'k = $openai' > a.txt && git add a.txt && $commit"
+probe "an Atlassian token is rejected" red "echo 't = $atlassian' > a.txt && git add a.txt && $commit"
+probe "a URL with a password is rejected" red "echo 'url = $credentials' > a.txt && git add a.txt && $commit"
+probe "a URL without a password passes" green "echo 'url = https://example.org/x' > a.txt && git add a.txt && $commit"
+probe "a scratchpad path with a user name is rejected" red "echo 'see $scratch' > a.txt && git add a.txt && $commit"
 probe "a plain-text password fallback is rejected" red \
 	"printf '%s\\n' \"const p = env.P ?? '$fallback';\" > a.ts && git add a.ts && $commit"
 probe "a home path is rejected" red \
@@ -60,6 +70,14 @@ probe "without a local config the commit passes and says so" green \
 probe "a local config in the repo root is applied" red \
 	"unset PIXECUTIVE_LOCAL_CONFIG && printf '%s\\n' '{\"historyGuard\":{\"denylist\":[{\"category\":\"series\",\"pattern\":\"next-episode-twist\"}]}}' > pixecutive.local.json &&
 	 echo 'Next-Episode-Twist' > a.txt && git add a.txt && $commit"
+probe "in a linked worktree the main checkout's config applies" red \
+	"unset PIXECUTIVE_LOCAL_CONFIG && printf '%s\\n' '{\"historyGuard\":{\"denylist\":[{\"category\":\"series\",\"pattern\":\"next-episode-twist\"}]}}' > pixecutive.local.json &&
+	 git config core.hooksPath \"\$PWD/.git/probe-hooks\" && wt=\"\$(mktemp -d)/wt\" && git worktree add -q -b feat/pix-6-tree \"\$wt\" &&
+	 (cd \"\$wt\" && echo 'Next-Episode-Twist' > a.txt && git add a.txt && $commit); rc=\$?; git worktree remove --force \"\$wt\"; git config core.hooksPath .git/probe-hooks; exit \$rc"
+probe "the same worktree commit with clean content passes" green \
+	"unset PIXECUTIVE_LOCAL_CONFIG && printf '%s\\n' '{\"historyGuard\":{\"denylist\":[{\"category\":\"series\",\"pattern\":\"next-episode-twist\"}]}}' > pixecutive.local.json &&
+	 git config core.hooksPath \"\$PWD/.git/probe-hooks\" && wt=\"\$(mktemp -d)/wt\" && git worktree add -q -b feat/pix-7-tree \"\$wt\" &&
+	 (cd \"\$wt\" && echo 'all fine' > a.txt && git add a.txt && $commit); rc=\$?; git worktree remove --force \"\$wt\"; git config core.hooksPath .git/probe-hooks; exit \$rc"
 probe "a local config that is not valid JSON stops the commit" red \
 	"echo '{ broken' > \"\$PIXECUTIVE_LOCAL_CONFIG.bad\" && export PIXECUTIVE_LOCAL_CONFIG=\"\$PIXECUTIVE_LOCAL_CONFIG.bad\" && echo ok > a.txt && git add a.txt && $commit"
 probe "a denylist entry without a pattern stops the commit" red \

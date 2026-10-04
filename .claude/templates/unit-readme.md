@@ -22,4 +22,9 @@ each with the place where the thing belongs instead.
 TEMPLATE for the README of every unit (a folder under apps/ or packages/ with its own package.json).
   - At most 40 lines including these headings. The four headings stand in exactly this order and wording.
   - The first sentence under `## Purpose` goes into the generated index.
+
+EXCLUDED, does not belong in a unit README:
+  ⛔ the house rules              → .claude/rules/, linked at most
+  ⛔ decisions and their reasons  → an ADR
+  ⛔ a file list or a changelog   → the code and git
 -->

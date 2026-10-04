@@ -85,7 +85,7 @@ Only the maintainer's yes opens the push window for it. `[Hook push-window]`
 
 ## The maintainer's merge is the acceptance
 The model never merges; merges are squash merges. After the merge the card goes to Done with evidence per
-acceptance line. `[Hook guard-done]`
+acceptance line. `[Hook guard-state · Hook guard-done]`
 
 ## A check is a claim until the diff covers it
 A ticked box without a matching change in the diff is a blocker. `[Agent adversarial-review · Hook guard-done]`

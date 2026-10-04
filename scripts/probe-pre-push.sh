@@ -61,6 +61,8 @@ probe "an oversized asset deleted again is still rejected" red \
 	 git rm -q apps/web/assets/big.png && $commit gone && $push"
 probe "a small PNG asset passes" green \
 	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.png && git add apps/web && $commit asset && $push"
+probe "a denylisted word in a commit message is rejected" red \
+	"echo new >> README.txt && git -c user.email=probe@example.com -c user.name=probe commit -q -a -m 'ship Zebra-Falcon' && $push"
 probe "a new branch without a remote counterpart is scanned too" red \
 	"git checkout -q -b feat/new && echo 'key = $key' >> README.txt && $commit secret &&
 	 printf 'refs/heads/feat/new %s refs/heads/feat/new $zero\n' \"\$(git rev-parse HEAD)\" | .githooks/pre-push"

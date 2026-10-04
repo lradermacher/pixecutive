@@ -23,9 +23,12 @@ const forcePush = [
 	/\bgit\b[^|;&]*\bpush\b[^|;&]*\s-\w*f\w*\b/,
 	/\bgit\b[^|;&]*\bpush\b[^|;&]*\s\+[A-Za-z0-9_./-]+:/,
 ];
-// Only setting `core.hooksPath` is a bypass; reading it is how the lock is understood.
+// Setting, unsetting or overriding `core.hooksPath` is a bypass; reading it is how the lock is understood.
 const bypass = [
 	/\bgit\b[^|;&]*\bpush\b[^|;&]*--no-verify/,
+	/\bgit\b[^|;&]*\bcommit\b[^|;&]*(?:--no-verify|\s-[A-Za-z]*n[A-Za-z]*\b)/,
+	/\bgit\b[^|;&]*\bconfig\b[^|;&]*--unset(?:-all)?\s+core\.hooksPath/,
+	/\bgit\b[^|;&]*\s-c\s+core\.hooksPath=/,
 	/\bgit\b[^|;&]*\bconfig\b(?![^|;&]*--(?:get|list))[^|;&]*core\.hooksPath[ \t]+(?![0-9]*[<>])\S/,
 ];
 // A shell anywhere in the same pipe runs the download; a language with a program of its own only formats it.

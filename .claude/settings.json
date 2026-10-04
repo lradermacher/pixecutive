@@ -45,7 +45,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/gate-before-pr.ts\""
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/gate-before-pr.ts\"",
+            "timeout": 900
           },
           {
             "type": "command",

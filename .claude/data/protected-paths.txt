@@ -4,12 +4,12 @@
 # adr: docs/ADR/0003-no-write-without-ticket.md
 # generated: no
 
-!*.md
+!docs/*
+!README.md
 !*.spec.ts
 !*.test.ts
-!*/test/*
-!*/__tests__/*
 
+CLAUDE.md
 apps/*
 packages/*
 scripts/*

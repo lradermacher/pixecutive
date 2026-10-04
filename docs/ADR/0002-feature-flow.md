@@ -89,7 +89,7 @@ diff can be held against.
    maintainer as a sheet; a third run needs the maintainer's yes. `[Agent adversarial-review · Hook
    gate-before-pr]`
 8. **The maintainer's merge is the acceptance.** The model never merges. After the merge the card goes to Done with
-   evidence per acceptance line as a comment. `[Hook guard-shell · Hook guard-done]`
+   evidence per acceptance line as a comment. `[Hook guard-state · Hook guard-done]`
 
 How a write is bound to the open card is decided in [ADR 0003](0003-no-write-without-ticket.md); branches, commits
 and the push in [ADR 0004](0004-git-flow-and-history-guard.md).

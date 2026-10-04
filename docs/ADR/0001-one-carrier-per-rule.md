@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-1_claude-setup.md
 | **Superseded by**   | —                                                                      |
 | **Analysis**        | —                                                                      |
 | **Implementation**  | [PLAN_PIX-1_claude-setup.md](../plans/impl/PLAN_PIX-1_claude-setup.md) |
-| **Cards**           | —                                                                      |
+| **Cards**           | PIX-1                                                                  |
 
 <!-- STATE:END -->
 

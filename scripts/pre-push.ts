@@ -46,6 +46,10 @@ for (const row of readFileSync(0, 'utf8').split('\n')) {
 		else if (line.startsWith('+++ ')) file = line.slice(6);
 		else if (line.startsWith('+') && !secretPatterns.skip.test(file)) lines.push({ location: `${commit} ${file}`, text: line.slice(1) });
 	}
+	for (const block of git(['log', '--format=%x00%h%n%B', ...range]).split('\0').filter(Boolean)) {
+		const [sha = '', ...message] = block.split('\n');
+		message.forEach((text, index) => lines.push({ location: `${sha} message:${index + 1}`, text }));
+	}
 	const paths = [...new Set(git(['log', '--format=', '--name-only', ...range]).split('\n').filter(Boolean))];
 	// Every blob a pushed commit adds counts, also one a later commit shrinks or deletes again.
 	const blobs = git(['log', '--raw', '--no-abbrev', '--no-renames', '--format=', ...range])

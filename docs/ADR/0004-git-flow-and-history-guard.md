@@ -73,7 +73,7 @@ maintainer's local check keeps unreviewed work off the remote.
    when its pull request is ready. `[Hook pre-push · Hook push-window]`
 4. **The maintainer checks the branch locally before the pull request opens.** Only the maintainer's yes opens the
    push window; a push from a Claude session without an open window is rejected. `[Skill push · Hook push-window]`
-5. **The model never merges; merges are squash merges.** `[Hook guard-shell · Planned PIX-9: Config GitHub ruleset]`
+5. **The model never merges; merges are squash merges.** `[Hook guard-state · Planned PIX-9: Config GitHub ruleset]`
 6. **A lock on `main`.** No commit on `main` and no push that moves `main`. The lock lives in git hooks installed
    into the shared `.git` directory through `core.hooksPath`, so every worktree has it; the install script fails
    loudly when it cannot install them. Setting `core.hooksPath` or passing `--no-verify` from a session is

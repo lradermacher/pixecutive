@@ -92,6 +92,9 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-4 `check-carriers` | Wired into pre-commit in step 8, its probe in step 6 | It is red until step 8 delivers the skills and agents that rules and ADRs already name |
 | PIX-5 planned mechanisms in ADRs | `Hook architecture-guard, PIX-7` and the like are written `Planned PIX-7: …`, the notation decided for rules, so guard-done holds the card | Sheet rule-mechanisms F2; same meaning, one notation |
 | Reference gate from the reference setup: direction of links between carriers | Not built | No ADR of this repo decides a direction; a gate enforces only what is decided |
+| PIX-4 "basis (12 rules), workflow, core, ops, each with `paths:`" | `basis` and `workflow` carry no `paths:`, and `basis` holds 13 rules | ADR 0001 point 4 decides both are always loaded, which is what no `paths:` means; the rule that nothing names the private repo came with ADR 0015, after the card |
+| PIX-3 `protected-paths.txt` | Free without a package are `docs/`, the root README and `*.spec.ts`/`*.test.ts`; every `.md` under `.claude/` and `CLAUDE.md` is protected | Independent review: the reference setup's `!*.md` let rules, skills and agents be written without a package, against ADR 0003 point 3 |
+| PIX-5 ADR 0010 point 7 | Superseded by ADR 0016: only skills that open a window of the maintainer carry `disable-model-invocation` | Sheet skills-and-lessons F1, 2026-10-04 |
 | PIX-7 German-identifier detector | Becomes an English-only check: identifiers must consist of English words or allowed technical terms | Maintainer's note on the plan approval, 2026-10-04 |
 
 ## Open design point
@@ -138,7 +141,7 @@ probe turns red and green. The status column is filled with the commit that clos
 | 5 | State machine `ticket.ts` and the safety hooks, `settings.json` with a gate that rejects `bypassPermissions` and allow rules outside the repo (ADR 0010), data files, probes and guard tests | each hook red and green on real hook input | b43bc5e |
 | 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | 7804df4 |
 | 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | 7804df4 |
-| 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | open |
+| 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | 6e01fd2 |
 | 9 | `MIN_CLI` measured; full verify; independent review in fresh context; checklist per file against the rules | review report and checklist sent to the maintainer as a sheet | open |
 | 10 | The maintainer checks the branch locally; only after the maintainer's yes is the branch pushed and the pull request opened | the maintainer's yes | open |
 

@@ -6,7 +6,7 @@ consulted: —
 informed: —
 kind: workflow
 supersedes: []
-superseded-by: null
+superseded-by: 16
 analysis: —
 implementation: docs/plans/impl/PLAN_PIX-1_claude-setup.md
 ---
@@ -22,7 +22,7 @@ implementation: docs/plans/impl/PLAN_PIX-1_claude-setup.md
 | **Kind**            | workflow                                                               |
 | **Decision-makers** | lradermacher                                                           |
 | **Supersedes**      | —                                                                      |
-| **Superseded by**   | —                                                                      |
+| **Superseded by**   | [0016](0016-which-skills-only-the-maintainer-starts.md)                |
 | **Analysis**        | —                                                                      |
 | **Implementation**  | [PLAN_PIX-1_claude-setup.md](../plans/impl/PLAN_PIX-1_claude-setup.md) |
 | **Cards**           | PIX-1                                                                  |
