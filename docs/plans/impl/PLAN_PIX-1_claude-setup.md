@@ -142,7 +142,7 @@ probe turns red and green. The status column is filled with the commit that clos
 | 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | 7804df4 |
 | 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | 7804df4 |
 | 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | 6e01fd2 |
-| 9 | `MIN_CLI` measured; full verify; independent review in fresh context; checklist per file against the rules | review report and checklist sent to the maintainer as a sheet | open |
+| 9 | `MIN_CLI` measured; full verify; independent review in fresh context; checklist per file against the rules | review report and checklist sent to the maintainer as a sheet | 1fbbf80, review runs 1–4 |
 | 10 | The maintainer checks the branch locally; only after the maintainer's yes is the branch pushed and the pull request opened | the maintainer's yes | open |
 
 ## Test plan
