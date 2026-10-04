@@ -1,0 +1,8 @@
+{
+  "views": ["front", "three-quarter", "side", "back"],
+  "prompt": "Character turnaround reference of the person in the image: four full-body views of the same person side by side in one row, from left to right front, three-quarter facing left, side facing left and back, all the same size and on the same baseline. The person stands in a relaxed A-pose with the arms held slightly away from the body and the feet apart, so the background shows between the arms and the body and between the legs. {features} Detailed isometric pixel art with a bold dark outline and warm soft shading. The entire background is one single flat, evenly filled, pure chroma-key green (#00B140), exactly the same green everywhere up to all four edges, with no floor and no shadow.",
+  "width": 1024,
+  "height": 512,
+  "seed": 11,
+  "keyColor": "#00B140"
+}

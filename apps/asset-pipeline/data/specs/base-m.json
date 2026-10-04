@@ -1,0 +1,43 @@
+{
+  "id": "base-m",
+  "baseImage": "renders/base-m-s11.png",
+  "features": [
+    {
+      "id": "base-m.body",
+      "description": "A young man with a big round head of about a third of his height and a slim body",
+      "promptSentence": "A young man with a big round head of about a third of his height, a little smaller than in the image, and a slim body.",
+      "check": "vision",
+      "source": "sheet pix57-plan F2; chat 2026-10-04: the male skull is too big"
+    },
+    {
+      "id": "base-m.eyes",
+      "description": "Dark oval eyes with a white glint, short brown brows and a small nose",
+      "promptSentence": "Dark oval eyes with a small white highlight, short brown eyebrows and a small nose.",
+      "check": "vision",
+      "source": "sheet pix57-plan F2; male base sketch approved 2026-10-04"
+    },
+    {
+      "id": "base-m.mouth",
+      "description": "A visible friendly smile with a hint of teeth",
+      "promptSentence": "A visible friendly smiling mouth with a hint of teeth.",
+      "check": "vision",
+      "source": "chat 2026-10-04: dot eyes and no mouth are not acceptable"
+    },
+    {
+      "id": "base-m.hair",
+      "description": "Short brown hair with a small quiff",
+      "promptSentence": "Short brown hair with a small quiff.",
+      "check": "vision",
+      "source": "male base sketch approved 2026-10-04"
+    },
+    {
+      "id": "base-m.clothes",
+      "description": "Neutral clothes: plain white t-shirt, grey trousers, grey shoes",
+      "promptSentence": "He wears a plain white t-shirt, simple grey trousers and plain grey shoes.",
+      "check": "vision",
+      "source": "chat 2026-10-04: the person first, clothes later"
+    }
+  ],
+  "joints": ["pelvis", "spine", "chest", "neck", "head", "shoulder", "elbow", "wrist", "hip", "knee", "ankle"],
+  "animations": ["idle", "walk", "talk", "sit", "type", "wave"]
+}

@@ -1,0 +1,34 @@
+{
+  "types": [
+    {
+      "id": "E01",
+      "description": "A sheet that asks for many separate interchangeable parts degrades the base face to dot eyes without a mouth (sheet-m render, 2026-10-04).",
+      "strip": [],
+      "forbid": ["interchangeable parts", "laid out separately"]
+    },
+    {
+      "id": "E02",
+      "description": "A light grey background comes out mottled and uneven, so the figure cannot be cut out cleanly (base sketches, 2026-10-04).",
+      "strip": ["plain light grey background", "light grey background"],
+      "forbid": []
+    },
+    {
+      "id": "E03",
+      "description": "The words studio and backdrop make the model paint a real photo studio with a paper roll instead of a flat background (known from earlier local renders).",
+      "strip": ["studio ", "backdrop "],
+      "forbid": ["photo studio"]
+    },
+    {
+      "id": "E04",
+      "description": "Angles and distances for the limbs, such as 30 degrees or a hand's width, make the model paint an extra arm (known from earlier local renders).",
+      "strip": [],
+      "forbid": ["degrees", "°", "a hand's width"]
+    },
+    {
+      "id": "E05",
+      "description": "A sentence that lights the scene lays a gradient and glow over the key-colored background (known from earlier local renders).",
+      "strip": [],
+      "forbid": ["lit by", "spotlight", "rim light"]
+    }
+  ]
+}

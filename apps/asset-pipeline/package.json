@@ -10,6 +10,7 @@
   "dependencies": {
     "@pixecutive/core": "workspace:*",
     "@pixecutive/infrastructure": "workspace:*",
-    "@pixecutive/protocol": "workspace:*"
+    "@pixecutive/protocol": "workspace:*",
+    "zod": "4.6.5"
   }
 }
