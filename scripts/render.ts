@@ -5,6 +5,7 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, write
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { judgeMemory } from './lib/render/judge-memory.ts';
+import { memoryAction } from './lib/render/memory-action.ts';
 import { logRow } from './lib/render/log-row.ts';
 import { readMemory } from './lib/render/read-memory.ts';
 
@@ -77,7 +78,7 @@ function run(): void {
 	if (existsSync(lockFile)) fail(`refused: a render is running (${readFileSync(lockFile, 'utf8').trim()})`);
 	const start = readMemory();
 	const entry = judgeMemory(false, start.pressure, 0);
-	if (entry.action !== 'go') fail(`refused: ${entry.reason}`);
+	if (entry.action !== memoryAction.go) fail(`refused: ${entry.reason}`);
 	const output = join(dir, `${name}-s${String(seed)}.png`);
 	const [binary = '', ...rest] = modelCommand(input, prompt, output, seed);
 	writeFileSync(lockFile, `${name}·s${String(seed)}`);
@@ -100,7 +101,7 @@ function run(): void {
 			peakPressure = Math.max(peakPressure, now.pressure);
 			swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
 			const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);
-			if (verdict.action === 'abort') {
+			if (verdict.action === memoryAction.abort) {
 				result = `ABORT: ${verdict.reason}`;
 				child.kill('SIGTERM');
 			}
