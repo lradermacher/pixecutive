@@ -30,6 +30,7 @@ lightx
 localdomain
 lradermacher
 makedirs
+mathutils
 mcp
 memorystatus
 mflux

@@ -4,8 +4,8 @@ import { MemoryAction } from './memoryAction.enum.ts';
 /** The kernel's memory pressure levels on macOS. */
 const pressureLevel = Object.freeze({ warning: 2, critical: 4 });
 
-/** Swap growth since the start of a render, in MB, at which the render is stopped. */
-const swapLimitMb = 8192;
+/** Swap growth since the start of a render, in MB, at which it is stopped; only a brake against runaway swapping, because loading the model swaps several GB even with RAM free. */
+const swapLimitMb = 16384;
 
 /**
  * Before the start a warning already refuses, because loading the model pushes the pressure further; while running

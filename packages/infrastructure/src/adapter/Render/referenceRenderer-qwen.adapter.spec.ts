@@ -63,11 +63,11 @@ describe('QwenReferenceRendererAdapter', () => {
 		const { renderer } = adapter(
 			[
 				{ pressure: 1, swapMb: 100 },
-				{ pressure: 1, swapMb: 9000 },
+				{ pressure: 1, swapMb: 17000 },
 			],
 			'2',
 		);
-		expect((await renderer.render('in.png', 'p', 11)).problem).toBe('ABORT: swap +8900 MB over the 8192 MB limit');
+		expect((await renderer.render('in.png', 'p', 11)).problem).toBe('ABORT: swap +16900 MB over the 16384 MB limit');
 	});
 
 	it('refuses a second render while one runs', async () => {
