@@ -79,6 +79,15 @@ try {
 	git(['-C', root, 'worktree', 'add', '-q', '--detach', '--no-checkout', copy, base]);
 	git(['-C', copy, 'read-tree', '-u', '--reset', tree]);
 	if (existsSync(join(root, 'node_modules'))) symlinkSync(join(root, 'node_modules'), join(copy, 'node_modules'));
+	// Workspace packages resolve each other through their own node_modules, which git does not carry.
+	for (const group of ['apps', 'packages']) {
+		if (!existsSync(join(root, group))) continue;
+		for (const unit of readdirSync(join(root, group))) {
+			const modules = join(root, group, unit, 'node_modules');
+			if (existsSync(modules) && existsSync(join(copy, group, unit)))
+				symlinkSync(modules, join(copy, group, unit, 'node_modules'));
+		}
+	}
 
 	const scanLines: ScanLine[] = [];
 	for (const path of staged) {

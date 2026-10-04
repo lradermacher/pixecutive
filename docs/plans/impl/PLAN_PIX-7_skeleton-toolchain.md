@@ -110,6 +110,12 @@ Every version is measured again on the day it is installed and pinned exactly.
   them now would be code without a user.
 - **GitHub branch protection and squash-only merges:** PIX-9.
 - **Coverage thresholds:** ADR 0008 decides tests per changed unit, not a percentage.
+- **Lint over the tooling code:** measured in step 4, 54 findings in 27 of 79 tooling files, most of them complexity in
+  the guards that nine review runs just checked; they are refactored with their probes in PIX-54, while the tooling
+  stays under `tsc --strict` and the comment, English and one-export gates.
+- **ESLint loads its TypeScript config through jiti 2.7.0:** ESLint 10.12 offers native loading only behind the flag
+  `unstable_native_nodejs_ts_config` (measured in `lib/shared/flags.js`); the gate chain does not rest on an unstable
+  flag.
 
 ## Open questions
 
