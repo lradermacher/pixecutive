@@ -1,6 +1,6 @@
-// clock.interface.ts — where the core gets the current time from.
+// clock.interface.ts — outgoing port for the current time.
 
-/** Gives the current time as an ISO 8601 string. */
+/** The current time; production wraps the wall clock, tests a fixed instant, so time-dependent logic stays testable. */
 export interface IClock {
-	nowIso(): string;
+	now(): Date;
 }

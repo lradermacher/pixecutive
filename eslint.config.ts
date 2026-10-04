@@ -86,6 +86,11 @@ const zones = [
 		message: 'The core imports no package: frameworks, IO and libraries belong to an adapter (core rule).',
 	},
 	{
+		// Zod is the core's one library: domain schemas validate data where it enters and give the domain its types.
+		from: { element: { types: { anyOf: core } } },
+		allow: { to: { module: { origin: 'external', source: 'zod' } } },
+	},
+	{
 		from: { element: { types: { anyOf: [...core, 'office-ui'] } } },
 		disallow: { to: { module: { origin: 'core' } } },
 		message: 'No Node module here: the core touches no IO, and the office UI runs in the browser.',

@@ -1,4 +1,4 @@
-// animation.ts — the animations a figure has, as the maintainer decided them (sheet pix57-plan, F3).
+// animation.enum.ts — the animations a figure has.
 
 /** An animation of a figure; each is rendered per direction into its own sprite sheet. */
 export enum Animation {

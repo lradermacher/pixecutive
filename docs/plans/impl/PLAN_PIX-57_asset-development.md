@@ -27,11 +27,11 @@ The first figure through the pipeline is the male base character.
 
 | Part | State | File |
 | --- | --- | --- |
-| Asset domain types: design line, reference template, character spec, error type, joint, animation, verdict | new | `packages/core/src/domain/asset/*.ts` |
-| Schemas that validate the data files | new | `packages/core/src/domain/asset/*.schema.ts` |
-| Prompt builder: template, spec and error types into one prompt | new | `packages/core/src/application/service/build-reference-prompt.ts` |
-| Reference loop: render, check, at most three retries, verdict | new | `packages/core/src/application/service/develop-reference.ts` |
-| Ports: reference renderer, vision checker, cutout, verdict log | new | `packages/core/src/port/outgoing/*.interface.ts` |
+| Asset domain: enums (view, feature check, joint, animation), Zod schemas with their types (character spec, reference template, design line, error types), verdict | new | `packages/core/src/domain/Asset/*.enum.ts`, `*.schema.ts`, `verdict.interface.ts` |
+| Prompt builder | new | `packages/core/src/application/service/referencePrompt.service.ts` |
+| Reference loop: render, check, at most three retries, verdict | new | `packages/core/src/application/service/referenceDevelopment.service.ts` |
+| Exception and keys | new | `packages/core/src/application/exception/asset.exception.ts`, `assetExceptionKey.enum.ts` |
+| Ports: clock, reference renderer, vision checker, verdict log | new | `packages/core/src/port/outgoing/*.interface.ts` |
 | Qwen renderer under the memory guard | extend (moves from `scripts/lib/render/`) | `packages/infrastructure/src/adapter/qwen/` |
 | Vision checker through the local Ollama model `qwen3-vl` | new | `packages/infrastructure/src/adapter/vision/` |
 | Chroma-key cutout as a headless Blender script | new | `packages/infrastructure/src/adapter/blender/cutout.py` and its runner |
@@ -103,6 +103,9 @@ These are the basis and core rules applied to this card:
 
 ## Changed on the way
 
+- The code follows the maintainer's hexagon naming pattern with Zod 4.6.5 in the core (sheet hexagon-pattern, ADR
+  0021); the hand-written parsers of step 1 were deleted with the maintainer's yes.
+
 - The maintainer fixed the asset layout (`<category>/<name>/animations…`) and kept `apps/office-ui/assets/` as the
   place (ADR 0020 stays); card and plan got the eleventh acceptance line the same day.
 
@@ -118,7 +121,7 @@ These are the basis and core rules applied to this card:
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Domain types, schemas, prompt builder, reference loop, ports | `pnpm test` in core | open |
+| 1 | Domain types, schemas, prompt builder, reference loop, ports | `pnpm test` in core | 73241cb, reworked to the pattern in the next commit |
 | 2 | Data files from the approved sheet | schema tests green | open |
 | 3 | Qwen, vision and cutout adapters with probes | the adapter probes | open |
 | 4 | App commands `reference`, `cutout`, `render` | `node apps/asset-pipeline/src/main.ts reference base-m` dry run | open |

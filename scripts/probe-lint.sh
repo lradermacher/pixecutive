@@ -86,7 +86,7 @@ for form in static dynamic require; do
 		"at apps/office-ui/src/probe.ts \"$(printf '%s' "$fs" | sed 's#node:fs#@pixecutive/core#')\" && zone apps/office-ui/src/probe.ts"
 	probe "the office UI imports node:fs ($form)" red "at apps/office-ui/src/probe.ts \"$fs\" && zone apps/office-ui/src/probe.ts"
 done
-probe "the core imports a framework package" red "at $domain \"import { z } from 'zod';\" 'export const n = z;' && zone $domain"
+probe "the core imports a framework package" red "at $domain \"import { it } from 'vitest';\" 'export const n = it;' && zone $domain"
 probe "the infrastructure imports an app" red \
 	"at packages/infrastructure/src/probe.ts \"import { packageName } from '../../../apps/company-server/src/index.ts';\" 'export const n = packageName;' && zone packages/infrastructure/src/probe.ts"
 probe "the infrastructure imports the core" green \
@@ -108,6 +108,8 @@ probe "a computed import() in the core" red "at $domain 'export const load = asy
 probe "throw new RangeError in the core" red "at $domain 'export function f(): never { throw new RangeError(\"x\"); }' && $lint $domain"
 probe "throw Error() without new in the core" red "at $domain 'export function f(): never { throw Error(\"x\"); }' && $lint $domain"
 probe "Date() without new in the core" red "at $domain 'export const d = (): string => Date();' && $lint $domain"
+probe "the core imports zod, its one library" green "at $domain \"import { z } from 'zod';\" 'export const s = z.string();' && zone $domain"
+probe "the core imports any other library" red "at $domain \"import { format } from 'prettier';\" 'export const f = format;' && zone $domain"
 probe "a union of template literals" red "at $domain 'export type K = \`a\` | \`b\`;' && $lint $domain"
 probe "the domain imports a core exception" green \
 	"at packages/core/src/application/exception/probe.ts 'export const key = 1;' && at $domain \"import { key } from '../application/exception/probe.ts';\" 'export const d = key;' && $lint $domain"

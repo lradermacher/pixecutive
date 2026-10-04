@@ -45,6 +45,12 @@ The wire contract between UI, client and server lives in `packages/protocol`. `[
 Touches the outside world (files, network, processes, databases, CLIs): an adapter. Decides without touching it: domain
 or application. Wires ports to adapters: the app. Crosses the wire: the protocol package. `[Agent adversarial-review]`
 
+## Files follow one hexagon naming pattern
+`domain/<Aggregate>/` in PascalCase holds camelCase files with a type suffix: `.interface.ts`, `.enum.ts`, `.schema.ts`.
+Services are `application/service/<name>.service.ts`, exceptions `<aggregate>.exception.ts` with
+`<aggregate>ExceptionKey.enum.ts`, adapters `adapter/<Area>/<port>-<impl>.adapter.ts`. Zod is the core's one library.
+`[Lint import zones · Agent adversarial-review]`
+
 ## A change carries its tests
 Unit tests in the touched package. Green on the type check is not a test.
 `[Gate check-tests · Agent adversarial-review]`

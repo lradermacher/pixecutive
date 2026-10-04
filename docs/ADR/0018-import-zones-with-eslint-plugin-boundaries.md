@@ -6,7 +6,7 @@ consulted: —
 informed: —
 kind: technology
 supersedes: [6, 11] # 6: point 8 only; 11: the zone mechanism in Confirmation and the zone directions in Mechanics; the rest of both stands
-superseded-by: null
+superseded-by: [21] # point 2 only, for the one package zod
 analysis: —
 implementation: docs/plans/impl/PLAN_PIX-7_skeleton-toolchain.md
 ---
@@ -22,7 +22,7 @@ implementation: docs/plans/impl/PLAN_PIX-7_skeleton-toolchain.md
 | **Kind**            | technology                                                                                                                                                                                               |
 | **Decision-makers** | lradermacher                                                                                                                                                                                             |
 | **Supersedes**      | [0006](0006-typing-and-import-zones.md) · [0011](0011-hexagonal-architecture.md) (6: point 8 only; 11: the zone mechanism in Confirmation and the zone directions in Mechanics; the rest of both stands) |
-| **Superseded by**   | —                                                                                                                                                                                                        |
+| **Superseded by**   | [0021](0021-zod-is-the-cores-one-library.md) (point 2 only, for the one package zod)                                                                                                                     |
 | **Analysis**        | —                                                                                                                                                                                                        |
 | **Implementation**  | [PLAN_PIX-7_skeleton-toolchain.md](../plans/impl/PLAN_PIX-7_skeleton-toolchain.md)                                                                                                                       |
 | **Cards**           | PIX-7                                                                                                                                                                                                    |

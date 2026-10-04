@@ -1,4 +1,4 @@
-// joint.ts — the joints of a figure's armature, as the maintainer decided them (sheet pix57-plan, F3).
+// joint.enum.ts — the joints of a figure's armature.
 
 /** A joint of the figure armature. Eyes and mouth are swapped as variants, not moved. */
 export enum Joint {
