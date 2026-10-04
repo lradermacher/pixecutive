@@ -27,16 +27,16 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
 
 Taken verbatim from the card.
 
-- [ ] The skeleton of ADR 0011 exists: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`, `apps/office-ui`, each a workspace package with `package.json`, `tsconfig`, an entry and one test
-- [ ] `packages/core` holds the folders of ADR 0011 point 1 (`domain/`, `application/service/`, `application/exception/`, `port/outgoing/`)
-- [ ] `apps/asset-pipeline` is a seventh workspace package, placed by a new ADR that makes the asset pipeline an app of the hexagon (asset model in the core, Blender adapter in infrastructure, manifest in protocol), under the same import zones
-- [ ] Root scripts `lint`, `format`, `format:check`, `typecheck`, `test`, each green on the skeleton
-- [ ] ESLint with no `any`, explicit return and boundary types, no non-null assertion, enum over string union, `--max-warnings 0`
-- [ ] Import zones for `@pixecutive/*` that also catch `import()` and `require()`: core imports no framework, no infrastructure, no app and no IO; `apps/office-ui` never imports the core; a planted forbidden import fails, with a probe
-- [ ] `architecture-guard` runs on every write and rejects a forbidden import before it is saved, with a probe
-- [ ] A gate that enforces a test per changed unit (Vitest `--changed` alone does not, measured), with a probe
-- [ ] CI runs secret scan, lint, typecheck and tests on every pull request, forks included
-- [ ] Every `Planned PIX-7` bracket in rules and ADRs names its built mechanism
+- [x] The skeleton of ADR 0011 exists: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`, `apps/office-ui`, each a workspace package with `package.json`, `tsconfig`, an entry and one test
+- [x] `packages/core` holds the folders of ADR 0011 point 1 (`domain/`, `application/service/`, `application/exception/`, `port/outgoing/`)
+- [x] `apps/asset-pipeline` is a seventh workspace package, placed by a new ADR that makes the asset pipeline an app of the hexagon (asset model in the core, Blender adapter in infrastructure, manifest in protocol), under the same import zones
+- [x] Root scripts `lint`, `format`, `format:check`, `typecheck`, `test`, each green on the skeleton
+- [x] ESLint with no `any`, explicit return and boundary types, no non-null assertion, enum over string union, `--max-warnings 0`
+- [x] Import zones for `@pixecutive/*` that also catch `import()` and `require()`: core imports no framework, no infrastructure, no app and no IO; `apps/office-ui` never imports the core; a planted forbidden import fails, with a probe
+- [x] `architecture-guard` runs on every write and rejects a forbidden import before it is saved, with a probe
+- [x] A gate that enforces a test per changed unit (Vitest `--changed` alone does not, measured), with a probe
+- [x] CI runs secret scan, lint, typecheck and tests on every pull request, forks included
+- [x] Every `Planned PIX-7` bracket in rules and ADRs names its built mechanism
 
 ## Versions, measured 2026-10-04 with `npm view` and the GitHub releases API
 
@@ -135,4 +135,4 @@ tool-evaluation sheet, not a new decision.
 | 7 | `check-tests` with its probe, then registered | `bash scripts/probe-tests.sh && node scripts/check-carriers.ts --all` | f1f2001 |
 | 8 | Gates into `precommit-checks.tsv` and `verify-full` | `node scripts/verify-full.ts` | no own commit: each gate entered pre-commit with its step; verify-full stage 2 green and all 23 probes green on f1f2001 |
 | 9 | CI workflow with pinned actions and gitleaks | the workflow's own run on this card's pull request | 1dbaaf5 (its first run is on the pull request of this card) |
-| 10 | Every `Planned PIX-7` bracket names its mechanism | `node scripts/check-carriers.ts --all && grep -rn 'Planned PIX-7' .claude/rules docs/ADR` (empty) | open |
+| 10 | Every `Planned PIX-7` bracket names its mechanism | `node scripts/check-carriers.ts --all && grep -rn 'Planned PIX-7' .claude/rules docs/ADR` (empty) | 7370e21 |
