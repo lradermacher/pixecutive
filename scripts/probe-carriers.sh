@@ -47,6 +47,10 @@ echo "── hooks ────────────────────�
 probe "a hook with its contract" green "$check hooks"
 probe "a hook without a contract" red "printf '%s\n' '// x.ts — probe' > .claude/hooks/x.ts && $check hooks"
 probe "a contract without its probe field" red "perl -ni -e 'print unless /^\\tprobe: /' .claude/hooks/agent-done.ts && $check hooks"
+probe "an empty matcher on a prompt event" green \
+	"cp .claude/hooks/agent-done.ts .claude/hooks/prompt.ts && perl -pi -e \"s/event: 'SubagentStop'/event: 'UserPromptSubmit'/; s/matcher: '\\\\*'/matcher: ''/\" .claude/hooks/prompt.ts && $check hooks"
+probe "an empty matcher on a tool event" red \
+	"perl -pi -e \"s/matcher: '\\\\*'/matcher: ''/\" .claude/hooks/agent-done.ts && $check hooks"
 probe "a contract naming a probe that does not exist" red "rm scripts/probe-hooks.sh && $check hooks"
 
 echo

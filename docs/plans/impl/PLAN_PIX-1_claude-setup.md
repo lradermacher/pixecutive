@@ -136,8 +136,8 @@ probe turns red and green. The status column is filled with the commit that clos
 | 3 | History guard rewritten under the rules: libraries in TypeScript, thin git hooks, install script, a branch-name check (`feat/pix-NNN-short`, ADR 0004), probes | all guard probes green; comment gate green on every guard file | 19cac9a |
 | 4 | Rule system: rule loader, `rule-context` hook, `check-rules`, `rules-for`, budget, probes | probe-rules red and green; rule budget measured | 6c73783 |
 | 5 | State machine `ticket.ts` and the safety hooks, `settings.json` with a gate that rejects `bypassPermissions` and allow rules outside the repo (ADR 0010), data files, probes and guard tests | each hook red and green on real hook input | b43bc5e |
-| 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | open |
-| 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | open |
+| 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | 7804df4 |
+| 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | 7804df4 |
 | 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | open |
 | 9 | `MIN_CLI` measured; full verify; independent review in fresh context; checklist per file against the rules | review report and checklist sent to the maintainer as a sheet | open |
 | 10 | The maintainer checks the branch locally; only after the maintainer's yes is the branch pushed and the pull request opened | the maintainer's yes | open |

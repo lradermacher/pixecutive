@@ -10,6 +10,7 @@ import { parseFrontmatter } from './lib/frontmatter.ts';
 const contractFields = ['rule', 'event', 'matcher', 'stdin', 'exit', 'probe'];
 const agentFields = ['name', 'description', 'tools', 'model'];
 const dataFields = ['schema', 'read-by', 'adr', 'generated'];
+const toolless = new Set(['UserPromptSubmit', 'SessionStart', 'SessionEnd', 'Stop']);
 
 const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const findings: string[] = [];
@@ -67,7 +68,12 @@ function hooks(): void {
 			fail(`${path}: no exported contract object (template .claude/templates/hook.ts)`);
 			continue;
 		}
-		for (const field of contractFields) if (!new RegExp(`^\\s*${field}: '[^']+'`, 'm').test(contract)) fail(`${path}: the contract lacks ${field}`);
+		for (const field of contractFields) if (!new RegExp(`^\\s*${field}: '[^']+'`, 'm').test(contract)) {
+			// Prompt and session events have no tool to match, so their matcher is the empty string.
+			const event = /event: '([^']+)'/.exec(contract)?.[1] ?? '';
+			if (field === 'matcher' && /matcher: ''/.test(contract) && toolless.has(event)) continue;
+			fail(`${path}: the contract lacks ${field}`);
+		}
 		const probe = /probe: '([^']+)'/.exec(contract)?.[1] ?? '';
 		if (probe !== '' && !existsSync(join(root, probe))) fail(`${path}: the contract names the probe ${probe}, which does not exist`);
 	}

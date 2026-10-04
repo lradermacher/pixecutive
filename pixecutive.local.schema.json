@@ -96,6 +96,64 @@
             "done"
           ],
           "additionalProperties": false
+        },
+        "statuses": {
+          "type": "object",
+          "description": "Status IDs by name, measured on the board.",
+          "properties": {
+            "backlog": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "toDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inProgress": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "inReview": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "done": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "wontDo": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "issueTypes": {
+          "type": "object",
+          "description": "Issue type IDs by name, measured on the project.",
+          "properties": {
+            "epic": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "story": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "task": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "bug": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "subtask": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "required": [

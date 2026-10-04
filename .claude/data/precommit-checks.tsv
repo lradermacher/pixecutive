@@ -38,3 +38,4 @@ generated: no
 ^(scripts/check-carriers\.ts|scripts/probe-carriers\.sh)$	bash scripts/probe-carriers.sh
 ^(scripts/check-memory\.ts|scripts/lib/memory/|scripts/lib/rules/|scripts/lib/frontmatter\.ts|scripts/lib/hooks/|\.claude/rules/|CLAUDE\.md$|\.claude/hooks/memory-guard\.ts|scripts/probe-memory\.sh)	bash scripts/probe-memory.sh
 ^(scripts/find-references\.ts|scripts/lib/references/|scripts/lib/comments/|scripts/lib/shell/command-lexer\.ts|scripts/lib/data-rows\.ts|scripts/probe-find-references\.sh)	bash scripts/probe-find-references.sh
+^(docs/ADR/|\.claude/(rules|hooks|skills|agents|data)/|scripts/check-carriers\.ts$|scripts/[^/]+\.(ts|sh)$|\.githooks/)	node scripts/check-carriers.ts
