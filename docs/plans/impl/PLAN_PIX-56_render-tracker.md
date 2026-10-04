@@ -24,7 +24,6 @@ because of a render.
 | Output folder and log | extend | `.gitignore` gets `renders/` |
 | Probe with a fake render command and a fake memory reader | new | `scripts/probe-render.sh` |
 | Series: open a card on the branch of an earlier closed card of the same series | extend | `scripts/ticket.ts`, its probe |
-| Unit tests for the guard decision and the log row | new | `scripts/lib/render/*.spec.ts` |
 
 ## Placement
 
@@ -47,8 +46,6 @@ directly.
 
 ## Test plan
 
-- Unit tests: the guard decision at levels 1, 2 and 4, at the swap limit and just below it; the log row for a
-  finished render and for an aborted one.
 - Probe `probe-render.sh` covers four cases:
   - a fake render command that finishes, which leaves an image and a log row
   - a fake memory reader at level 4, which leaves an abort row naming the reason
@@ -64,6 +61,8 @@ directly.
 
 ## Changed on the way
 
+- Scripts in this repo are tested by probes, not Vitest (Vitest covers packages and apps only); the unit-test
+  cases of the test plan run in `probe-render.sh`.
 - ticket.ts rejected PIX-56 on the PIX-7 branch although ADR 0002 allows a series; series support became step 0
   and the sixth acceptance line (card updated the same day).
 
@@ -76,9 +75,9 @@ directly.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 0 | ticket.ts series: probe red, then green; PIX-7 package closed, PIX-56 opened | `node scripts/ticket.ts show` names PIX-56 | open |
-| 1 | Guard decision and log row with unit tests | `npx vitest run scripts/lib/render` | open |
-| 2 | Memory reading and the render entry with `run` and `status` | `node scripts/render.ts status` | open |
-| 3 | Probe red, then green; `.gitignore` | `bash scripts/probe-render.sh` | open |
+| 0 | ticket.ts series: probe red, then green; PIX-7 package closed, PIX-56 opened | `node scripts/ticket.ts show` names PIX-56 | 4f38a80 |
+| 1 | Guard decision and log row | covered by the probe of step 3 | 4f38a80 → this commit |
+| 2 | Memory reading and the render entry with `run` and `status` | `node scripts/render.ts status` | this commit |
+| 3 | Probe red, then green; `.gitignore`; probe row in the pre-commit | `bash scripts/probe-render.sh` (8 cases) | this commit |
 | 4 | One real render of the female sketch under the guard | log row in `renders/renders.tsv` | open |
 | 5 | Full gate | `node scripts/verify-full.ts` | open |

@@ -27,3 +27,4 @@ graphify-out/
 .idea/
 .vscode/
 *.swp
+renders/
