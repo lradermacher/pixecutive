@@ -26,6 +26,7 @@ generated: no
 | Fork of the running session | `opus` | `fork` (Harness) | inherits the session |
 | Step of a workflow | `opus` | `workflow-subagent` (Harness) | inherits the session |
 | ⛔ Question about Claude Code itself | `haiku` | `claude-code-guide` (Harness · fixed) | pinned to haiku (CLI 2.1.288), so rejected: read the docs or use `research` |
+| Modeling an asset in Blender | `opus` | — | needs the blender-mcp viewport of the main session; fable agents ran out of tokens |
 | Visual design, layout, palette | `fable` | `design` | design belongs to fable |
 | Copy, caption, social text | `fable` | `design` | voice belongs to fable |
 
