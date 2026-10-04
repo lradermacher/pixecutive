@@ -28,3 +28,4 @@ graphify-out/
 .vscode/
 *.swp
 renders/
+apps/asset-pipeline/dist/

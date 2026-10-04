@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p tsconfig.json && tsc -p packages/core && tsc -p packages/infrastructure && tsc -p packages/protocol && tsc -p apps/company-server && tsc -p apps/companion && tsc -p apps/office-ui && tsc -p apps/asset-pipeline",
-    "test": "vitest run"
+    "test": "vitest run",
+    "assets": "vite build --ssr apps/asset-pipeline/src/main.ts --outDir apps/asset-pipeline/dist --emptyOutDir --logLevel warn && node apps/asset-pipeline/dist/main.js"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
@@ -29,6 +30,7 @@
     "prettier": "3.9.9",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.71.0",
+    "vite": "8.3.2",
     "vitest": "5.0.3"
   }
 }
