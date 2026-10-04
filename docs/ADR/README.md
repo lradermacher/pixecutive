@@ -33,7 +33,10 @@ This diagram stands here and only here. The state of a single ADR is shown by it
 because of its length.
 
 **An ADR is not changed, it is superseded.** A changed decision becomes a new ADR with `supersedes: [N]`; the old one
-gets `status: superseded` and `superseded-by: M`. Fixing typos and metadata is allowed.
+gets `status: superseded` and `superseded-by: M`. When the new ADR replaces only some points, the old one stays
+`accepted` and both sides carry the points as a comment: `supersedes: [N] # point 4 only; …` and
+`superseded-by: M # point 4 only; …`. The replaced points keep their text; `check-carriers` no longer measures their
+brackets. Fixing typos and metadata is allowed.
 
 **Rejected is required.** An ADR names what did not survive. An empty section means the old was carried over instead
 of judged.

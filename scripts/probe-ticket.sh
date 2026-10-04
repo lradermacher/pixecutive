@@ -113,6 +113,12 @@ probe "show skips the record of another card" green \
 probe "sweep removes a record whose commit is on no branch" green \
 	"$bug; $ticket review-done --sha 0123456789abcdef0123456789abcdef01234567 >/dev/null; $ticket sweep; [ ! -f .claude/state/review.probe.json ]"
 probe "sweep keeps a record whose commit is on the branch" green "$bug; $ticket review-done >/dev/null; $ticket sweep; [ -f .claude/state/review.probe.json ]"
+probe "sweep removes a stale file of a kind nothing writes" green \
+	"mkdir -p .claude/state && echo '{}' > .claude/state/gone.probe.json && touch -t 202001010000 .claude/state/gone.probe.json && $ticket sweep; [ ! -f .claude/state/gone.probe.json ]"
+probe "sweep keeps a fresh file of a kind nothing writes" green \
+	"mkdir -p .claude/state && echo '{}' > .claude/state/gone.probe.json && $ticket sweep; [ -f .claude/state/gone.probe.json ]"
+probe "sweep keeps the review tally" green \
+	"$bug; $ticket review-done >/dev/null; touch -t 202001010000 .claude/state/reviews.*.count; $ticket sweep; ls .claude/state/reviews.*.count >/dev/null"
 probe "no Jira access and no secret in the code" green \
 	"! grep -hvE '^[[:space:]]*(//|\\*)' scripts/ticket.ts scripts/lib/ticket/*.ts .claude/hooks/guard-*.ts | grep -niE 'atlassian\\.net|api[_-]?token|authorization|bearer |fetch\\('"
 

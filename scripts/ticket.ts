@@ -243,6 +243,8 @@ function sweep(): void {
 		const state = name.endsWith('.json') ? readState(path) : null;
 		const stale = statSync(path).mtimeMs < Date.now() - sweepHours * 3600 * 1000;
 		if (/^(ticket|unblock|push)\./.test(name) && (state === null ? stale : ageSeconds(state['openedAt']) >= sweepHours * 3600)) rmSync(path, { force: true });
+		// A file of a kind nothing writes any more is read by nothing; the review tally is the one file beside the store.
+		if (![...Object.values(stateKind), 'reviews'].some((kind) => name.startsWith(`${kind}.`)) && stale) rmSync(path, { force: true });
 		// A review record holds across sessions until its commit lies on no branch any more.
 		if (/^review\./.test(name) && (state === null || git(['branch', '--contains', String(state['sha'])]) === '')) rmSync(path, { force: true });
 	}

@@ -76,6 +76,18 @@ Chosen: **A**, because B stops the flow while adding no protection the hooks do 
 `probe-hooks` turns a forged push or unblock window red, `probe-commands` rejects running the window hooks by hand,
 and `check-skills` keeps every skill on its template.
 
+## Mechanics
+
+Who may start a skill, and what holds what a flow skill writes.
+
+```mermaid
+flowchart TD
+    S["Skill start"] --> W{"opens a window of the<br/>maintainer or lifts a guard?"}
+    W -->|yes| M["disable-model-invocation:<br/>only the maintainer starts it"]
+    W -->|no| F["the model may load it"]
+    F --> H["what it writes runs under the hooks:<br/>guard-inprogress, guard-done,<br/>guard-state, gate-before-pr"]
+```
+
 ## Rejected
 
 - **B — close every skill with an outside side effect.** The model could not load the flow skills, and the flow of

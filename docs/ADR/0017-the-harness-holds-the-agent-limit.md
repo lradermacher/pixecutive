@@ -76,7 +76,22 @@ Chosen: **A**, because only the harness sees which agent stopped and which start
 ### Confirmation
 
 `probe-hooks` turns `check-settings` red when the limit is missing or lifted, and shows that `agent-guard` passes three
-starts in a row with a correct family, so it no longer counts.
+starts in a row with a correct family, so it no longer counts. This replaces the counter parts of ADR 0009's
+Confirmation and Mechanics; its checks of the family stand.
+
+## Mechanics
+
+What is checked when an agent starts; it replaces the counter steps in the diagram of ADR 0009.
+
+```mermaid
+flowchart TD
+    S["Agent start"] --> G{"agent-guard:<br/>row, family, no Haiku?"}
+    G -->|no| X1["rejected by agent-guard"]
+    G -->|yes| H{"harness: two subagents<br/>already running?"}
+    H -->|yes| X2["rejected by the harness"]
+    H -->|no| OK["start"]
+    C["check-settings"] -.->|keeps the limit at 2| H
+```
 
 ## Rejected
 

@@ -262,8 +262,13 @@ function renderAfter() {
 }
 
 function updateCount() {
-  document.getElementById("count").textContent = ASKED.filter((i) => state[i.id] && state[i.id].choice).length;
+  // An own answer counts only with its text.
+  document.getElementById("count").textContent = ASKED.filter((i) => answered(state[i.id])).length;
   document.getElementById("total").textContent = ASKED.length;
+}
+
+function answered(s) {
+  return Boolean(s && s.choice && (s.choice !== OWN.key || (s.note || "").trim()));
 }
 
 function paint(id) {
@@ -297,8 +302,9 @@ function choose(id, choice) {
 
 function saveNote(id, note) {
   const cur = state[id] || {};
-  // A typed answer without a pick counts as an own answer.
-  state[id] = Object.assign({}, cur, { note, choice: cur.choice || (note.trim() ? OWN.key : "") });
+  // A typed answer without a pick counts as an own answer; an own answer emptied again is withdrawn.
+  const choice = cur.choice || OWN.key;
+  state[id] = Object.assign({}, cur, { note, choice: choice === OWN.key && !note.trim() ? "" : choice });
   paint(id);
   updateCount();
   write(id);

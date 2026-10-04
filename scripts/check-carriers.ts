@@ -45,8 +45,11 @@ function named(): void {
 		const replaced = new Set((/^superseded-by:\s*\d+\s*#\s*points?\s+([\d, and]+?)\s+only/m.exec(text)?.[1] ?? '').match(/\d+/g) ?? []);
 		for (const tag of text.matchAll(/`\[([^\]`]+)\]`/g)) {
 			const line = text.slice(0, tag.index).split('\n').length;
-			const point = [...text.slice(0, tag.index).matchAll(/^(\d+)\. \*\*/gm)].at(-1)?.[1] ?? '';
-			if (replaced.has(point)) continue;
+			// Only a bracket under `## Decision` itself, before its first subheading, belongs to a numbered point.
+			const before = text.slice(0, tag.index);
+			const heading = [...before.matchAll(/^#{2,} (.+)$/gm)].at(-1);
+			const points = heading?.[0]?.trim() === '## Decision' ? [...before.slice(heading.index).matchAll(/^(\d+)\. \*\*/gm)] : [];
+			if (replaced.has(points.at(-1)?.[1] ?? '')) continue;
 			for (const part of (tag[1] ?? '').replace(/\s+/g, ' ').split('·')) {
 				const match = /^(Hook|Gate|Skill|Agent|Data) (\S+)(.*)$/.exec(part.trim());
 				if (!match) continue;

@@ -1,6 +1,6 @@
 // check-docs.ts — the checks the ADR README and ADR 0001 decide for documents: ADR frontmatter, a Rejected section,
-// a mechanism on every decision point, and one class per document under docs/.
-// Usage: node scripts/check-docs.ts [adr | rejected | mechanism | classes | --all]; exit 2 on an unknown check.
+// a Mechanics section in every workflow ADR, a mechanism on every decision point, and one class per document under
+// docs/. Usage: node scripts/check-docs.ts [adr | rejected | mechanics | mechanism | classes | --all]; exit 2 on an unknown check.
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -56,6 +56,16 @@ function rejected(): void {
 	if (findings.length === before) console.log('✅ rejected: every accepted ADR names what was rejected');
 }
 
+function mechanics(): void {
+	const before = findings.length;
+	const workflow = records.filter((adr) => status(adr) === 'accepted' && parseFrontmatter(read(adr)).data['kind'] === 'workflow');
+	for (const path of workflow) {
+		const body = section(read(path), /^## Mechanics\s*$/)?.replace(/<!--[\s\S]*?-->/g, '').trim() ?? '';
+		if (body === '') fail(`${path}: a workflow ADR needs a Mechanics section (TEMPLATE.md)`);
+	}
+	if (findings.length === before) console.log(`✅ mechanics: ${workflow.length} workflow ADRs, each with its Mechanics`);
+}
+
 function mechanism(): void {
 	const before = findings.length;
 	let points = 0;
@@ -93,7 +103,7 @@ function classes(): void {
 	if (findings.length === before) console.log(`✅ classes: ${docs.length} documents under docs/, each canon or in exactly one class`);
 }
 
-const checks: Record<string, () => void> = { adr: recordFields, rejected, mechanism, classes };
+const checks: Record<string, () => void> = { adr: recordFields, rejected, mechanics, mechanism, classes };
 const wanted = process.argv[2] ?? '--all';
 if (wanted === '--all') for (const check of Object.values(checks)) check();
 else if (checks[wanted]) checks[wanted]();

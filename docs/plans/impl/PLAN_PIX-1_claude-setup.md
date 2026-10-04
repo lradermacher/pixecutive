@@ -86,7 +86,7 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-3 `ticket.sh` is the only writer of `.claude/state/` | `scripts/ticket.ts` writes through `scripts/lib/ticket/state-store.ts`; a hook that changes state calls `ticket.ts`, none imports the writer | ADR 0003 point 1, with hooks in TypeScript (F3) |
 | PIX-6 tracker IDs in the local config (step 8) | The `tracker.transitions` part comes forward into step 5 | The transition hooks of PIX-3 need the IDs, and they may come only from the local config |
 | PIX-3 hooks as shell scripts | `.claude/hooks/*.ts`; a blocking hook loads its library inside `try`, so its own failure is exit 2 | Exit 1 does not block in Claude Code; a guard that fails open is none |
-| PIX-3 `model-routing.md` values | Pinned agent models measured in CLI 2.1.288; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=2` in `settings.json` as a second limit behind `agent-guard` | Measured in the CLI binary, 2026-10-04 |
+| PIX-3 `model-routing.md` values | Pinned agent models measured in CLI 2.1.288; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=2` in `settings.json`, since ADR 0017 the only limit on the number of agents | Measured in the CLI binary, 2026-10-04 |
 | PIX-4 template `hook.ts` | The `contract` object is exported | A gate reads it from the text; an unused constant would fail the typecheck |
 | Pulled forward from PIX-7: gates "run on every write" | `.claude/hooks/quality-guard.ts` runs check-english, check-comments and check-one-export on every written file; it was missing from the step list and is built in step 6 | The acceptance lines demand the run on every write; check-carriers found the hook named but absent |
 | PIX-4 `check-carriers` | Wired into pre-commit in step 8, its probe in step 6 | It is red until step 8 delivers the skills and agents that rules and ADRs already name |
@@ -96,6 +96,7 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-3 `protected-paths.txt` | Free without a package are `docs/`, the root README and `*.spec.ts`/`*.test.ts`; every `.md` under `.claude/` and `CLAUDE.md` is protected | Independent review: the reference setup's `!*.md` let rules, skills and agents be written without a package, against ADR 0003 point 3 |
 | PIX-5 ADR 0010 point 7 | Superseded by ADR 0016: only skills that open a window of the maintainer carry `disable-model-invocation` | Sheet skills-and-lessons F1, 2026-10-04 |
 | PIX-3 hook `agent-done` and the agent counter of ADR 0009 point 4 | Removed; the harness limit `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=2` holds the number, `check-settings` requires it, `agent-guard` checks only the family (ADR 0017) | Measured 2026-10-04: `SubagentStop` does not name the stopped agent and a failed start is never counted down, so the counter blocked a real start; sheet tool-evaluation F8 |
+| PIX-5 "in both repos" and "Private ADRs for: …" | The private half is delivered outside this repo; its evidence (commit and file list) stands as a comment on PIX-5, not here | ADR 0015: nothing in this repo names or reads the private repo, so its diff cannot carry these lines |
 | PIX-7 German-identifier detector | Becomes an English-only check: identifiers must consist of English words or allowed technical terms | Maintainer's note on the plan approval, 2026-10-04 |
 
 ## Open design point

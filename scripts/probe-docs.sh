@@ -19,7 +19,7 @@ printf '%s\n' '# ADR' >"$work/docs/ADR/README.md"
 adr() {
 	printf '%s\n' '---' "status: ${1:-accepted}" 'date: 2026-01-01' 'decision-makers: probe' "kind: ${2:-workflow}" 'supersedes: []' \
 		'superseded-by: null' '---' '' '# ADR' '' '## Decision' '' '1. **A point.** It holds. `[Gate check-docs]`' \
-		'2. **Another point.** It holds too.' '   `[Prose: a judgment]`' '' '## Rejected' '' '- B, because.'
+		'2. **Another point.** It holds too.' '   `[Prose: a judgment]`' '' '## Mechanics' '' 'How it runs.' '' '## Rejected' '' '- B, because.'
 }
 adr >"$work/docs/ADR/0001-probe.md"
 printf '%s\n' '# Plan' >"$work/docs/plans/PLAN_X.md"
@@ -38,6 +38,11 @@ probe "an unknown kind" red "adr accepted business > docs/ADR/0001-probe.md && $
 probe "a missing field" red "adr | grep -v '^date:' > docs/ADR/0001-probe.md && $check adr"
 
 echo
+echo "── mechanics ───────────────────────────────────────────────────────────"
+probe "a workflow ADR without Mechanics" red "adr | perl -pe 's/^## Mechanics/## Gone/' > docs/ADR/0001-probe.md && $check mechanics"
+probe "a workflow ADR with an empty Mechanics" red "adr | perl -pe 's/^How it runs\.\$/<!-- nothing -->/' > docs/ADR/0001-probe.md && $check mechanics"
+probe "a technology ADR without Mechanics" green "adr accepted technology | perl -pe 's/^## Mechanics/## Gone/' > docs/ADR/0001-probe.md && $check mechanics"
+
 echo "── rejected ────────────────────────────────────────────────────────────"
 probe "an accepted ADR without the section" red "adr | perl -pe 's/^## Rejected/## Gone/' > docs/ADR/0001-probe.md && $check rejected"
 probe "an accepted ADR with an empty section" red "adr | perl -pe 's/^- B, because\\.\$/<!-- nothing -->/' > docs/ADR/0001-probe.md && $check rejected"
