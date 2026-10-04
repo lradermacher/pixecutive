@@ -216,7 +216,7 @@ function commitSkipsHooks(command: string): boolean {
 		}
 	}
 	// The script of `bash -c '…'` runs as a command of its own, so it is judged as one.
-	for (const script of command.matchAll(/\b(?:ba|z|da)?sh\s+-c\s+(["'])([\s\S]*?)\1/g)) {
+	for (const script of command.matchAll(/\b(?:ba|z|da)?sh\s+(?:-[A-Za-z]+\s+)*-[A-Za-z]*c[A-Za-z]*\s+(["'])([\s\S]*?)\1/g)) {
 		if (commitSkipsHooks(script[2] ?? '')) return true;
 	}
 	return false;

@@ -449,6 +449,15 @@ const cases: readonly Case[] = [
 	['review-3', "awk compares inside its quoted program", "awk -F: 'NR>1 {print}' .claude/state/log.txt", false],
 	['review-3', "awk prints into the state", "awk '{print > \".claude/state/x.json\"}' in.txt", true],
 	['review-3', "node redirects into the state", "node build.js > .claude/state/x.json", true],
+	['review-4', 'node writes the state through a named import', `node -e "const {writeFileSync}=require('fs');writeFileSync('.claude/state/x.json','{}')"`, true],
+	['review-4', 'an ES module writes the state through a named import', `node --input-type=module -e "import {writeFileSync} from 'node:fs';writeFileSync('.claude/state/x.json','{}')"`, true],
+	['review-4', 'pathlib writes the state through a variable', `python3 -c "from pathlib import Path;p=Path('.claude/state/x.json');p.write_text('{}')"`, true],
+	['review-4', 'node writes the state through promises', `node -e "require('fs').promises.writeFile('.claude/state/x.json','{}')"`, true],
+	['review-4', 'node reads the state with stderr discarded', `node -e "console.log(require('fs').readFileSync('.claude/state/ticket.json','utf8'))" 2>/dev/null`, false],
+	['review-4', 'python reads the state into head', `python3 -c "print(open('.claude/state/ticket.json').read())" 2>&1 | head`, false],
+	['review-4', 'awk reads the state into a temporary file', "awk 'NR==1' .claude/state/log.txt > /tmp/first.txt", false],
+	['review-4', 'commit past the guard inside bash -lc', 'bash -lc "git commit -n -m x"', true],
+	['review-4', 'a cluster starting with n', 'git commit -nm x', true],
 ];
 
 const branchCases: readonly BranchCase[] = [

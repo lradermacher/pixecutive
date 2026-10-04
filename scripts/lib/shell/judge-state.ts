@@ -68,21 +68,20 @@ const stateWrites = [
 	new RegExp(/\b(?:sed|perl|ruby)\b[^\n|;&]*\s-[A-Za-z]*i/.source + /[^\n|;&]*/.source + stateDir),
 ];
 
-// An interpreter that only reads the state is allowed. It counts once its own command calls a writing function of a
-// file module, opens a file for writing, or redirects outside quotes; a `;` inside its quoted script is no boundary.
+// An interpreter that only reads the state is allowed. It counts once its own command calls a writing function, by
+// name or through a file module, opens a file for writing, or prints into a file; `> .claude/state` is the operator
+// row's. A `;` inside its quoted script is no boundary.
 const fileModule = String.raw`(?:fs|os|shutil|pathlib|File|FileUtils|Path\([^)]*\)|require\(\s*['"](?:node:)?fs['"]\s*\)|__import__\(\s*['"](?:os|shutil)['"]\s*\))`;
+const writingName = String.raw`(?:writeFileSync|writeFile|appendFile\w*|createWriteStream|unlink\w*|rmSync|rmdir\w*|rmtree|cpSync|copyFile\w*|renameSync|mkdirSync|makedirs|write_text|write_bytes)`;
 const writingCall = new RegExp(
-	`${fileModule}\\.(?:writeFile|appendFile|createWriteStream|unlink|rm|rmdir|rmtree|remove|rename|replace|mkdir|makedirs|copy|cp|move|truncate|write_text|write_bytes|write|delete|symlink|chmod)\\w*\\s*\\(|open\\s*\\([^)]*["'][wax+]|\\bprint\\s*>{1,2}`,
+	`\\b${writingName}\\s*\\(|${fileModule}\\.(?:remove|replace|rename|copy|cp|move|truncate|write|delete|symlink|chmod)\\w*\\s*\\(|open\\s*\\([^)]*["'][wax+]|\\bprint\\s*>{1,2}`,
 );
 function interpreterWritesState(command: string): boolean {
-	const { quoted } = lexCommand(command);
 	for (const interpreter of command.matchAll(/\b(?:python3?|perl|ruby|node|awk)\b/g)) {
 		if (onlyMentioned(command, interpreter.index, interpreter.index + interpreter[0].length)) continue;
 		const [, end] = segmentBounds(command, interpreter.index);
 		const own = command.slice(interpreter.index, end);
-		if (!new RegExp(stateDir).test(own)) continue;
-		const redirects = [...own.matchAll(/>/g)].some((match) => !quoted[interpreter.index + match.index]);
-		if (writingCall.test(own) || redirects) return true;
+		if (new RegExp(stateDir).test(own) && writingCall.test(own)) return true;
 	}
 	return false;
 }
