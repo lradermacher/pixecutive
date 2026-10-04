@@ -59,7 +59,7 @@ const writers = ['tee', 'rm', 'mv', 'cp', 'touch', 'truncate', 'install', 'ln', 
 const operators = `(?:[0-9]*&?>{1,2}\\|?|\\b(?:${writers.join('|')})\\b)`;
 const stateDir = /\.claude\/+(?:\.\/)*state(?![A-Za-z0-9_-])/.source;
 const interpreterWrites =
-	/\b(?:python3?|perl|ruby|node|awk)\b(?=[^\n|;&]*(?:writeFile|appendFile|createWriteStream|unlink|rmSync|rmdir|rename|mkdir|copyFile|truncate|write_text|write_bytes|open\s*\([^)]*["'][wax]|>))/
+	/\b(?:python3?|perl|ruby|node|awk)\b(?=[^\n|&]*(?:writeFile|appendFile|createWriteStream|unlink|rmSync|rmdir|rmtree|remove|rename|replace|mkdir|copy|cpSync|move|truncate|write_text|write_bytes|File\.write|FileUtils|open\s*\([^)]*["'][wax]|>))/
 		.source;
 const nearStateDir = /[^\n|;&]*[\s=][^\s;|&]*/.source + stateDir;
 const stateWrites = [
@@ -67,7 +67,7 @@ const stateWrites = [
 	// Without the `.claude/` literal as well: `cd .claude && echo x > state/p.json`.
 	new RegExp(`${operators}${/[ \t]*(?:-{1,2}[^\s]+[ \t]+)*["']?state\/[A-Za-z0-9_.-]+\.json\b/.source}`),
 	// An interpreter that only reads the state is allowed; it counts once its line writes, deletes or redirects.
-	new RegExp(`${interpreterWrites}[^\\n|;&]*${stateDir}`),
+	new RegExp(`${interpreterWrites}[^\\n|&]*${stateDir}`),
 	// Two-argument commands, flags with a value and `sed -i`: the same line counts as near enough.
 	new RegExp(/\b(?:cp|mv|install|ln|rsync|truncate|chmod|chown|dd|shred|tee|split)\b/.source + nearStateDir),
 	new RegExp(/\b(?:sed|perl|ruby)\b[^\n|;&]*\s-[A-Za-z]*i/.source + /[^\n|;&]*/.source + stateDir),

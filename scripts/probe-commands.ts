@@ -419,6 +419,20 @@ const cases: readonly Case[] = [
 	['review', 'print the state with sed', 'sed -n 1p .claude/state/ticket.json', false],
 	['review', 'edit the state in place with sed', "sed -i 's/a/b/' .claude/state/ticket.json", true],
 	['review', 'node writes the state', `node -e "require('fs').writeFileSync('.claude/state/x','')"`, true],
+	['review-2', 'commit flag after a quoted message', 'git commit -m "feat: y" --no-verify', true],
+	['review-2', 'short flag after a quoted message', "git commit -am 'x' -n", true],
+	['review-2', 'commit flag after an add', "git add . && git commit -m 'x' --no-verify", true],
+	['review-2', 'commit past the guard in a substitution', 'echo x $(git commit -n -m y)', true],
+	['review-2', 'a heredoc message that names the flags', `git commit -m "$(cat <<'EOF'\nfix: reject git commit -n and --no-verify\n\nhandle the -nightly suffix\nEOF\n)"`, false],
+	['review-2', 'a quoted message that names the flag', "git commit -m 'docs: mention --no-verify'", false],
+	['review-2', 'a dry-run add of a path containing commit', 'git add scripts/commit-msg.ts -n', false],
+	['review-2', 'amend without editing', 'git commit --amend --no-edit', false],
+	['review-2', 'ruby writes the state', `ruby -e 'File.write(".claude/state/ticket.json","{}")'`, true],
+	['review-2', 'python removes the state', `python3 -c "__import__('os').remove('.claude/state/ticket.json')"`, true],
+	['review-2', 'python removes the state folder', `python3 -c "__import__('shutil').rmtree('.claude/state')"`, true],
+	['review-2', 'node removes the state behind a semicolon', `node -e "const fs=require('fs');fs.rmSync('.claude/state',{recursive:true})"`, true],
+	['review-2', 'node copies into the state', `node -e "require('fs').cpSync('x','.claude/state',{recursive:true})"`, true],
+	['review-2', 'node reads the state', `node -e "console.log(require('fs').readFileSync('.claude/state/ticket.json','utf8'))"`, false],
 ];
 
 const branchCases: readonly BranchCase[] = [

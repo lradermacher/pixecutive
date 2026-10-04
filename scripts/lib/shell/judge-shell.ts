@@ -1,7 +1,7 @@
 // judge-shell.ts — the verdict behind guard-shell: damage that cannot be undone, read from the full command text.
 // Recursive rm outside the repo, force push, hook bypass, download into a shell, volume and mirror deletes, `.env`.
 
-import { heredocOpener, hit, onlyMentioned, segmentBounds } from './command-lexer.ts';
+import { heredocOpener, hit, lexCommand, onlyMentioned, segmentBounds } from './command-lexer.ts';
 import { type ShellVerdict, shellVerdict } from './shell-verdicts.ts';
 
 const rmRecursive = /\brm\b(?:\s+-{1,2}[A-Za-z-]+)*\s+-{0,2}[A-Za-z]*[rR][A-Za-z]*\b[^|;&]*?/.source;
@@ -26,7 +26,6 @@ const forcePush = [
 // Setting, unsetting or overriding `core.hooksPath` is a bypass; reading it is how the lock is understood.
 const bypass = [
 	/\bgit\b[^|;&]*\bpush\b[^|;&]*--no-verify/,
-	/\bgit\b[^|;&]*\bcommit\b[^|;&]*(?:--no-verify|\s-[A-Za-z]*n[A-Za-z]*\b)/,
 	/\bgit\b[^|;&]*\bconfig\b[^|;&]*--unset(?:-all)?\s+core\.hooksPath/,
 	/\bgit\b[^|;&]*\s-c\s+core\.hooksPath=/,
 	/\bgit\b[^|;&]*\bconfig\b(?![^|;&]*--(?:get|list))[^|;&]*core\.hooksPath[ \t]+(?![0-9]*[<>])\S/,
@@ -181,13 +180,35 @@ function readsEnv(command: string): boolean {
 	return false;
 }
 
+// A commit flag counts as a word of its own on the level of its `commit`: the message may name it, quoted or in a
+// heredoc, while `$(git commit -n)` runs. `commit-msg.ts` is a path, not the subcommand.
+function commitSkipsHooks(command: string): boolean {
+	const { quoted, comment, heredoc, substitution } = lexCommand(command);
+	const bodies = heredocBodies(command);
+	const code = (index: number, level: boolean): boolean =>
+		substitution[index] === level &&
+		(level || !quoted[index]) &&
+		!comment[index] &&
+		!heredoc[index] &&
+		!bodies.some(([begin, end]) => begin < index && index < end);
+	for (const commit of command.matchAll(/(?<![\w./-])git\b[^|;&\n]*?(?<![\w./-])commit(?![\w./-])/g)) {
+		const level = substitution[commit.index] ?? false;
+		if (!code(commit.index, level)) continue;
+		const [, end] = segmentBounds(command, commit.index);
+		for (const flag of command.slice(commit.index, end).matchAll(/(?<=\s)(?:--no-verify|-[A-Za-z]*n[A-Za-z]*)(?=\s|$)/g)) {
+			if (code(commit.index + flag.index, level)) return true;
+		}
+	}
+	return false;
+}
+
 /** Returns the first verdict `command` earns, or null when nothing in it is irreversible. */
 export function judgeShell(command: string): ShellVerdict | null {
 	if (removesOutside(rmAbsolute, command)) return shellVerdict.rm;
 	if (removesOutside(rmVariable, command)) return shellVerdict.emptyVar;
 	if (anyHit(dataLoss, command)) return shellVerdict.dataLoss;
 	if (anyHit(forcePush, command)) return shellVerdict.forcePush;
-	if (anyHit(bypass, command)) return shellVerdict.bypass;
+	if (anyHit(bypass, command) || commitSkipsHooks(command)) return shellVerdict.bypass;
 	if (hit(pipeToShell, command)) return shellVerdict.pipeToShell;
 	if (anyHit(envWrites, command) || writesEnvByCall(command)) return shellVerdict.envWrite;
 	if (readsEnv(command)) return shellVerdict.envRead;

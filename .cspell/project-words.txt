@@ -36,8 +36,10 @@ Pixecutive
 pushd
 Radermacher
 refspec
+rmtree
 sed
 shellcheck
+shutil
 statusline
 subshell
 subshells

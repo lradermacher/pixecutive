@@ -31,14 +31,19 @@ function table(name: string, text: string): string {
 	const one = (key: string): string => values(data[key])[0] ?? '—';
 	const paths = (key: string): string => values(data[key]).map((path) => `[${path.split('/').pop()}](${path.replace(/^docs\//, '../')})`).join(' · ') || '—';
 	const number = name.slice(0, 4);
+	// A comment behind supersedes or superseded-by narrows it, e.g. to one point; the table carries it along.
+	const note = (key: string): string => {
+		const comment = new RegExp(`^${key}:[^\\n#]*#\\s*(.+)$`, 'm').exec(text.split('\n---')[0] ?? '')?.[1];
+		return comment ? ` (${comment.trim()})` : '';
+	};
 	const cards = [...new Set(plans.filter((plan) => new RegExp(`ADR ${number}(?!\\d)|ADR/${name}`).test(plan.text)).map((plan) => plan.card))];
 	const rows: Array<[string, string]> = [
 		['**Status**', one('status')],
 		['**Date**', one('date')],
 		['**Kind**', one('kind')],
 		['**Decision-makers**', one('decision-makers')],
-		['**Supersedes**', values(data['supersedes']).map(recordLink).join(' · ') || '—'],
-		['**Superseded by**', values(data['superseded-by']).map(recordLink).join(' · ') || '—'],
+		['**Supersedes**', (values(data['supersedes']).map(recordLink).join(' · ') || '—') + (values(data['supersedes']).length ? note('supersedes') : '')],
+		['**Superseded by**', (values(data['superseded-by']).map(recordLink).join(' · ') || '—') + (values(data['superseded-by']).length ? note('superseded-by') : '')],
 		['**Analysis**', paths('analysis')],
 		['**Implementation**', paths('implementation')],
 		['**Cards**', cards.sort((a, b) => Number(a.slice(4)) - Number(b.slice(4))).join(' · ') || '—'],

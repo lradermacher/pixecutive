@@ -50,6 +50,8 @@ probe "the frontmatter changed, the table not" red "perl -pi -e 's/^status: acce
 probe "a new plan names the ADR" red "printf '%s\n' 'ADR 0001.' > docs/plans/impl/PLAN_PIX-2_other.md && $state --check"
 probe "after regeneration" green "printf '%s\n' 'ADR 0001.' > docs/plans/impl/PLAN_PIX-2_other.md && $state >/dev/null && $state --check"
 probe "a plan naming ADR 00012 is no reference to 0001" green "printf '%s\n' 'ADR 00012.' > docs/plans/impl/PLAN_PIX-3_x.md && $state --check"
+probe "a note behind superseded-by reaches the table" green \
+	"perl -pi -e 's/^superseded-by: null\$/superseded-by: 2 # point 1 only/' docs/ADR/0001-probe.md && $state >/dev/null && grep -q '(point 1 only)' docs/ADR/0001-probe.md"
 probe "an ADR without a state block" red "printf '%s\n' '---' 'status: accepted' '---' > docs/ADR/0002-bare.md && $state --check"
 
 echo
