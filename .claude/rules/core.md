@@ -1,8 +1,8 @@
 ---
 paths:
   - "packages/*"
-  - "apps/server/**"
-  - "apps/client/**"
+  - "apps/company-server/**"
+  - "apps/companion/**"
   - "apps/asset-pipeline/**"
 adr: docs/ADR/0011-hexagonal-architecture.md
 summary: >

@@ -1,4 +1,4 @@
-# apps/web — the office in the browser
+# apps/office-ui — the office in the browser
 
 ## Purpose
 

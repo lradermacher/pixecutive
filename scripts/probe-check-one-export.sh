@@ -28,7 +28,7 @@ probe "type exports are free" green \
 probe "a spec file is out of scope" green \
 	"printf '%s\\n' 'export const first = 1;' 'export const second = 2;' > a.spec.ts && $check a.spec.ts"
 probe "the browser UI is out of scope" green \
-	"mkdir -p apps/web && printf '%s\\n' 'export const first = 1;' 'export const second = 2;' > apps/web/a.ts && $check apps/web/a.ts"
+	"mkdir -p apps/office-ui && printf '%s\\n' 'export const first = 1;' 'export const second = 2;' > apps/office-ui/a.ts && $check apps/office-ui/a.ts"
 probe "--staged rejects a staged file with two value exports" red \
 	"printf '%s\\n' 'export const first = 1;' 'export const second = 2;' > a.ts && git add a.ts && $check --staged"
 

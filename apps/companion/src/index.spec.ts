@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { packageName as dependencyName } from '@pixecutive/core';
 import { packageName } from './index.ts';
 
-describe('@pixecutive/server', () => {
+describe('@pixecutive/companion', () => {
 	it('exposes its workspace name through its entry', () => {
-		expect(packageName).toBe('@pixecutive/server');
+		expect(packageName).toBe('@pixecutive/companion');
 	});
 
 	it('resolves its workspace dependency @pixecutive/core', () => {

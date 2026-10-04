@@ -7,7 +7,7 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
 
 ## Decisions this plan builds on
 
-- ADR 0011: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/server`, `apps/client`, `apps/web`;
+- ADR 0011: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`, `apps/office-ui`;
   the core holds `domain/`, `application/service/`, `application/exception/`, `port/outgoing/`.
 - ADR 0006 (typing and import zones), ADR 0007 (tooling), ADR 0008 (testing and gates).
 - Tool-evaluation sheet of 2026-10-04: F1 ESLint on TypeScript 6 beside TypeScript 7, F2 eslint-plugin-boundaries,
@@ -17,19 +17,22 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
 - Placement of the asset pipeline by the core rule's criteria: what an asset is (kind, footprint in tiles, anchor,
   directions, animations, layers, color slots) decides without touching the outside, so it is domain in the core;
   driving Blender touches the outside, so it is an adapter in infrastructure; the manifest crosses to the browser, so
-  it is protocol; the command wires them, so it is an app. ADR 0011 names the apps `server`, `client` and `web`; a new
-  ADR 0019 adds `asset-pipeline` without replacing anything.
+  it is protocol; the command wires them, so it is an app. A new ADR 0019 adds `asset-pipeline` without replacing
+  anything.
+- App names, sheet app-names of 2026-10-04 (maintainer: option A): `apps/company-server`, `apps/companion`,
+  `apps/office-ui` instead of the names in ADR 0011; ADR 0020 supersedes ADR 0011 points 3 and 4 and the app names in
+  ADR 0004 and 0012. The rename lands after step 3, before lint builds on the names.
 
 ## Acceptance
 
 Taken verbatim from the card.
 
-- [ ] The skeleton of ADR 0011 exists: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/server`, `apps/client`, `apps/web`, each a workspace package with `package.json`, `tsconfig`, an entry and one test
+- [ ] The skeleton of ADR 0011 exists: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`, `apps/office-ui`, each a workspace package with `package.json`, `tsconfig`, an entry and one test
 - [ ] `packages/core` holds the folders of ADR 0011 point 1 (`domain/`, `application/service/`, `application/exception/`, `port/outgoing/`)
 - [ ] `apps/asset-pipeline` is a seventh workspace package, placed by a new ADR that makes the asset pipeline an app of the hexagon (asset model in the core, Blender adapter in infrastructure, manifest in protocol), under the same import zones
 - [ ] Root scripts `lint`, `format`, `format:check`, `typecheck`, `test`, each green on the skeleton
 - [ ] ESLint with no `any`, explicit return and boundary types, no non-null assertion, enum over string union, `--max-warnings 0`
-- [ ] Import zones for `@pixecutive/*` that also catch `import()` and `require()`: core imports no framework, no infrastructure, no app and no IO; `apps/web` never imports the core; a planted forbidden import fails, with a probe
+- [ ] Import zones for `@pixecutive/*` that also catch `import()` and `require()`: core imports no framework, no infrastructure, no app and no IO; `apps/office-ui` never imports the core; a planted forbidden import fails, with a probe
 - [ ] `architecture-guard` runs on every write and rejects a forbidden import before it is saved, with a probe
 - [ ] A gate that enforces a test per changed unit (Vitest `--changed` alone does not, measured), with a probe
 - [ ] CI runs secret scan, lint, typecheck and tests on every pull request, forks included
@@ -51,7 +54,7 @@ Taken verbatim from the card.
 | eslint-config-prettier | 10.1.8 | |
 | vitest, @vitest/coverage-v8 | 5.0.3 | |
 | zod | 4.6.5 | `packages/protocol` |
-| tsdown | 0.23.0 | `apps/client` build, wired with the first client story |
+| tsdown | 0.23.0 | `apps/companion` build, wired with the first client story |
 | gitleaks | v8.30.1 | pinned binary with checksum in CI |
 | actions/checkout, pnpm/action-setup, actions/setup-node | v7.0.1, v6.1.0, v7.0.0 | pinned by commit SHA |
 
@@ -81,7 +84,7 @@ Every version is measured again on the day it is installed and pinned exactly.
 ## Placement
 
 - Packages: by ADR 0011 point 1 to 4 and, for `apps/asset-pipeline`, ADR 0019 (the core decides, infrastructure touches the outside, protocol crosses the
-  wire, apps wire and drive; `apps/web` stands outside the hexagon).
+  wire, apps wire and drive; `apps/office-ui` stands outside the hexagon).
 - Lint, format and test configuration: the workspace root, because one configuration holds every package.
 - `architecture-guard`: a hook, because it must reject a forbidden import before the file is saved (ADR 0006 point 9).
 - `check-tests`: a gate in `scripts/`, registered in `precommit-checks.tsv` like every other gate (ADR 0008).
@@ -93,7 +96,7 @@ Every version is measured again on the day it is installed and pinned exactly.
   union, `new Date()` and `throw new Error` in the core, and an `eslint-disable` without reason: each red, the clean
   skeleton green.
 - Import zones: a probe plants core → infrastructure, core → `node:fs`, core → a framework, core → an app,
-  `apps/web` → core, core → `node:child_process` (what a Blender call needs), each as static `import`, `import()`
+  `apps/office-ui` → core, core → `node:child_process` (what a Blender call needs), each as static `import`, `import()`
   and `require()`: each red; infrastructure → core and `apps/asset-pipeline` → infrastructure green.
 - `architecture-guard`: a probe feeds a PreToolUse write of a forbidden import (red) and of an allowed one (green).
 - `check-tests`: a probe changes a source file without its spec (red), with its spec (green), and a spec only (green).
@@ -119,7 +122,7 @@ tool-evaluation sheet, not a new decision.
 | --- | --- | --- | --- |
 | 1 | Skeleton: seven packages (ADR 0011, and `apps/asset-pipeline` with ADR 0019) with `package.json`, `tsconfig` from `tsconfig.base.json`, `src/index.ts`, the core folders, workspace links | `pnpm install && pnpm typecheck` | 60abcbd |
 | 2 | Vitest projects and one spec per package; root `test` | `pnpm test` | 9fade8c |
-| 3 | Prettier and `.editorconfig`; root `format`, `format:check` | `pnpm format:check` | open |
+| 3 | Prettier and `.editorconfig`; root `format`, `format:check` | `pnpm format:check` | d465d35 |
 | 4 | ESLint flat config with the rules of ADR 0005, 0006 and the core rule, lint on TypeScript 6; its probe | `bash scripts/probe-lint.sh && pnpm lint` | open |
 | 5 | Import zones with eslint-plugin-boundaries; ADR 0018; their probe | `bash scripts/probe-lint.sh && node scripts/check-docs.ts --all` | open |
 | 6 | `architecture-guard` with its probe, then wired | `bash scripts/probe-hooks.sh && node scripts/check-settings.ts` | open |

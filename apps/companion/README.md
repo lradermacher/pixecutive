@@ -1,4 +1,4 @@
-# apps/client — the local client a person starts with npx
+# apps/companion — the process a person starts with npx on their machine
 
 ## Purpose
 
@@ -11,7 +11,7 @@ Runs on a person's machine: it serves the browser UI, connects to the company se
 ## Never here
 
 ⛔ Domain rules: the core.
-⛔ Drawing the office: `apps/web`.
+⛔ Drawing the office: `apps/office-ui`.
 ⛔ Reading or storing a subscription login: only the provider's CLI touches it.
 
 ## Entry point

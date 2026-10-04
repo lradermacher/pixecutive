@@ -194,7 +194,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/protocol
 
-  apps/client:
+  apps/companion:
     dependencies:
       '@pixecutive/core':
         specifier: workspace:*
@@ -206,7 +206,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/protocol
 
-  apps/server:
+  apps/company-server:
     dependencies:
       '@pixecutive/core':
         specifier: workspace:*
@@ -218,7 +218,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/protocol
 
-  apps/web:
+  apps/office-ui:
     dependencies:
       '@pixecutive/protocol':
         specifier: workspace:*

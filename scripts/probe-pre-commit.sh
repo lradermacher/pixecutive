@@ -107,12 +107,12 @@ echo
 echo "── Images ──────────────────────────────────────────────────────────────"
 probe "a screenshot is rejected" red \
 	"printf 'x' > shot.png && git add shot.png && $commit"
-probe "a PNG asset under apps/web/assets passes" green \
-	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.png && git add apps/web && $commit"
+probe "a PNG asset under apps/office-ui/assets passes" green \
+	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit"
 probe "a JPEG asset is rejected" red \
-	"mkdir -p apps/web/assets && printf 'x' > apps/web/assets/desk.jpg && git add apps/web && $commit"
+	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.jpg && git add apps/office-ui && $commit"
 probe "an asset above 256 KB is rejected" red \
-	"mkdir -p apps/web/assets && head -c 300000 /dev/zero > apps/web/assets/desk.png && git add apps/web && $commit"
+	"mkdir -p apps/office-ui/assets && head -c 300000 /dev/zero > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit"
 
 echo
 echo "── Identity ────────────────────────────────────────────────────────────"

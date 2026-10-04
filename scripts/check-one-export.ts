@@ -9,7 +9,10 @@ const aggregateMarker = /@aggregate\s+[A-Za-z]/;
 
 const files = filesToCheck(process.argv.slice(2)).filter(
 	(path) =>
-		path.endsWith('.ts') && !path.endsWith('.d.ts') && !path.endsWith('.spec.ts') && !path.startsWith('apps/web/'),
+		path.endsWith('.ts') &&
+		!path.endsWith('.d.ts') &&
+		!path.endsWith('.spec.ts') &&
+		!path.startsWith('apps/office-ui/'),
 );
 
 let failed = false;

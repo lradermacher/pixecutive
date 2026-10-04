@@ -17,8 +17,8 @@ machine, without a shared picture of who works on what.
 - The maintainer's vision of 2026-10-03 (the office is the whole interface; one instance per company; a local client
   per person started with `npx`; own subscription locally, API key on the server; Claude Code first, then Codex; Jira,
   GitHub/GitLab, mail and webhooks as inputs; 2D isometric pixel art made in Blender).
-- ADR 0011 (hexagon: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/server`, `apps/client`,
-  `apps/web` outside the hexagon) and ADR 0012 (AI employees, runs, two compute sources, one runtime port).
+- ADR 0011 (hexagon: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`,
+  `apps/office-ui` outside the hexagon) and ADR 0012 (AI employees, runs, two compute sources, one runtime port).
 - The maintainer's requirements on runs of 2026-10-03: who sent an AI employee, with which source, AI and task;
   nobody controls every AI employee; local runs pause when the device goes offline.
 - Server stack fixed by the maintainer: NestJS, PostgreSQL, TypeORM.

@@ -1,4 +1,4 @@
-# apps/server — the server of one company instance
+# apps/company-server — the server of one company instance
 
 ## Purpose
 
