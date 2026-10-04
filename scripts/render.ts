@@ -15,12 +15,13 @@ const outputFile = join(dir, 'current.out');
 const lockFile = join(dir, 'current.lock');
 const model = 'mlx-community/qwen-image-edit-2511-8bit';
 const steps = 8;
-const size = { width: 768, height: 1024 };
 const [command = '', ...args] = process.argv.slice(2);
 const option = (name: string): string | undefined => {
 	const at = args.indexOf(name);
 	return at === -1 ? undefined : args[at + 1];
 };
+// A smaller size lowers the memory peak while the model loads; a sketch does not need more.
+const size = { width: Number(option('--width') ?? '768'), height: Number(option('--height') ?? '1024') };
 
 function fail(message: string): never {
 	process.stderr.write(`${message}\n`);
@@ -63,7 +64,7 @@ function run(): void {
 	const name = option('--name');
 	const seed = Number(option('--seed') ?? '11');
 	if (input === undefined || prompt === undefined || name === undefined || !/^[a-z0-9-]+$/.test(name))
-		fail('usage: node scripts/render.ts run --input <png> --prompt <txt> --name <lowercase-name> [--seed N]');
+		fail('usage: node scripts/render.ts run --input <png> --prompt <txt> --name <lowercase-name> [--seed N] [--width W --height H]');
 	mkdirSync(dir, { recursive: true });
 	if (existsSync(lockFile)) fail(`refused: a render is running (${readFileSync(lockFile, 'utf8').trim()})`);
 	const start = readMemory();
