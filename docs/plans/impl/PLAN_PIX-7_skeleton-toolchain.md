@@ -66,7 +66,7 @@ Every version is measured again on the day it is installed and pinned exactly.
 | --- | --- | --- |
 | Workspace root, `typecheck` over scripts and hooks | exists, extend | `package.json`, `tsconfig.json` |
 | Workspace globs `apps/*`, `packages/*` | exists | `pnpm-workspace.yaml` |
-| Six packages | new | `packages/{core,infrastructure,protocol}/`, `apps/{server,client,web}/` |
+| Six packages | new | `packages/{core,infrastructure,protocol}/`, `apps/{company-server,companion,office-ui}/` (ADR 0020) |
 | Asset pipeline app and its ADR | new | `apps/asset-pipeline/`, `docs/ADR/0019-*.md` (asset model in the core, Blender adapter in infrastructure, manifest in protocol; their code is PIX-25) |
 | Shared compiler options for product code | new | `tsconfig.base.json` (product code may use `enum`, so no `erasableSyntaxOnly`; tooling keeps it in `tsconfig.json`) |
 | Comment, English, one-export gates and `quality-guard` | exists | `scripts/check-*.ts`, `.claude/hooks/quality-guard.ts` |

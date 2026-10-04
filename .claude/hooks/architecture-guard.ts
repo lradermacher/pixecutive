@@ -24,7 +24,7 @@ try {
 	if (input === null || !contract.matcher.split('|').includes(input.toolName) || input.filePath === '') process.exit(0);
 	const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
 	const path = relative(root, isAbsolute(input.filePath) ? input.filePath : join(root, input.filePath));
-	if (!/^(packages|apps)\/.+\.ts$/.test(path)) process.exit(0);
+	if (!/^(packages|apps)\/.+\.(ts|tsx|mts|cts)$/.test(path)) process.exit(0);
 
 	// The text the file will hold: a Write gives it whole, an edit is applied to what is there now.
 	let text =

@@ -8,22 +8,31 @@ import tseslint from 'typescript-eslint';
 
 /** A union of string literals is a set of values without a name; ADR 0006 point 3 wants an enum or an `as const` object. */
 const stringUnion = {
-	selector: 'TSUnionType > TSLiteralType > Literal[raw=/^[\'"]/]',
+	selector: 'TSUnionType > TSLiteralType > Literal[raw=/^[\'"]/], TSUnionType > TSLiteralType > TemplateLiteral',
 	message:
 		'A set of values has one named place: an enum in product code, a frozen `as const` object in tooling (ADR 0006 point 3).',
 };
 
 /** The core decides without the clock, randomness or plain errors (core rule). */
 const coreOnly = [
-	{ selector: "NewExpression[callee.name='Date']", message: 'Time comes through a clock port (core rule).' },
-	{ selector: "MemberExpression[object.name='Date']", message: 'Time comes through a clock port (core rule).' },
+	{
+		selector:
+			"NewExpression[callee.name='Date'], CallExpression[callee.name='Date'], MemberExpression[object.name='Date']",
+		message: 'Time comes through a clock port (core rule).',
+	},
 	{
 		selector: "MemberExpression[object.name='Math'][property.name='random']",
 		message: 'IDs and tokens come from an adapter (core rule).',
 	},
 	{
-		selector: "ThrowStatement > NewExpression[callee.name='Error']",
+		selector:
+			'ThrowStatement > NewExpression[callee.name=/Error$/], ThrowStatement > CallExpression[callee.name=/Error$/]',
 		message: 'Throw a core exception with a key (core rule).',
+	},
+	{
+		// The zone rule resolves only plain strings, so a computed module name would slip past it.
+		selector: 'ImportExpression > :not(Literal)',
+		message: 'The core loads no module at runtime; an adapter does (core rule).',
 	},
 ];
 
@@ -52,12 +61,14 @@ const allow = (from: string, to: string[]): object => ({
 
 /** Who may import whom; everything not allowed here is forbidden (ADR 0006 point 8, ADR 0018). */
 const zones = [
-	allow('core-domain', ['core-domain']),
+	// A domain rule fails with a core exception and its key (ADR 0011 point 7), so the domain may import them.
+	allow('core-domain', ['core-domain', 'core-exception']),
 	allow('core-port', ['core-domain', 'core-port']),
 	allow('core-exception', ['core-domain', 'core-exception']),
 	allow('core-service', ['core-domain', 'core-port', 'core-exception', 'core-service']),
 	allow('core-entry', core),
-	allow('infrastructure', ['core-entry', 'infrastructure']),
+	// An outgoing adapter that talks to another part of Pixecutive sends the protocol's messages.
+	allow('infrastructure', ['core-entry', 'infrastructure', 'protocol']),
 	allow('protocol', ['protocol']),
 	allow('hexagon-app', ['core-entry', 'infrastructure', 'protocol', 'hexagon-app']),
 	allow('office-ui', ['protocol', 'office-ui']),
@@ -129,11 +140,11 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ['packages/**/*.ts', 'apps/**/*.ts'],
+		files: ['{packages,apps}/**/*.{ts,tsx,mts,cts}'],
 		plugins: { boundaries },
 		settings: {
 			'boundaries/elements': elements,
-			'boundaries/files': [{ category: 'test', pattern: '**/*.spec.ts' }],
+			'boundaries/files': [{ category: 'test', pattern: '**/*.spec.{ts,tsx,mts,cts}' }],
 			'import/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
@@ -148,7 +159,7 @@ export default defineConfig(
 		},
 	},
 	{
-		files: ['packages/core/**/*.ts'],
+		files: ['packages/core/**/*.{ts,tsx,mts,cts}'],
 		rules: { 'no-restricted-syntax': ['error', stringUnion, ...coreOnly] },
 	},
 	prettier,

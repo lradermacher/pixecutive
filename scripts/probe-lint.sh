@@ -67,6 +67,7 @@ at() { mkdir -p "$(dirname "$1")" && printf '%s\n' "${@:2}" >"$1"; }
 domain='packages/core/src/domain/probe.ts'
 service='packages/core/src/application/service/probe.ts'
 # Red only when the zone rule itself reports; another lint error would hide a hole in the zones.
+# Green with it means only that the zones allow the import; the cases that need a clean file use $lint.
 zone() { local out; out="$($lint "$1" 2>&1)"; case "$out" in *boundaries/dependencies*) return 1 ;; esac; }
 probe "the domain imports a service" red \
 	"at $service 'export const s = 1;' && at $domain \"import { s } from '../application/service/probe.ts';\" 'export const d = s;' && zone $domain"
@@ -96,5 +97,21 @@ probe "the company server uses node:child_process" green \
 	"at apps/company-server/src/probe.ts \"import { spawn } from 'node:child_process';\" 'export const n = spawn;' && $lint apps/company-server/src/probe.ts"
 probe "the office UI imports the protocol" green \
 	"at apps/office-ui/src/probe.ts \"import { packageName } from '@pixecutive/protocol';\" 'export const n = packageName;' && $lint apps/office-ui/src/probe.ts"
+
+echo
+echo "── other TypeScript forms and rare core forms (review run 1) ────────────"
+probe "the office UI imports the core from a .tsx file" red \
+	"at apps/office-ui/src/view.tsx \"export * from '@pixecutive/core';\" && zone apps/office-ui/src/view.tsx"
+probe "the core imports node:fs from a .mts file" red "at packages/core/src/domain/io.mts \"export * from 'node:fs';\" && zone packages/core/src/domain/io.mts"
+probe "Date.now() in a core .tsx file" red "at packages/core/src/domain/clock.tsx 'export const now = (): number => Date.now();' && $lint packages/core/src/domain/clock.tsx"
+probe "a computed import() in the core" red "at $domain 'export const load = async (): Promise<unknown> => import(\`node:\${\"fs\"}\`);' && $lint $domain"
+probe "throw new RangeError in the core" red "at $domain 'export function f(): never { throw new RangeError(\"x\"); }' && $lint $domain"
+probe "throw Error() without new in the core" red "at $domain 'export function f(): never { throw Error(\"x\"); }' && $lint $domain"
+probe "Date() without new in the core" red "at $domain 'export const d = (): string => Date();' && $lint $domain"
+probe "a union of template literals" red "at $domain 'export type K = \`a\` | \`b\`;' && $lint $domain"
+probe "the domain imports a core exception" green \
+	"at packages/core/src/application/exception/probe.ts 'export const key = 1;' && at $domain \"import { key } from '../application/exception/probe.ts';\" 'export const d = key;' && $lint $domain"
+probe "the infrastructure imports the protocol" green \
+	"at packages/infrastructure/src/probe.ts \"import { packageName } from '@pixecutive/protocol';\" 'export const n = packageName;' && zone packages/infrastructure/src/probe.ts"
 
 probe_done

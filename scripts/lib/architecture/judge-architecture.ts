@@ -2,26 +2,27 @@
 // point 9): an outside import in the core or in the office UI, and a port file without its partner.
 
 import { builtinModules } from 'node:module';
-import { basename } from 'node:path';
+import { basename, dirname, posix } from 'node:path';
 
-const core = /^packages\/core\/src\//;
-const officeUi = /^apps\/office-ui\/src\//;
+const core = /^packages\/core\//;
+const officeUi = /^apps\/office-ui\//;
 const token = /^packages\/core\/src\/port\/outgoing\/(.+)\.token\.ts$/;
 const portInterface = /^packages\/core\/src\/port\/outgoing\/(.+)\.interface\.ts$/;
 const adapter = /^packages\/infrastructure\/src\/.*\/([^/]+)-[^/-]+\.adapter\.ts$/;
 const builtins = new Set(builtinModules);
 
 /**
- * Every module specifier the text names: static and type imports, re-exports, `import()` and `require()`, in single
- * or double quotes or backticks without interpolation. Comments are removed first, so an example in a doc comment
- * raises no alarm; a `//` right after a colon or a quote is kept, because it starts a URL inside a string.
+ * Every module specifier the text names: static and type imports and re-exports at the start of a statement, and
+ * `import()` and `require()` anywhere, in single or double quotes or backticks without interpolation. Comments are
+ * removed first, so an example in a doc comment raises no alarm; a `//` right after a colon or a quote is kept,
+ * because it starts a URL inside a string.
  */
 function moduleSpecifiers(text: string): string[] {
 	const found: string[] = [];
 	const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 	const forms = [
-		/\bfrom\s*(['"`])([^'"`$]+)\1/g,
-		/\bimport\s*(['"`])([^'"`$]+)\1/g,
+		/^\s*(?:import|export)\b[^'"`;]*?\bfrom\s*(['"`])([^'"`$]+)\1/gm,
+		/^\s*import\s*(['"`])([^'"`$]+)\1/gm,
 		/\bimport\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
 		/\brequire\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
 	];
@@ -44,9 +45,17 @@ function interfaceName(port: string): string {
  */
 export function judgeArchitecture(path: string, text: string, exists: (other: string) => boolean): string[] {
 	const findings: string[] = [];
-	const isSpec = path.endsWith('.spec.ts');
+	const isSpec = /\.spec\.(ts|tsx|mts|cts)$/.test(path);
+	const home = core.test(path) ? 'packages/core/' : officeUi.test(path) ? 'apps/office-ui/' : '';
 	for (const specifier of moduleSpecifiers(text)) {
 		const relative = specifier.startsWith('.');
+		// A relative path that leaves its own package is a cross-package import under another name.
+		if (relative && home !== '' && !posix.normalize(posix.join(dirname(path), specifier)).startsWith(home)) {
+			findings.push(
+				`'${specifier}' leaves ${home.slice(0, -1)}; import another package by its name, if the zones allow it`,
+			);
+			continue;
+		}
 		if (core.test(path) && !relative && !(isSpec && specifier === 'vitest')) {
 			findings.push(
 				isNodeModule(specifier)

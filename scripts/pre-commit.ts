@@ -5,6 +5,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import {
 	existsSync,
+	mkdirSync,
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
@@ -14,7 +15,7 @@ import {
 	symlinkSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { checkBranchName } from './lib/guard/check-branch-name.ts';
 import { checkIdentity } from './lib/guard/check-identity.ts';
 import { checkImages } from './lib/guard/check-images.ts';
@@ -79,13 +80,25 @@ try {
 	git(['-C', root, 'worktree', 'add', '-q', '--detach', '--no-checkout', copy, base]);
 	git(['-C', copy, 'read-tree', '-u', '--reset', tree]);
 	if (existsSync(join(root, 'node_modules'))) symlinkSync(join(root, 'node_modules'), join(copy, 'node_modules'));
-	// Workspace packages resolve each other through their own node_modules, which git does not carry.
+	// Workspace packages resolve each other through their own node_modules, which git does not carry. Each entry is
+	// rebuilt in the copy: a link to another workspace package points into the copy, so the staged state of that package
+	// is read; every other entry points to its real target.
+	const realRoot = realpathSync(root);
 	for (const group of ['apps', 'packages']) {
 		if (!existsSync(join(root, group))) continue;
 		for (const unit of readdirSync(join(root, group))) {
 			const modules = join(root, group, unit, 'node_modules');
-			if (existsSync(modules) && existsSync(join(copy, group, unit)))
-				symlinkSync(modules, join(copy, group, unit, 'node_modules'));
+			if (!existsSync(modules) || !existsSync(join(copy, group, unit))) continue;
+			const entries = readdirSync(modules).flatMap((name) =>
+				name.startsWith('@') ? readdirSync(join(modules, name)).map((inner) => `${name}/${inner}`) : [name],
+			);
+			for (const entry of entries) {
+				const target = realpathSync(join(modules, entry));
+				const inside = target.startsWith(`${realRoot}/apps/`) || target.startsWith(`${realRoot}/packages/`);
+				const link = join(copy, group, unit, 'node_modules', entry);
+				mkdirSync(dirname(link), { recursive: true });
+				symlinkSync(inside ? join(copy, target.slice(realRoot.length + 1)) : target, link);
+			}
 		}
 	}
 
@@ -127,9 +140,18 @@ try {
 			if (run.status !== 0) {
 				const output = `${run.stdout}${run.stderr}`.split('\n');
 				const marked = output.filter((line) => line.includes('⛔'));
+				// A tool without ⛔ lines (lint, tests) names file, rule and assertion on its error lines, not at its end.
+				const named = output
+					.map((line, index) => ({ line, index }))
+					.filter(({ line }) => /\berror\b|\bFAIL\b|AssertionError|Expected|Received/i.test(line))
+					.flatMap(({ index }) => output.slice(Math.max(0, index - 1), index + 1))
+					.filter((line, index, all) => line.trim() !== '' && all.indexOf(line) === index)
+					.slice(0, 16);
+				const shown =
+					marked.length > 0 ? marked : named.length > 0 ? named : output.filter((line) => line.trim() !== '').slice(-8);
 				report(
 					`Gate failed: ${command}`,
-					(marked.length > 0 ? marked : output.slice(-3)).map((line) => line.replace(/^\s*⛔\s*/, '')),
+					shown.map((line) => line.replace(/^\s*⛔\s*/, '')),
 				);
 			}
 		}

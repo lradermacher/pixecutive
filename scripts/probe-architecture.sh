@@ -61,6 +61,18 @@ probe "a port under another name" red \
 	"write packages/core/src/port/outgoing/chairRepository.interface.ts 'export interface ChairRepo { count(): number; }' | guard"
 
 echo
+echo "── other forms (review run 1) ──────────────────────────────────────────"
+probe "node:fs in a core .tsx file" red "write packages/core/src/domain/view.tsx \"import { readFileSync } from 'node:fs';\" | guard"
+probe "a relative path from the core into the infrastructure" red \
+	"write $core \"import { x } from '../../../infrastructure/src/index.ts';\" | guard"
+probe "a relative path from the core into an app" red \
+	"write $core \"import { x } from '../../../../apps/company-server/src/index.ts';\" | guard"
+probe "a relative path from the office UI into the core" red \
+	"write apps/office-ui/src/desk.ts \"import { x } from '../../../packages/core/src/index.ts';\" | guard"
+probe "a relative path inside the core" green "write packages/core/src/application/service/s.ts \"import { value } from '../../domain.ts';\" | guard"
+probe "a string that reads like an import" green "write $core \"export const hint = 'go from \\\"lobby\\\" to the desk';\" | guard"
+
+echo
 echo "── outside its scope ───────────────────────────────────────────────────"
 probe "tooling may use node:fs" green "write scripts/check-x.ts \"import { readFileSync } from 'node:fs';\" | guard"
 probe "the company server may use node:fs" green "write apps/company-server/src/main.ts \"import { readFileSync } from 'node:fs';\" | guard"
