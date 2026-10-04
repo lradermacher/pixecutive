@@ -39,10 +39,13 @@ probe "a missing field" red "adr | grep -v '^date:' > docs/ADR/0001-probe.md && 
 
 echo
 echo "── mechanics ───────────────────────────────────────────────────────────"
+probe "a workflow ADR with Mechanics" green "adr > docs/ADR/0001-probe.md && $check mechanics"
 probe "a workflow ADR without Mechanics" red "adr | perl -pe 's/^## Mechanics/## Gone/' > docs/ADR/0001-probe.md && $check mechanics"
 probe "a workflow ADR with an empty Mechanics" red "adr | perl -pe 's/^How it runs\.\$/<!-- nothing -->/' > docs/ADR/0001-probe.md && $check mechanics"
 probe "a technology ADR without Mechanics" green "adr accepted technology | perl -pe 's/^## Mechanics/## Gone/' > docs/ADR/0001-probe.md && $check mechanics"
+probe "a workflow ADR with only an empty diagram" red "adr | perl -pe 's/^How it runs\.\$/\`\`\`mermaid\n\`\`\`/' > docs/ADR/0001-probe.md && $check mechanics"
 
+echo
 echo "── rejected ────────────────────────────────────────────────────────────"
 probe "an accepted ADR without the section" red "adr | perl -pe 's/^## Rejected/## Gone/' > docs/ADR/0001-probe.md && $check rejected"
 probe "an accepted ADR with an empty section" red "adr | perl -pe 's/^- B, because\\.\$/<!-- nothing -->/' > docs/ADR/0001-probe.md && $check rejected"

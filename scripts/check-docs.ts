@@ -60,7 +60,8 @@ function mechanics(): void {
 	const before = findings.length;
 	const workflow = records.filter((adr) => status(adr) === 'accepted' && parseFrontmatter(read(adr)).data['kind'] === 'workflow');
 	for (const path of workflow) {
-		const body = section(read(path), /^## Mechanics\s*$/)?.replace(/<!--[\s\S]*?-->/g, '').trim() ?? '';
+		// A comment or an empty diagram fence is no mechanics.
+		const body = section(read(path), /^## Mechanics\s*$/)?.replace(/<!--[\s\S]*?-->/g, '').replace(/```\w*\s*```/g, '').trim() ?? '';
 		if (body === '') fail(`${path}: a workflow ADR needs a Mechanics section (TEMPLATE.md)`);
 	}
 	if (findings.length === before) console.log(`✅ mechanics: ${workflow.length} workflow ADRs, each with its Mechanics`);

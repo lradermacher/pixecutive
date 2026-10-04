@@ -46,7 +46,8 @@ function named(): void {
 		for (const tag of text.matchAll(/`\[([^\]`]+)\]`/g)) {
 			const line = text.slice(0, tag.index).split('\n').length;
 			// Only a bracket under `## Decision` itself, before its first subheading, belongs to a numbered point.
-			const before = text.slice(0, tag.index);
+			// A heading inside a code fence is no heading.
+			const before = text.slice(0, tag.index).replace(/```[\s\S]*?```/g, '');
 			const heading = [...before.matchAll(/^#{2,} (.+)$/gm)].at(-1);
 			const points = heading?.[0]?.trim() === '## Decision' ? [...before.slice(heading.index).matchAll(/^(\d+)\. \*\*/gm)] : [];
 			if (replaced.has(points.at(-1)?.[1] ?? '')) continue;

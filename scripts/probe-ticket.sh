@@ -117,6 +117,8 @@ probe "sweep removes a stale file of a kind nothing writes" green \
 	"mkdir -p .claude/state && echo '{}' > .claude/state/gone.probe.json && touch -t 202001010000 .claude/state/gone.probe.json && $ticket sweep; [ ! -f .claude/state/gone.probe.json ]"
 probe "sweep keeps a fresh file of a kind nothing writes" green \
 	"mkdir -p .claude/state && echo '{}' > .claude/state/gone.probe.json && $ticket sweep; [ -f .claude/state/gone.probe.json ]"
+probe "sweep leaves a stale folder alone and finishes" green \
+	"mkdir -p .claude/state/folder && touch -t 202001010000 .claude/state/folder && $ticket sweep && [ -d .claude/state/folder ]"
 probe "sweep keeps the review tally" green \
 	"$bug; $ticket review-done >/dev/null; touch -t 202001010000 .claude/state/reviews.*.count; $ticket sweep; ls .claude/state/reviews.*.count >/dev/null"
 probe "no Jira access and no secret in the code" green \

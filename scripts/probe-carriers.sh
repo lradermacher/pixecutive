@@ -42,6 +42,7 @@ partial() { printf '%s\n' '---' 'status: accepted' "superseded-by: 2 # point $1 
 probe "a point another ADR replaced may name what is gone" green "partial 2 && $check named"
 probe "the points it did not replace are still measured" red "partial 1 && $check named"
 probe "a bracket after the replaced last point is still measured" red "partial 2 '### Consequences' && printf '%s\n' 'Good. \`[Hook missing]\`' >> docs/ADR/0001-probe.md && $check named"
+probe "a heading in a code fence keeps the point" green "partial 2 && perl -0pi -e 's/(2\. \*\*Replaced\.\*\*)/\`\`\`\n## Example\n\`\`\`\n\$1/' docs/ADR/0001-probe.md && $check named"
 probe "a numbered list outside Decision is no point" red \
 	"printf '%s\n' '---' 'status: accepted' 'superseded-by: 2 # point 2 only' '---' '' '## Context' '' '2. **Item.** \`[Hook missing]\`' > docs/ADR/0001-probe.md && $check named"
 probe "the same line in a rule is measured" red "printf '%s\n' '# Probe' 'A rule. \`[Hook missing]\`' > .claude/rules/probe.md && $check named"

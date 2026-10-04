@@ -240,6 +240,8 @@ function sweep(): void {
 	if (!existsSync(dir)) return;
 	for (const name of readdirSync(dir)) {
 		const path = join(dir, name);
+		// Only ticket.ts writes here, and only files; anything else is left alone.
+		if (!statSync(path).isFile()) continue;
 		const state = name.endsWith('.json') ? readState(path) : null;
 		const stale = statSync(path).mtimeMs < Date.now() - sweepHours * 3600 * 1000;
 		if (/^(ticket|unblock|push)\./.test(name) && (state === null ? stale : ageSeconds(state['openedAt']) >= sweepHours * 3600)) rmSync(path, { force: true });
