@@ -7,12 +7,16 @@ ack
 ADR
 AKIA
 awk
+bmesh
 bpy
 Bron
+BVH
+bvhtree
 cjs
 cksum
 CLI
 colorspace
+depsgraph
 developable
 Doto
 env
@@ -47,6 +51,7 @@ OOM
 pathlib
 Pixecutive
 pushd
+pydata
 qwen
 Radermacher
 refspec
@@ -58,6 +63,7 @@ shutil
 statusline
 subshell
 subshells
+subsurf
 swapusage
 swp
 toplevel
@@ -67,8 +73,11 @@ unmatch
 unreviewed
 usr
 utf
+uvsphere
 vae
 valueonly
+vec
+verts
 vitest
 Zdun
 zgrep
