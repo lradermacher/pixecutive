@@ -111,6 +111,21 @@ These are the basis and core rules applied to this card:
 
 - The maintainer fixed the asset layout (`<category>/<name>/animations…`) and kept `apps/office-ui/assets/` as the
   place (ADR 0020 stays); card and plan got the eleventh acceptance line the same day.
+- The male reference is the maintainer's pick among the renders: two isometric views, turned towards the viewer to
+  the left and away to the right, on a blotchy green. The template asks for exactly these two views
+  (`three-quarter`, `back-three-quarter`); the silhouette measure sees them from the design line's 2:1 camera,
+  30 degrees up. A three-quarter panel in a flat turnaround came out as a profile twice (E06), an input with four
+  panels gave four (E08), a square single-figure input filled the space with blotches (E09).
+- The cutout takes any green-dominant background, refuses a figure count that differs from the template, and tells
+  figures apart by their shape instead of a straight column cut, which had cut an arm off the reference. The
+  maintainer's pick still joins the two torsos too broadly for that: it is separated once by hand along the contact,
+  and the template asks for a wide gap between the figures.
+- The silhouette measure looks at the figure from its left side; before, it compared the side view mirrored.
+- Tuning joint numbers against the silhouette score raised the score, not the likeness: the score rewards bulk where
+  arm and torso overlap in the reference. The measure stays the final check only. The figure is built part by part
+  by eye in Blender through blender-mcp, the head first, each part shown to the maintainer as one PNG before the
+  next. Clothes are cut from the body and offset, hair and face are parts of their own on the head bone.
+- The pixel sprite render (flat tones, a part outline in #1B1410) exists as a draft and becomes step 7 of the skill.
 
 ## Open questions
 
@@ -130,5 +145,5 @@ These are the basis and core rules applied to this card:
 | 4 | App commands `reference`, `cutout`, `status`, bundled by vite for Node | `pnpm assets reference base-m --dry` | f987626 |
 | 5 | Skill `blender-character`, ruleset, Blender helpers with probe | `node scripts/check-skills.ts`, silhouette probe | open |
 | 5b | Asset layout and its gate with probe cases; the ops rule names the layout | `bash scripts/probe-pre-commit.sh` (59) | this commit |
-| 6 | Real run: M reference, cutout, Blender rebuild, office PNG | the maintainer's verdict on the PNG | open |
+| 6 | Real run: M reference, cutout, Blender rebuild, office PNG | the maintainer's verdict on the PNG | reference picked; 15b33e4, d2aa78f, 3499b35, d27f59b, 0e1658d, 355a2b1, 4ed2bc6; head next |
 | 7 | Full gate | `node scripts/verify-full.ts` | open |

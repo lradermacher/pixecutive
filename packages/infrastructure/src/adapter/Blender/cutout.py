@@ -31,42 +31,85 @@ alpha = np.clip((distance - 0.18) / 0.12, 0, 1) * np.clip((0.12 - green_excess) 
 spill = (alpha > 0) & (green_excess > 0.02)
 rgb = rgb.copy()
 rgb[spill, 1] = np.maximum(rgb[spill, 0], rgb[spill, 2])
-# A figure is a run of columns that hold opaque pixels; a few stray pixels in the background are no figure. The image
-# model sometimes keeps the panel count of its input image, so a count that differs from the template is refused.
-columns = (alpha > 0.5).sum(axis=0) >= 3
-runs, start = [], None
-for x, filled in enumerate(list(columns) + [False]):
-    if filled and start is None:
-        start = x
-    elif not filled and start is not None:
-        if x - start >= 4:
-            runs.append((start, x))
-        start = None
-# A stray island of the painted background is far smaller than a figure; one under 5 % of the largest is dropped.
-areas = [int((alpha[:, x0:x1] > 0.5).sum()) for x0, x1 in runs]
-runs = [run for run, area in zip(runs, areas) if area >= 0.05 * max(areas, default=0)]
-# Figures that touch, an arm against a back, are split at the thinnest column between them.
-while len(runs) < panels:
-    widest = max(runs, key=lambda run: run[1] - run[0]) if runs else None
-    if widest is None:
+# A figure is a connected shape of opaque pixels. Figures that touch, an arm against a back, are told apart by wearing
+# the shapes down until they fall apart, then letting each grow back into its own pixels, so an arm that reaches over
+# the other figure's foot stays with its owner. A stray island of the painted background, under 5 % of the largest
+# shape, is no figure. The image model sometimes keeps the panel count of its input image, so a count that differs
+# from the template is refused.
+def shapes(mask):
+    """Labels every connected shape of the mask, joining the runs of each row with the runs they touch in the row
+    above; returns the label image (-1 outside) and the size of each label."""
+    parent = []
+
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    runs, above = [], []
+    for y in range(mask.shape[0]):
+        row = np.nonzero(np.diff(np.concatenate(([0], mask[y].astype(np.int8), [0]))))[0]
+        here = []
+        for x0, x1 in zip(row[::2], row[1::2]):
+            parent.append(len(parent))
+            here.append((x0, x1, len(parent) - 1))
+            for a0, a1, other in above:
+                if a0 < x1 and x0 < a1:
+                    parent[root(other)] = root(len(parent) - 1)
+        runs.append(here)
+        above = here
+    label = np.full(mask.shape, -1)
+    for y, here in enumerate(runs):
+        for x0, x1, i in here:
+            label[y, x0:x1] = root(i)
+    ids, sizes = np.unique(label[label >= 0], return_counts=True)
+    return label, dict(zip(ids.tolist(), sizes.tolist()))
+
+
+opaque = alpha > 0.5
+# How deep each opaque pixel lies inside its shape, in pixels; wearing down to a depth keeps the deeper pixels.
+depth = np.zeros(alpha.shape, int)
+layer = opaque
+while layer.any():
+    depth += layer
+    layer = layer & np.roll(layer, 1, 0) & np.roll(layer, -1, 0) & np.roll(layer, 1, 1) & np.roll(layer, -1, 1)
+figures = []
+for level in range(1, int(depth.max()) + 1, 2):
+    core = depth >= level
+    label, sizes = shapes(core)
+    figures = [i for i, size in sizes.items() if size >= 0.05 * max(sizes.values())] if sizes else []
+    if len(figures) >= panels:
         break
-    x0, x1 = widest
-    inner = range(x0 + (x1 - x0) // 5, x1 - (x1 - x0) // 5)
-    counts = (alpha[:, x0:x1] > 0.5).sum(axis=0)
-    cut = min(inner, key=lambda x: counts[x - x0], default=None)
-    if cut is None or counts[cut - x0] > 0.5 * counts.max():
-        break
-    runs[runs.index(widest):runs.index(widest) + 1] = [(x0, cut), (cut, x1)]
-if len(runs) != panels:
-    print('CUTOUT ' + json.dumps({'error': f'found {len(runs)} figures, the template has {panels} views'}))
+# Wearing down can free a head at its thin neck in the same step that parts two figures. A part far smaller than the
+# figures kept is no figure of its own: it grows back into the figure it hangs on.
+figures.sort(key=lambda i: -sizes[i])
+if len(figures) > panels and sizes[figures[panels]] < 0.5 * sizes[figures[panels - 1]]:
+    figures = figures[:panels]
+if len(figures) != panels:
+    print('CUTOUT ' + json.dumps({'error': f'found {len(figures)} figures, the template has {panels} views'}))
     sys.exit(0)
+owner = np.full(alpha.shape, -1)
+for index, figure in enumerate(figures):
+    owner[label == figure] = index
+reach = alpha > 0.01
+while True:
+    grown = owner.copy()
+    for axis in (0, 1):
+        for shift in (1, -1):
+            near = np.roll(owner, shift, axis)
+            grown = np.where((grown < 0) & reach & (near >= 0), near, grown)
+    if (grown == owner).all():
+        break
+    owner = grown
+order = sorted(range(panels), key=lambda index: np.nonzero(owner == index)[1].mean())
 written = []
 os.makedirs(out_dir, exist_ok=True)
-for index, (x0, x1) in enumerate(runs):
-    a = alpha[:, x0:x1]
-    ys = np.nonzero((a > 0.5).any(axis=1))[0]
-    y0, y1 = ys.min(), ys.max() + 1
-    view = np.concatenate([rgb[:, x0:x1], a[..., None]], axis=-1)[y0:y1]
+for index, figure in enumerate(order):
+    a = alpha * (owner == figure)
+    ys, xs = np.nonzero(a > 0.5)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    view = np.concatenate([rgb, a[..., None]], axis=-1)[y0:y1, x0:x1]
     vh, vw, _ = view.shape
     out = bpy.data.images.new(f'view{index}', vw, vh, alpha=True)
     out.colorspace_settings.name = 'Non-Color'
