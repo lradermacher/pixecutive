@@ -16,7 +16,7 @@ describe('cutoutCommand', () => {
 			},
 		};
 		expect(await cutoutCommand(data, 'base-m', 'ref.png', '/r', cutout)).toEqual(['v0.png']);
-		expect(calls[0]).toEqual(['ref.png', 3, '#00B140', join('/r', 'base-m', 'views')]);
+		expect(calls[0]).toEqual(['ref.png', 2, '#00B140', join('/r', 'base-m', 'views')]);
 	});
 
 	it('rejects an unknown figure', () => {

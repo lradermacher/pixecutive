@@ -9,10 +9,11 @@ from mathutils import Vector
 
 args = sys.argv[sys.argv.index('--') + 1:]
 figure, views_dir = os.path.abspath(args[0]), os.path.abspath(args[1])
-names = args[2:] or ['front', 'three-quarter', 'side', 'back']
-# The figure faces -Y and the reference turnaround turns it to the left, so the camera moves round to its left side
-# (+X): the side view shows the face on the image's left, as the reference does.
-turns = {'front': 0, 'three-quarter': 45, 'side': 90, 'back': 180}
+names = args[2:] or ['three-quarter', 'back-three-quarter']
+# The figure faces -Y and the reference turns it to the left, so the camera moves round to its left side (+X): the
+# side view shows the face on the image's left, as the reference does. The diagonal views are seen by the design
+# line's 2:1 isometric camera, 30 degrees above the horizon; the others level. Per view: (turn, elevation).
+cameras = {'front': (0, 0), 'three-quarter': (45, 30), 'side': (90, 0), 'back-three-quarter': (135, 30), 'back': (180, 0)}
 
 for o in list(bpy.data.objects):
     bpy.data.objects.remove(o, do_unlink=True)
@@ -68,8 +69,8 @@ for index, name in enumerate(names):
     reference = os.path.join(views_dir, f'view-{index}.png')
     if not os.path.exists(reference):
         continue
-    angle = math.radians(turns[name])
-    direction = Vector((math.sin(angle), -math.cos(angle), 0))
+    turn, elevation = (math.radians(value) for value in cameras[name])
+    direction = Vector((math.sin(turn) * math.cos(elevation), -math.cos(turn) * math.cos(elevation), math.sin(elevation)))
     camera.location = centre + direction * reach * 3
     camera.rotation_euler = (-direction).to_track_quat('-Z', 'Y').to_euler()
     scene.render.filepath = os.path.join(out, f'{name}.png')

@@ -1,6 +1,6 @@
 {
-  "views": ["front", "side", "back"],
-  "prompt": "Character turnaround reference of the person in the image: three full-body views of the same person side by side in one row, from left to right: front, full side profile facing left, and back, all the same size and on the same baseline. The person stands in a relaxed A-pose with the arms held slightly away from the body and the feet apart, so the background shows between the arms and the body and between the legs. {features} Detailed isometric pixel art with a bold dark outline and warm soft shading. The entire background is one single flat, evenly filled, pure chroma-key green (#00B140), exactly the same green everywhere up to all four edges, with no floor and no shadow.",
+  "views": ["three-quarter", "back-three-quarter"],
+  "prompt": "Character reference of the person in the image: two full-body views of the same person side by side, both seen from slightly above at the 2:1 isometric angle of an office game. On the left the person is turned towards the viewer and to the left; on the right the same person is turned away from the viewer and to the left. Both are the same size and stand on the same baseline, relaxed, with the arms hanging slightly away from the body. {features} Detailed isometric pixel art with a bold dark outline and warm soft shading. The background is chroma-key green (#00B140) with no floor, no objects and no shadow.",
   "width": 1024,
   "height": 512,
   "seed": 11,
