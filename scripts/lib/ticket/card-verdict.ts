@@ -57,11 +57,15 @@ export function cardVerdict(input: {
 	const type = input.type ?? (typeof source?.['type'] === 'string' ? source['type'] : undefined);
 	const plans = plansFor(root, ticket);
 	if (plans.length > 1) {
-		return no(`⛔ ${label}: ${ticket} has ${plans.length} implementation plans; which one carries the card is undecidable.`, ...plans.map((plan) => `   ${plan}`));
+		return no(
+			`⛔ ${label}: ${ticket} has ${plans.length} implementation plans; which one carries the card is undecidable.`,
+			...plans.map((plan) => `   ${plan}`),
+		);
 	}
 	const plan = plans[0];
 	if (plan === undefined) {
-		if (type !== undefined && ticketTypes(root).get(type) === false) return { ok: true, lines: [`✅ ${ticket} is type ${type} and plan-free`] };
+		if (type !== undefined && ticketTypes(root).get(type) === false)
+			return { ok: true, lines: [`✅ ${ticket} is type ${type} and plan-free`] };
 		return no(
 			type === undefined
 				? `⛔ ${label}: ${ticket} has no implementation plan, and its type is unknown in this session, so it needs one.`
@@ -81,9 +85,12 @@ export function cardVerdict(input: {
 	}
 	const boxes = text.filter((line) => boxAny.test(line)).length;
 	if (acceptance > 0 && boxes < acceptance) {
-		return no(`⛔ ${label}: ${plan} carries ${boxes} acceptance lines, the card ${ticket} has ${acceptance}; lines are missing.`);
+		return no(
+			`⛔ ${label}: ${plan} carries ${boxes} acceptance lines, the card ${ticket} has ${acceptance}; lines are missing.`,
+		);
 	}
-	if (boxes === 0) return no(`⛔ ${label}: ${plan} carries no acceptance line. No box is not "all ticked", it is "nothing measured".`);
+	if (boxes === 0)
+		return no(`⛔ ${label}: ${plan} carries no acceptance line. No box is not "all ticked", it is "nothing measured".`);
 	const open = text.flatMap((line, index) => (boxOpen.test(line) ? [`   ${index + 1}: ${line.trim()}`] : []));
 	if (open.length > 0) return no(`⛔ ${label}: ${ticket} has open boxes in ${plan}`, ...open);
 	// A promise may stand anywhere in a bracket, `[Lint x · Planned PIX-N: y]`, in a rule or in an ADR.
@@ -95,7 +102,10 @@ export function cardVerdict(input: {
 			.filter((name) => /^\d{4}-.*\.md$/.test(name))
 			.map((name) => ({ path: `docs/ADR/${name}`, text: readFileSync(join(recordDir, name), 'utf8') })),
 	];
-	const planned = carriers.flatMap((carrier) => (promise.test(carrier.text) ? [`   ${carrier.path} still names a mechanism planned for ${ticket}`] : []));
-	if (planned.length > 0) return no(`⛔ ${label}: ${ticket} promised mechanisms that are still listed as planned`, ...planned);
+	const planned = carriers.flatMap((carrier) =>
+		promise.test(carrier.text) ? [`   ${carrier.path} still names a mechanism planned for ${ticket}`] : [],
+	);
+	if (planned.length > 0)
+		return no(`⛔ ${label}: ${ticket} promised mechanisms that are still listed as planned`, ...planned);
 	return { ok: true, lines: [`✅ ${ticket}: all ${boxes} boxes ticked (${plan})`] };
 }

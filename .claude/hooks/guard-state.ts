@@ -105,7 +105,8 @@ if (verdict === 'MERGE') {
 	const root = process.env['CLAUDE_PROJECT_DIR'] || git(['rev-parse', '--show-toplevel']);
 	const approval = root === '' ? null : spawnSync('node', [join(root, 'scripts/ticket.ts'), 'push-allowed', session]);
 	if (approval === null || approval.status !== 0) reject(messages.MERGE);
-	if (/\bbase=(?:main|master)\b/.test(command)) reject(`A merge into 'main' is rejected whatever the window. ${toMain}`);
+	if (/\bbase=(?:main|master)\b/.test(command))
+		reject(`A merge into 'main' is rejected whatever the window. ${toMain}`);
 	const target = pullRequest === null ? [] : [pullRequest];
 	const view = spawnSync('gh', ['pr', 'view', ...target, '--json', 'baseRefName', '--jq', '.baseRefName'], {
 		encoding: 'utf8',

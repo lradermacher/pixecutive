@@ -29,7 +29,10 @@ const wanted = [
 	'',
 	'| Skill | What it does | Started by |',
 	'| --- | --- | --- |',
-	...skills.map((skill) => `| [${skill.name}](skills/${skill.name}/SKILL.md) | ${skill.description} | ${skill.maintainerOnly ? 'maintainer' : 'model'} |`),
+	...skills.map(
+		(skill) =>
+			`| [${skill.name}](skills/${skill.name}/SKILL.md) | ${skill.description} | ${skill.maintainerOnly ? 'maintainer' : 'model'} |`,
+	),
 	'',
 ].join('\n');
 

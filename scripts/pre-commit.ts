@@ -3,7 +3,16 @@
 // exactly the staged state, so unstaged edits can neither hide nor cause a finding.
 
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync } from 'node:fs';
+import {
+	existsSync,
+	mkdtempSync,
+	readdirSync,
+	readFileSync,
+	realpathSync,
+	rmSync,
+	statSync,
+	symlinkSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkBranchName } from './lib/guard/check-branch-name.ts';
@@ -83,7 +92,9 @@ try {
 			.forEach((text, index) => scanLines.push({ location: `${path}:${index + 1}`, text }));
 	}
 	report('Not allowed in the history:', scanText(scanLines, config));
-	const sized = staged.filter((path) => existsSync(join(copy, path))).map((path) => ({ path, bytes: statSync(join(copy, path)).size }));
+	const sized = staged
+		.filter((path) => existsSync(join(copy, path)))
+		.map((path) => ({ path, bytes: statSync(join(copy, path)).size }));
 	report('Images:', checkImages(sized));
 	if (!config.found) console.log(`  ℹ️  No denylist in ${config.path}: only secrets and local paths are checked.`);
 
@@ -92,16 +103,25 @@ try {
 		report('Gate table:', ['.claude/data/precommit-checks.tsv is missing — without it no gate and no probe runs']);
 	} else {
 		const table = readFileSync(checksFile, 'utf8');
-		const rows = (table.split(/^---$/m)[2] ?? table).split('\n').filter((row) => row.trim() !== '' && !row.startsWith('#'));
+		const rows = (table.split(/^---$/m)[2] ?? table)
+			.split('\n')
+			.filter((row) => row.trim() !== '' && !row.startsWith('#'));
 		for (const row of rows) {
 			const [trigger = '', command = ''] = row.split('\t');
 			const pattern = new RegExp(trigger, 'i');
 			if (command === '' || !stagedAll.some((path) => pattern.test(path))) continue;
-			const run = spawnSync('bash', ['-c', command], { cwd: copy, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: copy } });
+			const run = spawnSync('bash', ['-c', command], {
+				cwd: copy,
+				encoding: 'utf8',
+				env: { ...process.env, CLAUDE_PROJECT_DIR: copy },
+			});
 			if (run.status !== 0) {
 				const output = `${run.stdout}${run.stderr}`.split('\n');
 				const marked = output.filter((line) => line.includes('⛔'));
-				report(`Gate failed: ${command}`, (marked.length > 0 ? marked : output.slice(-3)).map((line) => line.replace(/^\s*⛔\s*/, '')));
+				report(
+					`Gate failed: ${command}`,
+					(marked.length > 0 ? marked : output.slice(-3)).map((line) => line.replace(/^\s*⛔\s*/, '')),
+				);
 			}
 		}
 		const registered = readdirSync(join(copy, 'scripts'))

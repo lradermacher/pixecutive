@@ -20,7 +20,15 @@ export type AgentVerdict = (typeof agentVerdict)[keyof typeof agentVerdict];
 const recorded = new Set(['opus', 'fable', 'sonnet', 'haiku']);
 
 function family(value: string): string {
-	return value.split('#')[0]?.trim().replace(/^[`"']|[`"']$/g, '').toLowerCase().split('[')[0]?.trim() ?? '';
+	return (
+		value
+			.split('#')[0]
+			?.trim()
+			.replace(/^[`"']|[`"']$/g, '')
+			.toLowerCase()
+			.split('[')[0]
+			?.trim() ?? ''
+	);
 }
 
 // Haiku in any spelling, also claude-haiku-4-5: an exact comparison would let a versioned ID through.
@@ -41,22 +49,36 @@ export function judgeAgent(root: string, agent: string, model: string): { verdic
 		? readFileSync(table, 'utf8')
 				.split('\n')
 				.filter((line) => line.startsWith('|'))
-				.map((line) => line.replace(/^\||\|$/g, '').split('|').map((cell) => cell.trim()))
+				.map((line) =>
+					line
+						.replace(/^\||\|$/g, '')
+						.split('|')
+						.map((cell) => cell.trim()),
+				)
 		: [];
 	const families = new Set<string>();
 	let fixed = false;
 	for (const cells of rows) {
 		const rowFamily = family(cells[1] ?? '');
-		const name = (cells[2] ?? '').replace(/\(Harness[^)]*\)/, '').trim().replace(/`/g, '');
+		const name = (cells[2] ?? '')
+			.replace(/\(Harness[^)]*\)/, '')
+			.trim()
+			.replace(/`/g, '');
 		if (!recorded.has(rowFamily) || name !== agent) continue;
 		families.add(rowFamily);
 		fixed ||= /\(Harness · fixed\)/.test(cells[2] ?? '');
 	}
 	if (families.size === 0) return { verdict: agentVerdict.unknown, detail: agent };
-	if (families.size > 1) return { verdict: agentVerdict.ambiguous, detail: `${agent}: ${[...families].sort().join(' ')}` };
+	if (families.size > 1)
+		return { verdict: agentVerdict.ambiguous, detail: `${agent}: ${[...families].sort().join(' ')}` };
 	const assigned = [...families][0] ?? '';
-	if (forbidden(assigned)) return { verdict: agentVerdict.haiku, detail: `${agent} ${fixed ? 'is pinned by the harness' : 'in the table'}` };
-	if (model !== '' && family(model) !== assigned) return { verdict: agentVerdict.mismatch, detail: `${agent}: table ${assigned}, call ${model}` };
+	if (forbidden(assigned))
+		return {
+			verdict: agentVerdict.haiku,
+			detail: `${agent} ${fixed ? 'is pinned by the harness' : 'in the table'}`,
+		};
+	if (model !== '' && family(model) !== assigned)
+		return { verdict: agentVerdict.mismatch, detail: `${agent}: table ${assigned}, call ${model}` };
 	const definition = join(root, '.claude', 'agents', `${agent}.md`);
 	const defined = existsSync(definition) ? parseFrontmatter(readFileSync(definition, 'utf8')).data['model'] : undefined;
 	if (typeof defined === 'string' && defined !== '' && family(defined) !== assigned) {

@@ -30,7 +30,12 @@ function inScope(path: string): boolean {
 function writtenLines(path: string): Set<number> | null {
 	if (all) return null;
 	const tracked = git(['ls-files', '--error-unmatch', '--', path]).trim() !== '';
-	if (!tracked) return new Set(readFileSync(path, 'utf8').split('\n').map((_, index) => index + 1));
+	if (!tracked)
+		return new Set(
+			readFileSync(path, 'utf8')
+				.split('\n')
+				.map((_, index) => index + 1),
+		);
 	const diff = git(['diff', '-U0', ...(staged ? ['--cached'] : []), 'HEAD', '--', path]);
 	const rows = new Set<number>();
 	for (const hunk of diff.matchAll(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm)) {
@@ -77,7 +82,9 @@ for (const path of [...new Set(paths)].filter(inScope)) {
 	if (only !== null && only.size === 0) continue;
 	checked += 1;
 	for (const finding of findViolations(path, readFileSync(path, 'utf8'), only, names)) {
-		console.log(`${finding.severity === 'error' ? '⛔' : '⚠️ '} ${finding.file}:${finding.line} — ${finding.label}: ${finding.message}`);
+		console.log(
+			`${finding.severity === 'error' ? '⛔' : '⚠️ '} ${finding.file}:${finding.line} — ${finding.label}: ${finding.message}`,
+		);
 		console.log(`     ${finding.text.slice(0, 110)}`);
 		if (finding.severity === 'error') errors += 1;
 		else warnings += 1;

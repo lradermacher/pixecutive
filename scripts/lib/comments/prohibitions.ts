@@ -54,7 +54,9 @@ export const prohibitions: readonly Prohibition[] = [
 		message: 'Who decided something stands in the ticket and in git; the comment says why it holds.',
 		// Case-sensitive: a name is written capitalized, and the same letters in lower case are an ordinary word.
 		matches: (text, context) =>
-			context.personNames.some((name) => new RegExp(`(?<![\\w./-])${name}(?![\\w/-])(?!\\.\\w)(?!\\s+Code\\b)`).test(text)),
+			context.personNames.some((name) =>
+				new RegExp(`(?<![\\w./-])${name}(?![\\w/-])(?!\\.\\w)(?!\\s+Code\\b)`).test(text),
+			),
 	},
 	{
 		key: 'ticket',

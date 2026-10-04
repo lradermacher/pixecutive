@@ -20,7 +20,13 @@ const findings: string[] = [];
 // The message enters the public history as surely as the diff, so it gets the same scan, generated messages included.
 const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const config = readLocalConfig(root);
-findings.push(...config.problems, ...scanText(body.map((text, index) => ({ location: `message:${index + 1}`, text })), config));
+findings.push(
+	...config.problems,
+	...scanText(
+		body.map((text, index) => ({ location: `message:${index + 1}`, text })),
+		config,
+	),
+);
 if (subject === '' || /^(Merge |Revert |fixup! |squash! |amend! )/.test(subject)) {
 	for (const finding of findings) console.error(`⛔ ${finding}`);
 	process.exit(findings.length > 0 ? 1 : 0);

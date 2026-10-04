@@ -27,7 +27,10 @@ if (contents.error !== undefined || names.error !== undefined) {
 
 const findings = [
 	...contents.stdout.split('\n').filter(Boolean),
-	...names.stdout.split('\n').filter(Boolean).map((line) => line.replace(/^file-names\.txt:\d+:\d+/, 'file name')),
+	...names.stdout
+		.split('\n')
+		.filter(Boolean)
+		.map((line) => line.replace(/^file-names\.txt:\d+:\d+/, 'file name')),
 ];
 if (findings.length > 0) {
 	for (const line of findings) console.log(`⛔ ${line}`);

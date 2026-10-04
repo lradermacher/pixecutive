@@ -163,7 +163,9 @@ export function slashCommentLines(source: string): Array<CommentLine | null> {
 			continue;
 		}
 		const closes = line.indexOf('*/', found.at + 2);
-		const body = (closes === -1 ? line.slice(found.at + 2) : line.slice(found.at + 2, closes)).replace(/^\*+\s?/, '').trim();
+		const body = (closes === -1 ? line.slice(found.at + 2) : line.slice(found.at + 2, closes))
+			.replace(/^\*+\s?/, '')
+			.trim();
 		out.push({ text: body, whole });
 		inBlock = closes === -1;
 	}

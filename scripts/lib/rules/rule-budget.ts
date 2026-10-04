@@ -45,7 +45,11 @@ export function tokens(chars: number): number {
 }
 
 /** Returns the always-loaded baseline (`CLAUDE.md` plus every rule without `paths:`) and every area combination. */
-export function ruleBudget(root: string): { baselineChars: number; combinations: RuleCombination[]; worstTokens: number } {
+export function ruleBudget(root: string): {
+	baselineChars: number;
+	combinations: RuleCombination[];
+	worstTokens: number;
+} {
 	const rules = loadRules(root);
 	const claude = join(root, 'CLAUDE.md');
 	const baselineChars =

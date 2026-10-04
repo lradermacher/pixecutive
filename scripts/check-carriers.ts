@@ -20,7 +20,11 @@ const fail = (finding: string): void => {
 };
 const read = (path: string): string => readFileSync(join(root, path), 'utf8');
 const files = (dir: string, test: (name: string) => boolean): string[] =>
-	existsSync(join(root, dir)) ? readdirSync(join(root, dir)).filter((name) => test(name) && statSync(join(root, dir, name)).isFile()).map((name) => `${dir}/${name}`) : [];
+	existsSync(join(root, dir))
+		? readdirSync(join(root, dir))
+				.filter((name) => test(name) && statSync(join(root, dir, name)).isFile())
+				.map((name) => `${dir}/${name}`)
+		: [];
 
 // A name is one word, or carries a dot or dash before free text; `Gate ticket open` names no file, `Gate ticket.ts open` does.
 const candidates: Record<string, (name: string) => string[]> = {
@@ -35,28 +39,42 @@ function named(): void {
 	const before = findings.length;
 	let checked = 0;
 	const sources = [
-		...files('docs/ADR', (name) => /^\d{4}-.*\.md$/.test(name)).filter((path) => parseFrontmatter(read(path)).data['status'] === 'accepted'),
+		...files('docs/ADR', (name) => /^\d{4}-.*\.md$/.test(name)).filter(
+			(path) => parseFrontmatter(read(path)).data['status'] === 'accepted',
+		),
 		...files('.claude/rules', (name) => name.endsWith('.md')),
 	];
-	const harness = new Set(['Explore', 'Plan', 'general-purpose', 'claude', 'statusline-setup', 'fork', 'workflow-subagent']);
+	const harness = new Set([
+		'Explore',
+		'Plan',
+		'general-purpose',
+		'claude',
+		'statusline-setup',
+		'fork',
+		'workflow-subagent',
+	]);
 	for (const path of sources) {
 		const text = read(path);
 		// A point another ADR superseded may name what that ADR removed: `superseded-by: 17 # point 4 only; …`.
-		const replaced = new Set((/^superseded-by:\s*\d+\s*#\s*points?\s+([\d, and]+?)\s+only/m.exec(text)?.[1] ?? '').match(/\d+/g) ?? []);
+		const replaced = new Set(
+			(/^superseded-by:\s*\d+\s*#\s*points?\s+([\d, and]+?)\s+only/m.exec(text)?.[1] ?? '').match(/\d+/g) ?? [],
+		);
 		for (const tag of text.matchAll(/`\[([^\]`]+)\]`/g)) {
 			const line = text.slice(0, tag.index).split('\n').length;
 			// Only a bracket under `## Decision` itself, before its first subheading, belongs to a numbered point.
 			// A heading inside a code fence is no heading.
 			const before = text.slice(0, tag.index).replace(/```[\s\S]*?```/g, '');
 			const heading = [...before.matchAll(/^#{2,} (.+)$/gm)].at(-1);
-			const points = heading?.[0]?.trim() === '## Decision' ? [...before.slice(heading.index).matchAll(/^(\d+)\. \*\*/gm)] : [];
+			const points =
+				heading?.[0]?.trim() === '## Decision' ? [...before.slice(heading.index).matchAll(/^(\d+)\. \*\*/gm)] : [];
 			if (replaced.has(points.at(-1)?.[1] ?? '')) continue;
 			for (const part of (tag[1] ?? '').replace(/\s+/g, ' ').split('·')) {
 				const match = /^(Hook|Gate|Skill|Agent|Data) (\S+)(.*)$/.exec(part.trim());
 				if (!match) continue;
 				const [, kind = '', raw = '', rest = ''] = match;
 				const name = raw.replace(/[,;]$/, '');
-				if (!/^[a-z0-9][a-z0-9._-]*$/.test(name) || (rest.trim() !== '' && !/[.-]/.test(name)) || harness.has(name)) continue;
+				if (!/^[a-z0-9][a-z0-9._-]*$/.test(name) || (rest.trim() !== '' && !/[.-]/.test(name)) || harness.has(name))
+					continue;
 				checked += 1;
 				if (!(candidates[kind]?.(name) ?? []).some((candidate) => existsSync(join(root, candidate)))) {
 					fail(`${path}:${line}: [${kind} ${name}] names a carrier that does not exist`);
@@ -64,7 +82,8 @@ function named(): void {
 			}
 		}
 	}
-	if (findings.length === before) console.log(`✅ named: ${checked} named carriers in ${sources.length} files, each exists`);
+	if (findings.length === before)
+		console.log(`✅ named: ${checked} named carriers in ${sources.length} files, each exists`);
 }
 
 function hooks(): void {
@@ -76,16 +95,20 @@ function hooks(): void {
 			fail(`${path}: no exported contract object (template .claude/templates/hook.ts)`);
 			continue;
 		}
-		for (const field of contractFields) if (!new RegExp(`^\\s*${field}: '[^']+'`, 'm').test(contract)) {
-			// Prompt and session events have no tool to match, so their matcher is the empty string.
-			const event = /event: '([^']+)'/.exec(contract)?.[1] ?? '';
-			if (field === 'matcher' && /matcher: ''/.test(contract) && toolless.has(event)) continue;
-			fail(`${path}: the contract lacks ${field}`);
-		}
+		for (const field of contractFields)
+			// The formatter may start a long value on the line after its key.
+			if (!new RegExp(`^\\s*${field}:\\s*'[^']+'`, 'm').test(contract)) {
+				// Prompt and session events have no tool to match, so their matcher is the empty string.
+				const event = /event: '([^']+)'/.exec(contract)?.[1] ?? '';
+				if (field === 'matcher' && /matcher: ''/.test(contract) && toolless.has(event)) continue;
+				fail(`${path}: the contract lacks ${field}`);
+			}
 		const probe = /probe: '([^']+)'/.exec(contract)?.[1] ?? '';
-		if (probe !== '' && !existsSync(join(root, probe))) fail(`${path}: the contract names the probe ${probe}, which does not exist`);
+		if (probe !== '' && !existsSync(join(root, probe)))
+			fail(`${path}: the contract names the probe ${probe}, which does not exist`);
 	}
-	if (findings.length === before) console.log(`✅ hooks: ${list.length} hooks, each with a complete contract and an existing probe`);
+	if (findings.length === before)
+		console.log(`✅ hooks: ${list.length} hooks, each with a complete contract and an existing probe`);
 }
 
 function agents(): void {
@@ -106,7 +129,8 @@ function data(): void {
 		const missing = dataFields.filter((field) => !new RegExp(`^(#\\s*)?${field}:`, 'm').test(head));
 		if (missing.length > 0) fail(`${path}: the head lacks ${missing.join(', ')} (template .claude/templates/data.md)`);
 	}
-	if (findings.length === before) console.log(`✅ data: ${list.length} data files with schema, read-by, adr and generated`);
+	if (findings.length === before)
+		console.log(`✅ data: ${list.length} data files with schema, read-by, adr and generated`);
 }
 
 const checks: Record<string, () => void> = { named, hooks, agents, data };

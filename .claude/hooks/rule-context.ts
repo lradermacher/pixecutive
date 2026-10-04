@@ -19,7 +19,11 @@ export const contract = {
 // At most two summaries per event: a summary has up to 60 words and wraps to three lines in a terminal.
 const maxRulesPerEvent = 2;
 
-let payload: { tool_name?: unknown; session_id?: unknown; tool_input?: { file_path?: unknown; notebook_path?: unknown } };
+let payload: {
+	tool_name?: unknown;
+	session_id?: unknown;
+	tool_input?: { file_path?: unknown; notebook_path?: unknown };
+};
 try {
 	payload = JSON.parse(readFileSync(0, 'utf8')) as typeof payload;
 } catch {
@@ -46,7 +50,9 @@ let due;
 try {
 	due = rulesForPath(target, root).filter((rule) => rule.patterns.length > 0 && !delivered.includes(rule.name));
 } catch (error) {
-	process.stderr.write(`⚠️ rule-context: the rule loader failed (${String(error)}); no area rule is injected on writes.\n`);
+	process.stderr.write(
+		`⚠️ rule-context: the rule loader failed (${String(error)}); no area rule is injected on writes.\n`,
+	);
 	process.exit(1);
 }
 if (due.length === 0) process.exit(0);
@@ -61,4 +67,6 @@ try {
 } catch {
 	// Without the marker the summary only comes a second time, the harmless outcome.
 }
-process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: lines.join('\n') } }));
+process.stdout.write(
+	JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext: lines.join('\n') } }),
+);

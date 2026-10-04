@@ -23,12 +23,20 @@ const fail = (finding: string): void => {
 };
 
 const own = existsSync(skillsDir)
-	? readdirSync(skillsDir).filter((name) => !lstatSync(join(skillsDir, name)).isSymbolicLink() && existsSync(join(skillsDir, name, 'SKILL.md')))
+	? readdirSync(skillsDir).filter(
+			(name) => !lstatSync(join(skillsDir, name)).isSymbolicLink() && existsSync(join(skillsDir, name, 'SKILL.md')),
+		)
 	: [];
-const roster = existsSync(rosterFile) ? dataRows(rosterFile, 'skill').map(({ cells }) => cells[0] ?? '').filter(Boolean) : null;
+const roster = existsSync(rosterFile)
+	? dataRows(rosterFile, 'skill')
+			.map(({ cells }) => cells[0] ?? '')
+			.filter(Boolean)
+	: null;
 const measured = own.filter((name) => roster?.includes(name));
-const skill = (name: string): ReturnType<typeof parseFrontmatter> => parseFrontmatter(readFileSync(join(skillsDir, name, 'SKILL.md'), 'utf8'));
-const listOf = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : []);
+const skill = (name: string): ReturnType<typeof parseFrontmatter> =>
+	parseFrontmatter(readFileSync(join(skillsDir, name, 'SKILL.md'), 'utf8'));
+const listOf = (value: unknown): string[] =>
+	Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : [];
 
 function filesIn(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
@@ -52,7 +60,8 @@ function structure(): void {
 			if (!declared.includes(side)) fail(`${side} lies in the skill but no data: entry names it`);
 		}
 	}
-	if (findings.length === before) console.log(`✅ structure: ${measured.length} skills with fields, steps and acceptance`);
+	if (findings.length === before)
+		console.log(`✅ structure: ${measured.length} skills with fields, steps and acceptance`);
 }
 
 function reference(): void {
@@ -61,22 +70,29 @@ function reference(): void {
 		const path = `.claude/skills/${name}/SKILL.md`;
 		const { data, body } = skill(name);
 		for (const field of ['rules', 'data', 'gates']) {
-			for (const target of listOf(data[field])) if (!existsSync(join(root, target))) fail(`${path}: ${field}: ${target} does not exist`);
+			for (const target of listOf(data[field]))
+				if (!existsSync(join(root, target))) fail(`${path}: ${field}: ${target} does not exist`);
 		}
 		for (const span of body.match(/`[^`\n]+`/g) ?? []) {
 			const text = span.slice(1, -1);
 			const placeholder = /[<>*?\s]/.test(text);
-			if (!placeholder && text.includes('/') && (topDirs.some((dir) => text.startsWith(dir)) || /\.(md|ts|tsv|txt|json|sh)$/.test(text))) {
+			if (
+				!placeholder &&
+				text.includes('/') &&
+				(topDirs.some((dir) => text.startsWith(dir)) || /\.(md|ts|tsv|txt|json|sh)$/.test(text))
+			) {
 				fail(`${path}: ${span} is a path as a code span; a path is a Markdown link or a frontmatter field`);
 			}
 		}
 		for (const match of body.matchAll(/\[([^\]\n]*)\]\(([^)\s]+)\)/g)) {
 			const target = match[2] ?? '';
 			if (/^(https?:|mailto:|#)/.test(target)) continue;
-			if (!existsSync(normalize(join(skillsDir, name, target.split('#')[0] ?? '')))) fail(`${path}: the link [${match[1]}](${target}) leads nowhere`);
+			if (!existsSync(normalize(join(skillsDir, name, target.split('#')[0] ?? ''))))
+				fail(`${path}: the link [${match[1]}](${target}) leads nowhere`);
 		}
 	}
-	if (findings.length === before) console.log(`✅ reference: every path and link of ${measured.length} skills resolves`);
+	if (findings.length === before)
+		console.log(`✅ reference: every path and link of ${measured.length} skills resolves`);
 }
 
 function boundary(): void {
@@ -94,16 +110,22 @@ function boundary(): void {
 			}
 		}
 	}
-	if (findings.length === before) console.log(`✅ boundary: ${measured.length} skills without own rules and without history`);
+	if (findings.length === before)
+		console.log(`✅ boundary: ${measured.length} skills without own rules and without history`);
 }
 
 function budget(): void {
 	const before = findings.length;
 	let total = 0;
 	for (const name of own) {
-		const description = String(skill(name).data['description'] ?? '').replace(/\s+/g, ' ').trim();
+		const description = String(skill(name).data['description'] ?? '')
+			.replace(/\s+/g, ' ')
+			.trim();
 		total += description.length;
-		if (description.length > maxDescription) fail(`.claude/skills/${name}/SKILL.md: description has ${description.length} characters, at most ${maxDescription}; it sits in every system prompt`);
+		if (description.length > maxDescription)
+			fail(
+				`.claude/skills/${name}/SKILL.md: description has ${description.length} characters, at most ${maxDescription}; it sits in every system prompt`,
+			);
 	}
 	if (findings.length === before) console.log(`✅ budget: ${own.length} descriptions, ${total} characters together`);
 }
@@ -117,7 +139,8 @@ function rosterCheck(): void {
 	for (const name of own) if (!roster.includes(name)) fail(`${name} has no row in .claude/data/skill-conformance.tsv`);
 	for (const name of new Set(roster)) {
 		if (!own.includes(name)) fail(`.claude/data/skill-conformance.tsv: row ${name} names no skill`);
-		if (roster.filter((entry) => entry === name).length > 1) fail(`.claude/data/skill-conformance.tsv: ${name} stands more than once`);
+		if (roster.filter((entry) => entry === name).length > 1)
+			fail(`.claude/data/skill-conformance.tsv: ${name} stands more than once`);
 	}
 	if (findings.length === before) console.log(`✅ roster: ${own.length} skills, each with exactly one row`);
 }

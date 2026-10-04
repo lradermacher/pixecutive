@@ -64,7 +64,8 @@ export function readLocalConfig(root: string): LocalConfig {
 	});
 	const authors = Array.isArray(guard.authors) ? guard.authors : [];
 	authors.forEach((mail: unknown, index) => {
-		if (!plain(mail) || !mail.includes('@')) config.problems.push(`${path}: historyGuard.authors[${index}] is not a mail address`);
+		if (!plain(mail) || !mail.includes('@'))
+			config.problems.push(`${path}: historyGuard.authors[${index}] is not a mail address`);
 		else config.authors.push(mail.trim().toLowerCase());
 	});
 	return config;

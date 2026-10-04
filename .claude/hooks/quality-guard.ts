@@ -34,6 +34,8 @@ try {
 		process.exit(2);
 	}
 } catch (error) {
-	process.stderr.write(`⛔ quality-guard could not judge (${String(error)}); a guard that passes on its own failure is none.\n`);
+	process.stderr.write(
+		`⛔ quality-guard could not judge (${String(error)}); a guard that passes on its own failure is none.\n`,
+	);
 	process.exit(2);
 }

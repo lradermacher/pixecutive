@@ -41,14 +41,19 @@ function structure(): void {
 			fail(`${rule.path}: paths: is so wide that the CLI ignores it, so the rule would silently always load`);
 		}
 		for (const pattern of rule.patterns) {
-			if (pattern.startsWith('!')) fail(`${rule.path}: pattern ${pattern} — negation is not rebuilt by the rule loader`);
-			else if (!patternCharacters.test(pattern)) fail(`${rule.path}: pattern ${pattern} uses characters the rule loader does not rebuild`);
+			if (pattern.startsWith('!'))
+				fail(`${rule.path}: pattern ${pattern} — negation is not rebuilt by the rule loader`);
+			else if (!patternCharacters.test(pattern))
+				fail(`${rule.path}: pattern ${pattern} uses characters the rule loader does not rebuild`);
 			else if (!isAnchored(pattern)) {
-				fail(`${rule.path}: pattern ${pattern} is not anchored and matches at every level — write ${pattern}/* instead of ${pattern}/**`);
+				fail(
+					`${rule.path}: pattern ${pattern} is not anchored and matches at every level — write ${pattern}/* instead of ${pattern}/**`,
+				);
 			}
 		}
 	}
-	if (findings.length === before) console.log(`✅ structure: ${rules.length} rules with adr, summary, content and anchored patterns`);
+	if (findings.length === before)
+		console.log(`✅ structure: ${rules.length} rules with adr, summary, content and anchored patterns`);
 }
 
 function mechanismGate(): void {
@@ -60,7 +65,9 @@ function mechanismGate(): void {
 			count += 1;
 			if (!mechanism.test(section)) {
 				const heading = section.split('\n')[0] ?? '';
-				fail(`${rule.path}: "${heading.slice(3)}" names no mechanism — add \`[Hook …]\`, \`[Gate …]\` or \`[Prose: why none]\``);
+				fail(
+					`${rule.path}: "${heading.slice(3)}" names no mechanism — add \`[Hook …]\`, \`[Gate …]\` or \`[Prose: why none]\``,
+				);
 			}
 		}
 	}
@@ -71,7 +78,8 @@ function duplicate(): void {
 	const before = findings.length;
 	const carriers: Statement[] = [];
 	const claude = join(root, 'CLAUDE.md');
-	if (existsSync(claude)) carriers.push(...statements('CLAUDE.md', parseFrontmatter(readFileSync(claude, 'utf8')).body));
+	if (existsSync(claude))
+		carriers.push(...statements('CLAUDE.md', parseFrontmatter(readFileSync(claude, 'utf8')).body));
 	for (const rule of rules) carriers.push(...statements(rule.path, rule.body));
 	const seen = new Map<string, Statement>();
 	const triggers = new Map<string, Statement>();
@@ -84,7 +92,9 @@ function duplicate(): void {
 		if (statement.trigger === null) continue;
 		const other = triggers.get(statement.trigger);
 		if (other && other.carrier !== statement.carrier) {
-			fail(`${other.carrier} and ${statement.carrier} both rule on "${statement.trigger}" — one rule belongs in one carrier`);
+			fail(
+				`${other.carrier} and ${statement.carrier} both rule on "${statement.trigger}" — one rule belongs in one carrier`,
+			);
 		}
 		if (!other) triggers.set(statement.trigger, statement);
 	}
@@ -95,19 +105,27 @@ function budget(): void {
 	const { baselineChars, combinations, worstTokens } = ruleBudget(root);
 	for (const combination of combinations) {
 		if (combination.tokens > limitTokens) {
-			fail(`${combination.names.join(' + ')}: ${combination.tokens} tokens loaded at once, at most ${limitTokens} — a fault in the cut`);
+			fail(
+				`${combination.names.join(' + ')}: ${combination.tokens} tokens loaded at once, at most ${limitTokens} — a fault in the cut`,
+			);
 		}
 	}
 	if (worstTokens <= limitTokens) {
 		const share = ((worstTokens / limitTokens) * 100).toFixed(0);
-		console.log(`✅ budget: worst case ${worstTokens}/${limitTokens} tokens (${share} % of the limit, baseline ${tokens(baselineChars)})`);
+		console.log(
+			`✅ budget: worst case ${worstTokens}/${limitTokens} tokens (${share} % of the limit, baseline ${tokens(baselineChars)})`,
+		);
 	}
 }
 
 // The path sets stand only in the rule files; a pattern copied into the rule tooling is a second list that drifts.
 function globs(): void {
 	const before = findings.length;
-	const patterns = [...new Set(rules.flatMap((rule) => [...rule.rawPatterns, ...rule.patterns.filter((pattern) => pattern.includes('/'))]))];
+	const patterns = [
+		...new Set(
+			rules.flatMap((rule) => [...rule.rawPatterns, ...rule.patterns.filter((pattern) => pattern.includes('/'))]),
+		),
+	];
 	const readers = [
 		'scripts/check-rules.ts',
 		'scripts/rules-for.ts',
@@ -123,7 +141,8 @@ function globs(): void {
 			}
 		}
 	}
-	if (findings.length === before) console.log(`✅ globs: ${patterns.length} patterns, none stands outside .claude/rules/`);
+	if (findings.length === before)
+		console.log(`✅ globs: ${patterns.length} patterns, none stands outside .claude/rules/`);
 }
 
 const gates: Record<string, () => void> = { structure, mechanism: mechanismGate, duplicate, budget, globs };

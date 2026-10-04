@@ -52,7 +52,9 @@ function probe(): number {
 		if (got !== want) failed += 1;
 		console.log(`${got === want ? '✅' : '⛔'} ${path.padEnd(40)} ${got ? 'loads' : 'does not load'} ${rule}`);
 	}
-	const always = loadRules(root).filter((rule) => rule.patterns.length === 0).map((rule) => rule.name);
+	const always = loadRules(root)
+		.filter((rule) => rule.patterns.length === 0)
+		.map((rule) => rule.name);
 	for (const name of ['basis', 'workflow']) {
 		if (!always.includes(name)) failed += 1;
 		console.log(`${always.includes(name) ? '✅' : '⛔'} ${name} has no paths: and is always loaded`);

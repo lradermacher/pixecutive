@@ -31,7 +31,11 @@ try {
 	const pullRequest = isPrCreate(input.command);
 	if (!pullRequest.creates) process.exit(0);
 	const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
-	const env = { ...process.env, CLAUDE_PROJECT_DIR: root, CLAUDE_CODE_SESSION_ID: input.sessionId || process.env['CLAUDE_CODE_SESSION_ID'] || '' };
+	const env = {
+		...process.env,
+		CLAUDE_PROJECT_DIR: root,
+		CLAUDE_CODE_SESSION_ID: input.sessionId || process.env['CLAUDE_CODE_SESSION_ID'] || '',
+	};
 	const run = (command: string, args: readonly string[]): { status: number | null; output: string } => {
 		const result = spawnSync(command, args, { cwd: root, encoding: 'utf8', env });
 		return { status: result.status, output: `${result.stdout}${result.stderr}` };
@@ -64,10 +68,14 @@ try {
 		.filter((name) => /^probe-.+\.(sh|ts)$/.test(name) && name !== 'probe-pr-gate.ts')
 		.filter((name) => run(name.endsWith('.ts') ? 'node' : 'bash', [join('scripts', name)]).status !== 0);
 	if (failed.length > 0) {
-		reject(`⛔ No pull request: a probe is red — ${failed.join(', ')}. A gate that cannot fail any more is decoration.`);
+		reject(
+			`⛔ No pull request: a probe is red — ${failed.join(', ')}. A gate that cannot fail any more is decoration.`,
+		);
 	}
 	process.stderr.write('✅ Stage 2 green and every probe as expected; the pull request may be created.\n');
 } catch (error) {
-	process.stderr.write(`⛔ gate-before-pr could not judge (${String(error)}); a guard that passes on its own failure is none.\n`);
+	process.stderr.write(
+		`⛔ gate-before-pr could not judge (${String(error)}); a guard that passes on its own failure is none.\n`,
+	);
 	process.exit(2);
 }

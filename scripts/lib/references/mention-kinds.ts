@@ -9,8 +9,10 @@ import { stringSpans } from './string-spans.ts';
 const scriptExtensions = /\.(ts|tsx|mts|cts|js|mjs|cjs|jsx)$/;
 // The words after which a path in a string is run, not told; a closed list, so what counts as a call is readable here.
 const runners = new Set(
-	('bash sh zsh node python python3 source . exec timeout nohup env sudo xargs npx tsx run nice command stdbuf time ' +
-		'eval then do else ! {').split(' '),
+	(
+		'bash sh zsh node python python3 source . exec timeout nohup env sudo xargs npx tsx run nice command stdbuf time ' +
+		'eval then do else ! {'
+	).split(' '),
 );
 
 function commentStart(line: string, comment: CommentLine | null): number {

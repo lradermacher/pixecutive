@@ -13,8 +13,9 @@ export const contract = {
 	event: 'PostToolUse',
 	matcher: 'Edit|Write',
 	stdin: 'tool_name, tool_input.file_path',
-	exit: '0 = not a memory file, or the memory is clean · 2 = check-memory is red, or the hook could not judge · '
-		+ 'anything else = an error in the hook itself',
+	exit:
+		'0 = not a memory file, or the memory is clean · 2 = check-memory is red, or the hook could not judge · ' +
+		'anything else = an error in the hook itself',
 	probe: 'scripts/probe-memory.sh',
 } as const;
 
@@ -28,8 +29,9 @@ try {
 	const { memoryDir } = await import('../../scripts/lib/memory/memory-dir.ts');
 	const input = readHookInput();
 	if (input !== null && contract.matcher.split('|').includes(input.toolName) && input.filePath !== '') {
-		const root = process.env['CLAUDE_PROJECT_DIR']
-			|| execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+		const root =
+			process.env['CLAUDE_PROJECT_DIR'] ||
+			execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 		const target = real(resolve(root, input.filePath));
 		if (target.startsWith(real(memoryDir(root)) + sep)) {
 			const gate = join(root, 'scripts', 'check-memory.ts');

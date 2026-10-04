@@ -32,8 +32,12 @@ export function readHookInput(): HookInput | null {
 	}
 	if (typeof data !== 'object' || data === null || Array.isArray(data)) return null;
 	const record = data as Record<string, unknown>;
-	const tool = (typeof record['tool_input'] === 'object' && record['tool_input'] !== null ? record['tool_input'] : {}) as Record<string, unknown>;
-	const transition = (typeof tool['transition'] === 'object' && tool['transition'] !== null ? tool['transition'] : {}) as Record<string, unknown>;
+	const tool = (
+		typeof record['tool_input'] === 'object' && record['tool_input'] !== null ? record['tool_input'] : {}
+	) as Record<string, unknown>;
+	const transition = (
+		typeof tool['transition'] === 'object' && tool['transition'] !== null ? tool['transition'] : {}
+	) as Record<string, unknown>;
 	return {
 		toolName: text(record['tool_name']),
 		sessionId: text(record['session_id']),

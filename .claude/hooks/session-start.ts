@@ -21,7 +21,11 @@ const { ruleContextMarker } = await import('../../scripts/lib/rules/rule-context
 const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
 const session = readHookInput()?.sessionId ?? '';
 const ticket = (...args: string[]): { status: number | null; stdout: string } =>
-	spawnSync('node', [join(root, 'scripts/ticket.ts'), ...args], { cwd: root, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
+	spawnSync('node', [join(root, 'scripts/ticket.ts'), ...args], {
+		cwd: root,
+		encoding: 'utf8',
+		env: { ...process.env, CLAUDE_PROJECT_DIR: root },
+	});
 
 // Every source of SessionStart resets the marker, compact and clear included, so area rules return after compaction.
 if (session !== '') rmSync(ruleContextMarker(session), { force: true });
@@ -29,18 +33,25 @@ ticket('sweep');
 const status = ticket('show', session).stdout.trim();
 if (status.startsWith('no work package')) {
 	console.log('[package] No work package set: protected paths are not written.');
-	console.log('          /code PIX-N reads the card and sets it: node scripts/ticket.ts open PIX-N --type <type> --title "<title>" --acceptance <N>');
+	console.log(
+		'          /code PIX-N reads the card and sets it: node scripts/ticket.ts open PIX-N --type <type> --title "<title>" --acceptance <N>',
+	);
 } else if (status !== '') {
 	console.log(`[package] ${status}`);
 }
 
 // A dropped harness capability fails silently: no error, just a gate that never turns red again.
-const minimum = existsSync(join(root, '.claude/MIN_CLI')) ? readFileSync(join(root, '.claude/MIN_CLI'), 'utf8').split('\n')[0]?.trim() : '';
+const minimum = existsSync(join(root, '.claude/MIN_CLI'))
+	? readFileSync(join(root, '.claude/MIN_CLI'), 'utf8').split('\n')[0]?.trim()
+	: '';
 const binary = process.env['CLAUDE_CODE_EXECPATH'];
 if (minimum && binary) {
 	const have = /\d+\.\d+\.\d+/.exec(spawnSync(binary, ['--version'], { encoding: 'utf8' }).stdout ?? '')?.[0] ?? '';
 	const older = (a: string, b: string): boolean => a.localeCompare(b, undefined, { numeric: true }) < 0;
-	if (have !== '' && older(have, minimum)) console.log(`[cli] ⛔ Claude Code ${have} is older than ${minimum}; hooks can fail silently. See .claude/MIN_CLI.md.`);
+	if (have !== '' && older(have, minimum))
+		console.log(
+			`[cli] ⛔ Claude Code ${have} is older than ${minimum}; hooks can fail silently. See .claude/MIN_CLI.md.`,
+		);
 }
 
 // core.hooksPath is absolute; after moving the repo git runs without any hook and says nothing.

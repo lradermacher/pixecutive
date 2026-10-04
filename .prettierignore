@@ -1,0 +1,5 @@
+# Markdown keeps the form its generators and the doc gates give it.
+*.md
+pnpm-lock.yaml
+node_modules/
+.claude/skills/**/*.html

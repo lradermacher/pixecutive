@@ -22,12 +22,24 @@ const input = readHookInput();
 const line = input?.prompt.split('\n').find((candidate) => /^\s*\/?push\w*\b/i.test(candidate));
 if (input && line !== undefined) {
 	const duration = /(\d{1,4})\s*(h|hours?|min|minutes?)\b/i.exec(line);
-	const minutes = !duration ? 30 : /^h/i.test(duration[2] ?? '') ? Math.min(Math.max(Number(duration[1]), 1), 24) * 60 : Math.min(Math.max(Number(duration[1]), 1), 1440);
+	const minutes = !duration
+		? 30
+		: /^h/i.test(duration[2] ?? '')
+			? Math.min(Math.max(Number(duration[1]), 1), 24) * 60
+			: Math.min(Math.max(Number(duration[1]), 1), 1440);
 	const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
-	const run = spawnSync('node', [join(root, 'scripts/ticket.ts'), 'push-ok', '--session', input.sessionId, '--minutes', String(minutes)], {
-		cwd: root,
-		encoding: 'utf8',
-		env: { ...process.env, CLAUDE_PROJECT_DIR: root },
-	});
-	console.log(run.status === 0 ? `[push] Window open for ${minutes} minutes. main stays locked.` : `[push] ⛔ The window could not be opened: ${run.stderr.trim()}`);
+	const run = spawnSync(
+		'node',
+		[join(root, 'scripts/ticket.ts'), 'push-ok', '--session', input.sessionId, '--minutes', String(minutes)],
+		{
+			cwd: root,
+			encoding: 'utf8',
+			env: { ...process.env, CLAUDE_PROJECT_DIR: root },
+		},
+	);
+	console.log(
+		run.status === 0
+			? `[push] Window open for ${minutes} minutes. main stays locked.`
+			: `[push] ⛔ The window could not be opened: ${run.stderr.trim()}`,
+	);
 }
