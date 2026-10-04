@@ -10,8 +10,9 @@ from mathutils import Vector
 args = sys.argv[sys.argv.index('--') + 1:]
 figure, views_dir = os.path.abspath(args[0]), os.path.abspath(args[1])
 names = args[2:] or ['front', 'three-quarter', 'side', 'back']
-# The figure faces -Y; each view turns the camera around it, the way the reference turnaround shows it.
-turns = {'front': 0, 'three-quarter': -45, 'side': -90, 'back': 180}
+# The figure faces -Y and the reference turnaround turns it to the left, so the camera moves round to its left side
+# (+X): the side view shows the face on the image's left, as the reference does.
+turns = {'front': 0, 'three-quarter': 45, 'side': 90, 'back': 180}
 
 for o in list(bpy.data.objects):
     bpy.data.objects.remove(o, do_unlink=True)
