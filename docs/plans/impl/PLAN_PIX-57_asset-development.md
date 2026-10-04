@@ -143,7 +143,7 @@ These are the basis and core rules applied to this card:
 | 2 | Data files from the approved sheet | schema tests green | 8b28e12 |
 | 3 | Qwen, vision, verdict log, clock and cutout adapters; the old render script deleted (F4) | adapter specs, `bash scripts/probe-cutout.sh` | e2686ca |
 | 4 | App commands `reference`, `cutout`, `status`, bundled by vite for Node | `pnpm assets reference base-m --dry` | f987626 |
-| 5 | Skill `blender-character`, ruleset, Blender helpers with probe | `node scripts/check-skills.ts`, silhouette probe | open |
+| 5 | Skill `blender-character`, ruleset, Blender helpers with probe | `node scripts/check-skills.ts`, silhouette probe | 4bafe43 |
 | 5b | Asset layout and its gate with probe cases; the ops rule names the layout | `bash scripts/probe-pre-commit.sh` (59) | this commit |
 | 6 | Real run: M reference, cutout, Blender rebuild, office PNG | the maintainer's verdict on the PNG | reference picked; 15b33e4, d2aa78f, 3499b35, d27f59b, 0e1658d, 355a2b1, 4ed2bc6; head next |
 | 7 | Full gate | `node scripts/verify-full.ts` | open |

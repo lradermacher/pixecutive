@@ -55,6 +55,9 @@ none is dropped silently. `[Gate ticket boxes]`
 ## Cards go through a session one after another, exactly one is open
 A series shares branch and pull request. `[Gate ticket open · Hook require-ticket]`
 
+## A visual is agreed as one cheap PNG before it is built
+Screens, scenes, props and figures alike; the work starts with the maintainer's yes. `[Prose: agreement is a judgment]`
+
 ## A pass over many files goes file by file
 Each file is opened once, checked against every criterion and ticked off. `[Skill review]`
 
