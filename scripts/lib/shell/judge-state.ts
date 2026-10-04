@@ -58,20 +58,34 @@ const discard = [
 const writers = ['tee', 'rm', 'mv', 'cp', 'touch', 'truncate', 'install', 'ln', 'chmod', 'mkdir', 'dd', 'cd', 'pushd'];
 const operators = `(?:[0-9]*&?>{1,2}\\|?|\\b(?:${writers.join('|')})\\b)`;
 const stateDir = /\.claude\/+(?:\.\/)*state(?![A-Za-z0-9_-])/.source;
-const interpreterWrites =
-	/\b(?:python3?|perl|ruby|node|awk)\b(?=[^\n|&]*(?:writeFile|appendFile|createWriteStream|unlink|rmSync|rmdir|rmtree|remove|rename|replace|mkdir|copy|cpSync|move|truncate|write_text|write_bytes|File\.write|FileUtils|open\s*\([^)]*["'][wax]|>))/
-		.source;
 const nearStateDir = /[^\n|;&]*[\s=][^\s;|&]*/.source + stateDir;
 const stateWrites = [
 	new RegExp(`${operators}${/[ \t]*(?:-{1,2}[^\s]+[ \t]+)*["']?[^\s"';|&]*/.source}${stateDir}`),
 	// Without the `.claude/` literal as well: `cd .claude && echo x > state/p.json`.
 	new RegExp(`${operators}${/[ \t]*(?:-{1,2}[^\s]+[ \t]+)*["']?state\/[A-Za-z0-9_.-]+\.json\b/.source}`),
-	// An interpreter that only reads the state is allowed; it counts once its line writes, deletes or redirects.
-	new RegExp(`${interpreterWrites}[^\\n|&]*${stateDir}`),
 	// Two-argument commands, flags with a value and `sed -i`: the same line counts as near enough.
 	new RegExp(/\b(?:cp|mv|install|ln|rsync|truncate|chmod|chown|dd|shred|tee|split)\b/.source + nearStateDir),
 	new RegExp(/\b(?:sed|perl|ruby)\b[^\n|;&]*\s-[A-Za-z]*i/.source + /[^\n|;&]*/.source + stateDir),
 ];
+
+// An interpreter that only reads the state is allowed. It counts once its own command calls a writing function of a
+// file module, opens a file for writing, or redirects outside quotes; a `;` inside its quoted script is no boundary.
+const fileModule = String.raw`(?:fs|os|shutil|pathlib|File|FileUtils|Path\([^)]*\)|require\(\s*['"](?:node:)?fs['"]\s*\)|__import__\(\s*['"](?:os|shutil)['"]\s*\))`;
+const writingCall = new RegExp(
+	`${fileModule}\\.(?:writeFile|appendFile|createWriteStream|unlink|rm|rmdir|rmtree|remove|rename|replace|mkdir|makedirs|copy|cp|move|truncate|write_text|write_bytes|write|delete|symlink|chmod)\\w*\\s*\\(|open\\s*\\([^)]*["'][wax+]|\\bprint\\s*>{1,2}`,
+);
+function interpreterWritesState(command: string): boolean {
+	const { quoted } = lexCommand(command);
+	for (const interpreter of command.matchAll(/\b(?:python3?|perl|ruby|node|awk)\b/g)) {
+		if (onlyMentioned(command, interpreter.index, interpreter.index + interpreter[0].length)) continue;
+		const [, end] = segmentBounds(command, interpreter.index);
+		const own = command.slice(interpreter.index, end);
+		if (!new RegExp(stateDir).test(own)) continue;
+		const redirects = [...own.matchAll(/>/g)].some((match) => !quoted[interpreter.index + match.index]);
+		if (writingCall.test(own) || redirects) return true;
+	}
+	return false;
+}
 
 // `--help` holds per segment: a word of another command must never lift the rule for this one.
 function mergesWithoutHelp(text: string): boolean {
@@ -119,6 +133,6 @@ export function judgeState(command: string): StateVerdict | null {
 	if (anyHit(movesMain, command)) return stateVerdict.movesMain;
 	if (hit(untracked, command)) return stateVerdict.untracked;
 	if (anyHit(discard, command)) return stateVerdict.discard;
-	if (anyHit(stateWrites, command)) return stateVerdict.state;
+	if (anyHit(stateWrites, command) || interpreterWritesState(command)) return stateVerdict.state;
 	return null;
 }

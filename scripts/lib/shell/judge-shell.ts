@@ -180,8 +180,23 @@ function readsEnv(command: string): boolean {
 	return false;
 }
 
-// A commit flag counts as a word of its own on the level of its `commit`: the message may name it, quoted or in a
-// heredoc, while `$(git commit -n)` runs. `commit-msg.ts` is a path, not the subcommand.
+// A commit flag counts as a word of its own on the level of `git … commit`: the message may name it, quoted or in a
+// heredoc, while `$(git commit -n)` runs. Only `commit` as git's subcommand counts; `git log -n --grep=commit` is none.
+const commitCommand = /(?<![\w./-])git((?:\s+(?:-[cC]\s+\S+|--?[\w-]+(?:=\S+)?))*)\s+commit(?![\w./-])/g;
+const valueOptions = new Set(['m', 'F', 'C', 'c', 't', 'S', 'u']);
+
+// `-n` alone or in a cluster skips the hooks; a cluster ends at an option that takes a value, so a message glued
+// to `-m` is no `-n`.
+function skipsHooks(word: string): boolean {
+	if (word === '--no-verify') return true;
+	if (!/^-[A-Za-z]/.test(word)) return false;
+	for (const letter of word.slice(1)) {
+		if (letter === 'n') return true;
+		if (valueOptions.has(letter)) return false;
+	}
+	return false;
+}
+
 function commitSkipsHooks(command: string): boolean {
 	const { quoted, comment, heredoc, substitution } = lexCommand(command);
 	const bodies = heredocBodies(command);
@@ -191,13 +206,18 @@ function commitSkipsHooks(command: string): boolean {
 		!comment[index] &&
 		!heredoc[index] &&
 		!bodies.some(([begin, end]) => begin < index && index < end);
-	for (const commit of command.matchAll(/(?<![\w./-])git\b[^|;&\n]*?(?<![\w./-])commit(?![\w./-])/g)) {
+	for (const commit of command.matchAll(commitCommand)) {
 		const level = substitution[commit.index] ?? false;
 		if (!code(commit.index, level)) continue;
+		const after = commit.index + commit[0].length;
 		const [, end] = segmentBounds(command, commit.index);
-		for (const flag of command.slice(commit.index, end).matchAll(/(?<=\s)(?:--no-verify|-[A-Za-z]*n[A-Za-z]*)(?=\s|$)/g)) {
-			if (code(commit.index + flag.index, level)) return true;
+		for (const word of command.slice(after, end).matchAll(/(?<=\s)\S+/g)) {
+			if (code(after + word.index, level) && skipsHooks(word[0])) return true;
 		}
+	}
+	// The script of `bash -c '…'` runs as a command of its own, so it is judged as one.
+	for (const script of command.matchAll(/\b(?:ba|z|da)?sh\s+-c\s+(["'])([\s\S]*?)\1/g)) {
+		if (commitSkipsHooks(script[2] ?? '')) return true;
 	}
 	return false;
 }

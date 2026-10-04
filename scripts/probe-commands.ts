@@ -1,6 +1,6 @@
 // probe-commands.ts — feeds guard-shell and guard-state real PreToolUse JSON: every hole once found is a case, and
 // every rejected form stands beside a passing one. Usage: node scripts/probe-commands.ts [group]; 1 on a deviation.
-// cspell:ignore fdx qfd
+// cspell:ignore fdx qfd mfinal
 
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -433,6 +433,22 @@ const cases: readonly Case[] = [
 	['review-2', 'node removes the state behind a semicolon', `node -e "const fs=require('fs');fs.rmSync('.claude/state',{recursive:true})"`, true],
 	['review-2', 'node copies into the state', `node -e "require('fs').cpSync('x','.claude/state',{recursive:true})"`, true],
 	['review-2', 'node reads the state', `node -e "console.log(require('fs').readFileSync('.claude/state/ticket.json','utf8'))"`, false],
+	['review-3', "log with -n and commit in its format", "git log -n 3 --format=\"%h commit %s\"", false],
+	['review-3', "log with -n and a grep for commit", "git log --oneline -n 5 --grep=commit", false],
+	['review-3', "log with -n and a pretty format", "git log -n 1 --pretty=format:\"commit %H\"", false],
+	['review-3', "show with -n and a format word", "git show -s -n 1 HEAD --format=commit", false],
+	['review-3', "log with -n and commit in a comment", "git log -n 5 --grep=\"fix(pix-1)\" --format=\"%h %s\" # commit list", false],
+	['review-3', "commit past the guard inside bash -c", "bash -c \"git commit --no-verify -m x\"", true],
+	['review-3', "commit past the guard inside sh -c", "sh -c 'git commit -n -m x'", true],
+	['review-3', "a glued message is no -n", "git commit -mfinal", false],
+	['review-3', "commit past the guard with -C", "git -C sub commit -n -m x", true],
+	['review-3', "a redirect before a semicolon, then reading the state", "node scripts/ticket.ts show 2>/dev/null; cat .claude/state/ticket.json", false],
+	['review-3', "a redirect to /tmp, then listing the state", "node scripts/ticket.ts show > /tmp/o.txt; ls .claude/state", false],
+	['review-3', "node reads the state and replaces text", "node -e \"const k=JSON.parse(require('fs').readFileSync('.claude/state/ticket.json','utf8')).ticket; console.log(k.replace('PIX-',''))\"", false],
+	['review-3', "python reads the state and replaces text", "python3 -c \"import json; print(json.load(open('.claude/state/ticket.json'))['ticket'].replace('-',''))\"", false],
+	['review-3', "awk compares inside its quoted program", "awk -F: 'NR>1 {print}' .claude/state/log.txt", false],
+	['review-3', "awk prints into the state", "awk '{print > \".claude/state/x.json\"}' in.txt", true],
+	['review-3', "node redirects into the state", "node build.js > .claude/state/x.json", true],
 ];
 
 const branchCases: readonly BranchCase[] = [

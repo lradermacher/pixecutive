@@ -24,12 +24,14 @@ JQL
 Kerbosch
 localdomain
 lradermacher
+makedirs
 mcp
 mktree
 mkv
 mts
 NNN
 nohup
+oneline
 OOM
 pathlib
 Pixecutive
