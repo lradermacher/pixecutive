@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -8,10 +8,11 @@ import { runPipeline } from './runPipeline.ts';
 async function run(
 	argv: readonly string[],
 	rendersDir = mkdtempSync(join(tmpdir(), 'pipeline-')),
+	blender?: string,
 ): Promise<{ code: number; out: string; err: string }> {
 	let out = '';
 	let err = '';
-	const env = { PIX_RENDERS_DIR: rendersDir };
+	const env = { PIX_RENDERS_DIR: rendersDir, PIX_BLENDER: blender };
 	const code = await runPipeline(argv, env, { write: (text) => (out += text) }, { write: (text) => (err += text) });
 	return { code, out, err };
 }
@@ -38,6 +39,14 @@ describe('runPipeline', () => {
 		mkdirSync(join(rendersDir, 'base-m'));
 		writeFileSync(join(rendersDir, 'base-m', 'current.lock'), 'ref-11');
 		expect((await run(['status', 'base-m'], rendersDir)).out.split('\n')[0]).toBe('running ref-11');
+	});
+
+	it('finds cutout.py from the repo, wherever the app runs from', async () => {
+		const blender = join(mkdtempSync(join(tmpdir(), 'blender-')), 'blender');
+		writeFileSync(blender, `#!/bin/sh\nprintf '%s\\n' 'CUTOUT {"written":["v0.png"]}'\n`);
+		chmodSync(blender, 0o755);
+		const result = await run(['cutout', 'base-m', 'ref.png'], undefined, blender);
+		expect([result.code, result.out.split('\n')[0]]).toEqual([0, '1 views']);
 	});
 
 	it('prints the usage for an unknown command', async () => {

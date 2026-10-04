@@ -12,6 +12,7 @@ export interface PipelineConfig {
 	readonly ollamaUrl: string;
 	readonly visionModel: string;
 	readonly blender: string;
+	readonly blenderScripts: string;
 }
 
 /** The Hugging Face cache names a snapshot by its hash, so the one snapshot folder is looked up. */
@@ -31,5 +32,6 @@ export function pipelineConfig(env: Readonly<Record<string, string | undefined>>
 		ollamaUrl: env['PIX_OLLAMA_URL'] ?? 'http://localhost:11434',
 		visionModel: env['PIX_VISION_MODEL'] ?? 'qwen3-vl:8b',
 		blender: env['PIX_BLENDER'] ?? '/Applications/Blender.app/Contents/MacOS/Blender',
+		blenderScripts: join(repoRoot, 'packages', 'infrastructure', 'src', 'adapter', 'Blender'),
 	};
 }

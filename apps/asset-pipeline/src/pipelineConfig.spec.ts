@@ -7,6 +7,7 @@ describe('pipelineConfig', () => {
 		const config = pipelineConfig({}, '/repo');
 		expect(config.dataDir).toBe(join('/repo', 'apps', 'asset-pipeline', 'data'));
 		expect(config.rendersDir).toBe(join('/repo', 'renders'));
+		expect(config.blenderScripts).toBe(join('/repo', 'packages', 'infrastructure', 'src', 'adapter', 'Blender'));
 		expect(config.lora).toMatch(/Qwen-Image-Edit-2511-Lightning-8steps-V1\.0-bf16\.safetensors$/);
 	});
 

@@ -71,7 +71,7 @@ async function dispatch(
 			figure,
 			rest[0] ?? '',
 			config.rendersDir,
-			new BlenderReferenceCutoutAdapter(config.blender),
+			new BlenderReferenceCutoutAdapter(config.blender, config.blenderScripts),
 		);
 		return [`${String(written.length)} views`, ...written];
 	}
