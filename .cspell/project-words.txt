@@ -48,6 +48,7 @@ subshells
 swp
 toplevel
 tsc
+typeorm
 unmatch
 unreviewed
 usr

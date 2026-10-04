@@ -1,0 +1,73 @@
+// judge-architecture.ts — what the architecture guard rejects in a product file before it is written (ADR 0006
+// point 9): an outside import in the core or in the office UI, and a port file without its partner.
+
+import { builtinModules } from 'node:module';
+import { basename } from 'node:path';
+
+const core = /^packages\/core\/src\//;
+const officeUi = /^apps\/office-ui\/src\//;
+const token = /^packages\/core\/src\/port\/outgoing\/(.+)\.token\.ts$/;
+const portInterface = /^packages\/core\/src\/port\/outgoing\/(.+)\.interface\.ts$/;
+const adapter = /^packages\/infrastructure\/src\/.*\/([^/]+)-[^/-]+\.adapter\.ts$/;
+const builtins = new Set(builtinModules);
+
+/**
+ * Every module specifier the text names: static and type imports, re-exports, `import()` and `require()`, in single
+ * or double quotes or backticks without interpolation. Comments are removed first, so an example in a doc comment
+ * raises no alarm; a `//` right after a colon or a quote is kept, because it starts a URL inside a string.
+ */
+function moduleSpecifiers(text: string): string[] {
+	const found: string[] = [];
+	const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
+	const forms = [
+		/\bfrom\s*(['"`])([^'"`$]+)\1/g,
+		/\bimport\s*(['"`])([^'"`$]+)\1/g,
+		/\bimport\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
+		/\brequire\s*\(\s*(['"`])([^'"`$]+)\1\s*\)/g,
+	];
+	for (const form of forms) for (const match of code.matchAll(form)) found.push(match[2] ?? '');
+	return found;
+}
+
+function isNodeModule(specifier: string): boolean {
+	return specifier.startsWith('node:') || builtins.has(specifier.split('/')[0] ?? '');
+}
+
+/** The interface name a port file must export: `bookingRepository` gives `IBookingRepository`. */
+function interfaceName(port: string): string {
+	return `I${port.charAt(0).toUpperCase()}${port.slice(1)}`;
+}
+
+/**
+ * Returns the findings for the text a repo-relative path is about to hold; `exists` answers whether another
+ * repo-relative path exists. An empty list passes.
+ */
+export function judgeArchitecture(path: string, text: string, exists: (other: string) => boolean): string[] {
+	const findings: string[] = [];
+	const isSpec = path.endsWith('.spec.ts');
+	for (const specifier of moduleSpecifiers(text)) {
+		const relative = specifier.startsWith('.');
+		if (core.test(path) && !relative && !(isSpec && specifier === 'vitest')) {
+			findings.push(
+				isNodeModule(specifier)
+					? `the core imports the Node module '${specifier}'; IO belongs to an adapter in packages/infrastructure`
+					: `the core imports the package '${specifier}'; the core imports no package, an adapter does`,
+			);
+		}
+		if (
+			officeUi.test(path) &&
+			(isNodeModule(specifier) || /^@pixecutive\/(core|infrastructure)(\/|$)/.test(specifier))
+		) {
+			findings.push(`the office UI imports '${specifier}'; it speaks only through @pixecutive/protocol`);
+		}
+	}
+	const port = token.exec(path)?.[1] ?? adapter.exec(path)?.[1];
+	if (port !== undefined && !exists(`packages/core/src/port/outgoing/${port}.interface.ts`)) {
+		findings.push(`${basename(path)} has no port packages/core/src/port/outgoing/${port}.interface.ts`);
+	}
+	const named = portInterface.exec(path)?.[1];
+	if (named !== undefined && !new RegExp(`export\\s+interface\\s+${interfaceName(named)}\\b`).test(text)) {
+		findings.push(`${basename(path)} must export the interface ${interfaceName(named)}`);
+	}
+	return findings;
+}

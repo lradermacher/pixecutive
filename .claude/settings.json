@@ -79,6 +79,15 @@
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-guard.ts\""
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/architecture-guard.ts\""
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [

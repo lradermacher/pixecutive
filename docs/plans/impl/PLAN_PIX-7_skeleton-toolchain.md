@@ -130,7 +130,7 @@ tool-evaluation sheet, not a new decision.
 | 2 | Vitest projects and one spec per package; root `test` | `pnpm test` | 9fade8c |
 | 3 | Prettier and `.editorconfig`; root `format`, `format:check` | `pnpm format:check` | d465d35 |
 | 4 | ESLint flat config with the rules of ADR 0005, 0006 and the core rule, lint on TypeScript 6; its probe | `bash scripts/probe-lint.sh && pnpm lint` | 347bac6 |
-| 5 | Import zones with eslint-plugin-boundaries; ADR 0018; their probe | `bash scripts/probe-lint.sh && node scripts/check-docs.ts --all` | open |
+| 5 | Import zones with eslint-plugin-boundaries; ADR 0018; their probe | `bash scripts/probe-lint.sh && node scripts/check-docs.ts --all` | cea3e86 |
 | 6 | `architecture-guard` with its probe, then wired | `bash scripts/probe-hooks.sh && node scripts/check-settings.ts` | open |
 | 7 | `check-tests` with its probe, then registered | `bash scripts/probe-tests.sh && node scripts/check-carriers.ts --all` | open |
 | 8 | Gates into `precommit-checks.tsv` and `verify-full` | `node scripts/verify-full.ts` | open |

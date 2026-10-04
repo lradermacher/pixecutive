@@ -42,3 +42,4 @@ generated: no
 ^(packages/|apps/|eslint\.config\.ts$|vitest\.config\.ts$|tsconfig\.base\.json$)	node_modules/.bin/eslint --max-warnings 0 packages apps eslint.config.ts vitest.config.ts
 ^(packages/|apps/|vitest\.config\.ts$|tsconfig\.base\.json$)	node_modules/.bin/vitest run
 ^(eslint\.config\.ts|scripts/probe-lint\.sh)$	bash scripts/probe-lint.sh
+^(\.claude/hooks/architecture-guard\.ts|scripts/lib/architecture/|scripts/lib/hooks/|scripts/probe-architecture\.sh)	bash scripts/probe-architecture.sh
