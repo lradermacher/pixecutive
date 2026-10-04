@@ -3,11 +3,18 @@
   "baseImage": "renders/base-m-s11.png",
   "features": [
     {
-      "id": "base-m.body",
-      "description": "A young man with a big round head of about a third of his height and a slim body",
-      "promptSentence": "A young man with a big round head of about a third of his height, a little smaller than in the image, and a slim body.",
+      "id": "base-m.build",
+      "description": "A slim, lean young man with narrow shoulders, thin arms and long thin legs, not chubby and not stocky",
+      "promptSentence": "A slim, lean young man with narrow shoulders, thin arms and long thin legs, not chubby and not stocky.",
       "check": "vision",
-      "source": "sheet pix57-plan F2; chat 2026-10-04: the male skull is too big"
+      "source": "chat 2026-10-04: the figures tend to look fat, which is wrong"
+    },
+    {
+      "id": "base-m.head",
+      "description": "An oval head, hair included, clearly smaller than a third of the full body height, with a narrow face and a defined chin",
+      "promptSentence": "His oval head, hair included, is clearly smaller than a third of his height, with a narrow face and a defined chin, slimmer than the round face in the image.",
+      "check": "vision",
+      "source": "chat 2026-10-04: the male skull is too big; ref-12 still shows about 38 %"
     },
     {
       "id": "base-m.eyes",

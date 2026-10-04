@@ -10,7 +10,7 @@ describe('referenceCommand', () => {
 	it('returns only the prompt on a dry run', async () => {
 		const outcome = await referenceCommand(data, 'base-m', null);
 		expect(outcome.verdict).toBeNull();
-		expect(outcome.prompt).toContain('A young man with a big round head');
+		expect(outcome.prompt).toContain('A slim, lean young man');
 	});
 
 	it('develops a reference through the given service', async () => {

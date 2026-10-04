@@ -22,13 +22,25 @@
       "id": "E04",
       "description": "Angles and distances for the limbs, such as 30 degrees or a hand's width, make the model paint an extra arm (known from earlier local renders).",
       "strip": [],
-      "forbid": ["degrees", "°", "a hand's width"]
+      "forbid": ["degrees", "\u00b0", "a hand's width"]
     },
     {
       "id": "E05",
       "description": "A sentence that lights the scene lays a gradient and glow over the key-colored background (known from earlier local renders).",
       "strip": [],
       "forbid": ["lit by", "spotlight", "rim light"]
+    },
+    {
+      "id": "E06",
+      "description": "The three-quarter panel of a turnaround comes out as a second profile, so it cannot be measured against a turned camera (ref-12, 2026-10-04). The template describes it as turned only halfway, with both eyes and the far shoulder visible.",
+      "strip": [],
+      "forbid": ["three-quarter facing left"]
+    },
+    {
+      "id": "E07",
+      "description": "The model draws the figure chubby, with a wide round face and a thick body, pulled by the round face of the base sketch and the words big round head (ref-11 and ref-12, 2026-10-04). The spec asks for a slim build and an oval head explicitly.",
+      "strip": [],
+      "forbid": ["big round head"]
     }
   ]
 }

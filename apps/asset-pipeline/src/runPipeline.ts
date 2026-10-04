@@ -22,7 +22,7 @@ export interface PipelineOutput {
 }
 
 /**
- * Runs one command (`reference <figure> [--dry]`, `cutout <figure> <image>`, `status`) and answers the exit code:
+ * Runs one command (`reference <figure> [--dry]`, `cutout <figure> <image>`, `status <figure>`) and answers the exit code:
  * 0 done, 2 an asset failure with its key, 1 anything else.
  */
 export async function runPipeline(
@@ -63,7 +63,7 @@ async function dispatch(
 	config: PipelineConfig,
 	clock: SystemClockAdapter,
 ): Promise<string[]> {
-	if (command === 'status') return statusCommand(config.rendersDir, readMemory());
+	if (command === 'status') return statusCommand(join(config.rendersDir, figure), readMemory());
 	const data = loadAssetData(config.dataDir);
 	if (command === 'cutout') {
 		const written = await cutoutCommand(
@@ -101,5 +101,5 @@ async function dispatch(
 			? [outcome.prompt]
 			: [`passed: ${outcome.verdict.image} (seed ${String(outcome.verdict.seed)})`];
 	}
-	return ['usage: main.ts reference <figure> [--dry] · cutout <figure> <image> · status'];
+	return ['usage: main.ts reference <figure> [--dry] · cutout <figure> <image> · status <figure>'];
 }
