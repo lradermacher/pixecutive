@@ -22,5 +22,18 @@
     "authors": [
       "jane.doe@example.org"
     ]
+  },
+  "tracker": {
+    "site": "example.atlassian.net",
+    "cloudId": "00000000-0000-0000-0000-000000000000",
+    "projectKey": "PIX",
+    "transitions": {
+      "backlog": "11",
+      "toDo": "21",
+      "inProgress": "31",
+      "inReview": "41",
+      "done": "51",
+      "wontDo": "61"
+    }
   }
 }

@@ -61,6 +61,13 @@ const paths = staged
 				...git(['ls-files', '--others', '--exclude-standard']).split('\n'),
 			];
 
+const named = args.filter((arg) => !arg.startsWith('--'));
+const missing = named.filter((path) => !existsSync(path));
+if (missing.length > 0) {
+	console.log(`⛔ check-comments: no such file: ${missing.join(', ')}`);
+	process.exit(1);
+}
+
 const names = personNames();
 let errors = 0;
 let warnings = 0;

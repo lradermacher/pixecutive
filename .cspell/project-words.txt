@@ -2,13 +2,16 @@
 # read-by: cspell.json, scripts/check-english.ts
 # adr: docs/ADR/0014-english-everywhere.md
 # generated: no
+ack
 ADR
 AKIA
+awk
 Bron
 cjs
 cksum
 developable
 env
+fgrep
 frontmatter
 graphify
 HMAC
@@ -17,12 +20,18 @@ inprogress
 Kerbosch
 localdomain
 lradermacher
+mcp
 mktree
 mkv
 mts
 NNN
+nohup
+OOM
+pathlib
 Pixecutive
+pushd
 Radermacher
+refspec
 sed
 shellcheck
 subshell
@@ -36,3 +45,4 @@ usr
 utf
 valueonly
 Zdun
+zgrep

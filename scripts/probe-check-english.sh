@@ -43,5 +43,7 @@ probe "--staged checks only staged files" green \
 probe "--staged rejects a staged German identifier" red \
 	"printf '%s\\n' 'export const karteiLesen = 1;' > bad.ts && git add bad.ts && $check --staged"
 
+probe "a named path that does not exist is red, never skipped" red "node scripts/check-english.ts no/such/file.ts"
+
 echo
 probe_done

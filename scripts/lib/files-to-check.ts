@@ -9,6 +9,7 @@ import { existsSync } from 'node:fs';
  * no argument or `--all` takes every tracked and untracked file that git does not ignore; anything else is a list of
  * paths.
  * Only paths that exist as files are returned.
+ * @throws Error when a named path does not exist.
  */
 export function filesToCheck(args: readonly string[]): string[] {
 	const git = (gitArgs: readonly string[]): string[] =>
@@ -19,6 +20,9 @@ export function filesToCheck(args: readonly string[]): string[] {
 	} else if (args.length === 0 || args.includes('--all')) {
 		paths = [...new Set([...git(['ls-files']), ...git(['ls-files', '--others', '--exclude-standard'])])];
 	} else {
+		// A named path that does not exist is a mistake of the caller; skipping it would turn the gate green.
+		const missing = args.filter((path) => !existsSync(path));
+		if (missing.length > 0) throw new Error(`no such file: ${missing.join(', ')}`);
 		paths = [...args];
 	}
 	return paths.filter((path) => existsSync(path));

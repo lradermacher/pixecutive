@@ -1,14 +1,13 @@
 // rule-context.ts — injects the summary of an area's rule on the first write in that area, never blocks.
 
 import { readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { ruleContextMarker } from '../../scripts/lib/rules/rule-context-marker.ts';
 import { rulesForPath } from '../../scripts/lib/rules/rules-for-path.ts';
 
 /**
  * The contract the harness relies on. Every field is required; the probe named here must turn this hook red.
  */
-const contract = {
+export const contract = {
 	rule: 'docs/ADR/0001-one-carrier-per-rule.md',
 	event: 'PreToolUse',
 	matcher: 'Edit|Write|NotebookEdit',
@@ -32,10 +31,10 @@ if (!contract.matcher.split('|').includes(String(payload.tool_name)) || typeof t
 }
 
 // `paths:` rules load when a matching file is read, not when a new one is created; this hook closes that gap.
-// The marker lives outside the repo: .claude/state/ has exactly one writer, and a lost marker only repeats a summary.
+// A lost marker only repeats a summary, the harmless outcome.
 const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
-const session = String(payload.session_id ?? process.env['CLAUDE_CODE_SESSION_ID'] ?? 'no-session').replace(/[^\w-]/g, '');
-const marker = join(tmpdir(), `pixecutive-rule-context-${session}.json`);
+const session = String(payload.session_id ?? process.env['CLAUDE_CODE_SESSION_ID'] ?? 'no-session');
+const marker = ruleContextMarker(session);
 let delivered: string[] = [];
 try {
 	delivered = (JSON.parse(readFileSync(marker, 'utf8')) as { delivered: string[] }).delivered;

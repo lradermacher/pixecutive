@@ -3,7 +3,7 @@
 /**
  * The contract the harness relies on. Every field is required; the probe named here must turn this hook red.
  */
-const contract = {
+export const contract = {
 	rule: '<.claude/rules/….md or docs/ADR/….md that this hook enforces>',
 	event: '<PreToolUse | PostToolUse | UserPromptSubmit | SessionStart | SessionEnd | SubagentStop>',
 	matcher: '<tool pattern, e.g. Edit|Write>',

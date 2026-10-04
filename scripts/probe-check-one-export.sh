@@ -32,5 +32,7 @@ probe "the browser UI is out of scope" green \
 probe "--staged rejects a staged file with two value exports" red \
 	"printf '%s\\n' 'export const first = 1;' 'export const second = 2;' > a.ts && git add a.ts && $check --staged"
 
+probe "a named path that does not exist is red, never skipped" red "node scripts/check-one-export.ts no/such/file.ts"
+
 echo
 probe_done

@@ -282,5 +282,7 @@ probe "a violation the change wrote is reported" red \
 	"cp .fixtures/date-green.ts src/a.ts && git add src/a.ts && git -c user.email=z@example.com -c user.name=Z commit -q -m old && echo '// Fixed on 2026-09-06.' >> src/a.ts && $check src/a.ts"
 probe "--staged reports a staged violation" red "cp .fixtures/date-red.ts src/a.ts && git add src/a.ts && $check --staged"
 
+probe "a named path that does not exist is red, never skipped" red "node scripts/check-comments.ts no/such/file.ts"
+
 echo
 probe_done
