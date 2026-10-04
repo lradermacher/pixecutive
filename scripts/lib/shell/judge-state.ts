@@ -74,7 +74,7 @@ const stateWrites = [
 const fileModule = String.raw`(?:fs|os|shutil|pathlib|File|FileUtils|Path\([^)]*\)|require\(\s*['"](?:node:)?fs['"]\s*\)|__import__\(\s*['"](?:os|shutil)['"]\s*\))`;
 const writingName = String.raw`(?:writeFileSync|writeFile|appendFile\w*|createWriteStream|unlink\w*|rmSync|rmdir\w*|rmtree|cpSync|copyFile\w*|renameSync|mkdirSync|makedirs|write_text|write_bytes)`;
 const writingCall = new RegExp(
-	`\\b${writingName}\\s*\\(|${fileModule}\\.(?:remove|replace|rename|copy|cp|move|truncate|write|delete|symlink|chmod)\\w*\\s*\\(|open\\s*\\([^)]*["'][wax+]|\\bprint\\s*>{1,2}`,
+	`\\b${writingName}\\s*\\(|${fileModule}\\.(?:remove|replace|rename|copy|cp|move|truncate|write|delete|symlink|chmod|rm|mkdir|makedirs)\\w*\\s*\\(|open\\s*\\([^)]*["'][wax+]|\\bprint\\s*>{1,2}`,
 );
 function interpreterWritesState(command: string): boolean {
 	for (const interpreter of command.matchAll(/\b(?:python3?|perl|ruby|node|awk)\b/g)) {

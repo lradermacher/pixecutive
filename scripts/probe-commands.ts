@@ -458,6 +458,13 @@ const cases: readonly Case[] = [
 	['review-4', 'awk reads the state into a temporary file', "awk 'NR==1' .claude/state/log.txt > /tmp/first.txt", false],
 	['review-4', 'commit past the guard inside bash -lc', 'bash -lc "git commit -n -m x"', true],
 	['review-4', 'a cluster starting with n', 'git commit -nm x', true],
+	['review-5', 'node removes a state file through fs.rm', `node -e "require('fs').rm('.claude/state/x.json',()=>{})"`, true],
+	['review-5', 'python creates a folder in the state', `python3 -c "import os;os.mkdir('.claude/state/sub')"`, true],
+	['review-5', 'ruby removes the state folder', `ruby -e "FileUtils.rm_rf('.claude/state')"`, true],
+	['review-5', 'node creates a folder in the state', `node -e "require('fs').mkdir('.claude/state/sub',()=>{})"`, true],
+	['review-5', 'pathlib creates a folder in the state', `python3 -c "from pathlib import Path;Path('.claude/state/sub').mkdir()"`, true],
+	['review-5', 'ruby removes a state file', `ruby -e "FileUtils.rm('.claude/state/x.json')"`, true],
+	['review-5', 'ruby creates folders in the state', `ruby -e "FileUtils.mkdir_p('.claude/state/x')"`, true],
 ];
 
 const branchCases: readonly BranchCase[] = [
