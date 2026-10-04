@@ -1,6 +1,6 @@
 {
   "id": "base-m",
-  "baseImage": "renders/base-m-s11.png",
+  "baseImage": "renders/base-m-front.png",
   "features": [
     {
       "id": "base-m.build",
