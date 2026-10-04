@@ -36,6 +36,7 @@ mlx
 mts
 NNN
 nohup
+Ollama
 oneline
 OOM
 pathlib

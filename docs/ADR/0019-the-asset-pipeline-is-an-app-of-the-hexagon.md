@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-7_skeleton-toolchain.md
 | **Superseded by**   | —                                                                                  |
 | **Analysis**        | —                                                                                  |
 | **Implementation**  | [PLAN_PIX-7_skeleton-toolchain.md](../plans/impl/PLAN_PIX-7_skeleton-toolchain.md) |
-| **Cards**           | PIX-7 · PIX-56                                                                     |
+| **Cards**           | PIX-7 · PIX-56 · PIX-57                                                            |
 
 <!-- STATE:END -->
 
