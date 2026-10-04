@@ -136,6 +136,12 @@ probe "close: type bug without a plan" green "$bug; $ticket close"
 probe "boxes with a glob reaches no foreign plan" red "$ticket boxes 'PIX-9*'"
 probe "boxes: a rule still names the card as owner of a planned mechanism" red \
 	"echo '- [x] x' > $plan && $feature; printf '\n## Probe rule\nText. \`[Planned $card: Lint probe]\`\n' >> .claude/rules/core.md; $ticket boxes $card"
+probe "boxes: a promise behind another mechanism in the bracket counts too" red \
+	"echo '- [x] x' > $plan && $feature; printf '\n## Probe rule\nText. \`[Lint x · Planned $card: Lint probe]\`\n' >> .claude/rules/core.md; $ticket boxes $card"
+probe "boxes: a promise in an ADR counts too" red \
+	"echo '- [x] x' > $plan && $feature; mkdir -p docs/ADR; printf 'Point. \`[Planned $card: Hook probe]\`\n' > docs/ADR/0001-probe.md; $ticket boxes $card"
+probe "boxes: a promise for another card does not count" green \
+	"echo '- [x] x' > $plan && $feature; printf '\n## Probe rule\nText. \`[Planned PIX-997: Lint probe]\`\n' >> .claude/rules/core.md; $ticket boxes $card"
 
 echo
 echo "── Verdict: a box is a box, and none is not all ticked ─────────────────"

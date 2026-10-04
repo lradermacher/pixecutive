@@ -1,0 +1,13 @@
+---
+schema: >
+  One column, `skill`: a folder name under .claude/skills/. Every own skill has a row, and every listed skill is
+  measured by the form checks of check-skills; a row without a skill or a skill without a row is a finding.
+read-by:
+  - scripts/check-skills.ts
+adr: docs/ADR/0001-one-carrier-per-rule.md
+generated: no
+---
+
+skill
+push
+unblock

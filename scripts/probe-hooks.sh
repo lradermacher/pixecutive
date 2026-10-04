@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # probe-hooks.sh — protect-env, require-ticket, both window hooks, session start and end, the agent hooks and
 # check-settings red once and green once per case, with the JSON the harness sends, in a throwaway repo.
+# cspell:ignore kartei
 set -uo pipefail
 
 root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
@@ -14,10 +15,15 @@ mkdir -p "$work/scripts/lib" "$work/.claude/data"
 cp "$root/scripts/ticket.ts" "$root/scripts/check-settings.ts" "$work/scripts/"
 cp -R "$root/scripts/lib/ticket" "$root/scripts/lib/rules" "$root/scripts/lib/hooks" "$root/scripts/lib/agents" "$work/scripts/lib/"
 cp "$root/scripts/lib/frontmatter.ts" "$root/scripts/lib/data-rows.ts" "$work/scripts/lib/"
-cp -R "$root/scripts/lib/shell" "$work/scripts/lib/"
+cp -R "$root/scripts/lib/shell" "$root/scripts/lib/comments" "$work/scripts/lib/"
+cp "$root/scripts/check-english.ts" "$root/scripts/check-comments.ts" "$root/scripts/check-one-export.ts" "$root/scripts/lib/files-to-check.ts" "$work/scripts/"
+mv "$work/scripts/files-to-check.ts" "$work/scripts/lib/"
+cp "$root/cspell.json" "$work/" && cp -R "$root/.cspell" "$work/"
+ln -s "$root/node_modules" "$work/node_modules"
 cp -R "$root/.claude/hooks" "$work/.claude/hooks"
 cp "$root/.claude/settings.json" "$work/.claude/"
 cp "$root/.claude/data/ticket-types.tsv" "$root/.claude/data/protected-paths.txt" "$root/.claude/data/model-routing.md" "$work/.claude/data/"
+printf "node_modules\n" > "$work/.gitignore"
 probe_tree_commit
 git -C "$work" checkout -q -b "feat/pix-998-probe"
 probe_env() { export CLAUDE_CODE_SESSION_ID="probe-$RANDOM$RANDOM"; }
@@ -106,6 +112,16 @@ probe "a review record of another commit does not count" red \
 probe "package, review and the stage-2 escape" green \
 	"$package; node scripts/ticket.ts review-done >/dev/null; tool Bash command \"PIX_SKIP_GATE=1 \$pr\" | hook gate-before-pr"
 probe "the escape does not skip the review" red "$package; tool Bash command \"PIX_SKIP_GATE=1 \$pr\" | hook gate-before-pr"
+
+echo
+echo "── quality-guard ───────────────────────────────────────────────────────"
+write() { mkdir -p "$(dirname "$1")" && printf '%s\n' "${@:2}" > "$1" && tool Write file_path "$1" | hook quality-guard; }
+probe "a clean file passes" green "write scripts/lib/clean.ts '// clean.ts — a probe file.' 'export const value = 1;'"
+probe "a German word is reported" red "write scripts/lib/word.ts '// word.ts — a probe file.' 'export const kartei = 1;'"
+probe "a date in a comment is reported" red "write scripts/lib/date.ts '// date.ts — a probe file.' '// changed on 2026-09-18' 'export const value = 1;'"
+probe "two value exports are reported" red "write scripts/lib/two.ts '// two.ts — a probe file.' 'export const a = 1;' 'export const b = 2;'"
+probe "a file outside the repo is left alone" green "printf 'kartei' > /tmp/probe-outside.ts; tool Write file_path /tmp/probe-outside.ts | hook quality-guard"
+probe "a broken library makes it report" red "echo 'export function (' > scripts/lib/hooks/read-hook-input.ts; tool Write file_path cspell.json | hook quality-guard"
 
 echo
 echo "── check-settings ──────────────────────────────────────────────────────"

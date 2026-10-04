@@ -86,9 +86,16 @@ export function cardVerdict(input: {
 	if (boxes === 0) return no(`⛔ ${label}: ${plan} carries no acceptance line. No box is not "all ticked", it is "nothing measured".`);
 	const open = text.flatMap((line, index) => (boxOpen.test(line) ? [`   ${index + 1}: ${line.trim()}`] : []));
 	if (open.length > 0) return no(`⛔ ${label}: ${ticket} has open boxes in ${plan}`, ...open);
-	const planned = loadRules(root).flatMap((rule) =>
-		rule.body.includes(`[Planned ${ticket}:`) ? [`   ${rule.path} still names a mechanism planned for ${ticket}`] : [],
-	);
-	if (planned.length > 0) return no(`⛔ ${label}: ${ticket} promised mechanisms that a rule still lists as planned`, ...planned);
+	// A promise may stand anywhere in a bracket, `[Lint x · Planned PIX-N: y]`, in a rule or in an ADR.
+	const promise = new RegExp(`\`\\[[^\\]\`]*Planned ${ticket}:`);
+	const recordDir = join(root, 'docs', 'ADR');
+	const carriers = [
+		...loadRules(root).map((rule) => ({ path: rule.path, text: rule.body })),
+		...(existsSync(recordDir) ? readdirSync(recordDir) : [])
+			.filter((name) => /^\d{4}-.*\.md$/.test(name))
+			.map((name) => ({ path: `docs/ADR/${name}`, text: readFileSync(join(recordDir, name), 'utf8') })),
+	];
+	const planned = carriers.flatMap((carrier) => (promise.test(carrier.text) ? [`   ${carrier.path} still names a mechanism planned for ${ticket}`] : []));
+	if (planned.length > 0) return no(`⛔ ${label}: ${ticket} promised mechanisms that are still listed as planned`, ...planned);
 	return { ok: true, lines: [`✅ ${ticket}: all ${boxes} boxes ticked (${plan})`] };
 }

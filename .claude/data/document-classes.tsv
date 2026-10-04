@@ -1,0 +1,14 @@
+---
+schema: >
+  The classes of the documents under docs/, tab-separated `prefix` · `class` · `lifetime`; the longest matching
+  prefix decides. Canon is not listed here: the gate reads it from the authoritative documents in CLAUDE.md. A
+  Markdown file under docs/ that falls into no row turns the gate red.
+read-by:
+  - scripts/check-docs.ts
+adr: docs/ADR/0001-one-carrier-per-rule.md
+generated: no
+---
+
+prefix	class	lifetime
+docs/research/	analysis	frozen on its date, never maintained, cited by an ADR
+docs/plans/	ephemeral	dies once its purpose is fulfilled

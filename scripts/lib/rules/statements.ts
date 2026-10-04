@@ -39,8 +39,10 @@ function trigger(normalized: string): string | null {
 /**
  * Returns the rule headings and long lines of one carrier body. Code blocks, HTML comments, tables, block quotes and
  * quoted spans are evidence, not statements, and are skipped. A quote is how an incident names the rule it broke.
+ * A non-empty `description` is read as one more heading: a memory file has no rule headings, its description is what
+ * it states. Rule carriers leave it out, because their `summary:` sums up and would be a false alarm.
  */
-export function statements(carrier: string, body: string): Statement[] {
+export function statements(carrier: string, body: string, description = ''): Statement[] {
 	const found: Statement[] = [];
 	let inCode = false;
 	let inComment = false;
@@ -64,6 +66,11 @@ export function statements(carrier: string, body: string): Statement[] {
 			wording: line.trim(),
 			trigger: heading ? trigger(normalized) : null,
 		});
+	}
+	const described = normalize(description);
+	if (described.length >= 12) {
+		const wording = description.trim();
+		found.push({ carrier, kind: 'heading', normalized: described, wording, trigger: trigger(described) });
 	}
 	return found;
 }

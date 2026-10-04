@@ -36,6 +36,10 @@ fixture person-red.ts <<'EOF'
 // Zelda wanted it this way.
 const limit = 8;
 EOF
+fixture person-word.ts <<'EOF'
+// The zelda value is an ordinary word in lower case.
+const limit = 8;
+EOF
 fixture person-tool.ts <<'EOF'
 // Claude Code reads this file at start.
 const limit = 8;
@@ -115,6 +119,7 @@ echo "── Prohibitions ──────────────────
 probe "a date is rejected" red "$(run date-red.ts src/a.ts)"
 probe "a reason in the present tense passes" green "$(run date-green.ts src/a.ts)"
 probe "a git author's name is rejected" red "$(run person-red.ts src/a.ts)"
+probe "the same letters in lower case are a word" green "$(run person-word.ts src/a.ts)"
 probe "the tool name Claude Code passes" green "$(run person-tool.ts src/a.ts)"
 probe "a model named as a decider is rejected" red "$(run person-model.ts src/a.ts)"
 probe "a file name containing a name passes" green "$(run person-file.ts src/a.ts)"

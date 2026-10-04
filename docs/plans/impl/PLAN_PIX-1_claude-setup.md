@@ -88,6 +88,10 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-3 hooks as shell scripts | `.claude/hooks/*.ts`; a blocking hook loads its library inside `try`, so its own failure is exit 2 | Exit 1 does not block in Claude Code; a guard that fails open is none |
 | PIX-3 `model-routing.md` values | Pinned agent models measured in CLI 2.1.288; `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS=2` in `settings.json` as a second limit behind `agent-guard` | Measured in the CLI binary, 2026-10-04 |
 | PIX-4 template `hook.ts` | The `contract` object is exported | A gate reads it from the text; an unused constant would fail the typecheck |
+| Pulled forward from PIX-7: gates "run on every write" | `.claude/hooks/quality-guard.ts` runs check-english, check-comments and check-one-export on every written file; it was missing from the step list and is built in step 6 | The acceptance lines demand the run on every write; check-carriers found the hook named but absent |
+| PIX-4 `check-carriers` | Wired into pre-commit in step 8, its probe in step 6 | It is red until step 8 delivers the skills and agents that rules and ADRs already name |
+| PIX-5 planned mechanisms in ADRs | `Hook architecture-guard, PIX-7` and the like are written `Planned PIX-7: …`, the notation decided for rules, so guard-done holds the card | Sheet rule-mechanisms F2; same meaning, one notation |
+| Reference gate from the reference setup: direction of links between carriers | Not built | No ADR of this repo decides a direction; a gate enforces only what is decided |
 | PIX-7 German-identifier detector | Becomes an English-only check: identifiers must consist of English words or allowed technical terms | Maintainer's note on the plan approval, 2026-10-04 |
 
 ## Open design point
@@ -131,7 +135,7 @@ probe turns red and green. The status column is filled with the commit that clos
 | 2 | Workspace root and shared libraries; comment, identifier and one-export gates with probes | `pnpm typecheck`; each probe red and green | 19cac9a |
 | 3 | History guard rewritten under the rules: libraries in TypeScript, thin git hooks, install script, a branch-name check (`feat/pix-NNN-short`, ADR 0004), probes | all guard probes green; comment gate green on every guard file | 19cac9a |
 | 4 | Rule system: rule loader, `rule-context` hook, `check-rules`, `rules-for`, budget, probes | probe-rules red and green; rule budget measured | 6c73783 |
-| 5 | State machine `ticket.ts` and the safety hooks, `settings.json` with a gate that rejects `bypassPermissions` and allow rules outside the repo (ADR 0010), data files, probes and guard tests | each hook red and green on real hook input | open |
+| 5 | State machine `ticket.ts` and the safety hooks, `settings.json` with a gate that rejects `bypassPermissions` and allow rules outside the repo (ADR 0010), data files, probes and guard tests | each hook red and green on real hook input | b43bc5e |
 | 6 | Registers and document gates: skills register, ADR state table, `check-generated`, `check-skills`, `check-carriers`, `find-references`, `check-memory` with `memory-guard` | each probe red and green; registers regenerate identically | open |
 | 7 | ADR state tables generated for the ADRs of step 1 | ADR state gate green; denylist finds no private name | open |
 | 8 | Skills, agents, decision-sheet move, tracker section in the local config with measured PIX IDs | `check-skills` green; register lists every skill | open |

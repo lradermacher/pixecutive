@@ -15,7 +15,7 @@ summary: >
 
 ## The hexagon's boundaries are never crossed
 `packages/core` imports no framework, no `@pixecutive/infrastructure`, no app and no IO module.
-`[Lint import zones · Hook architecture-guard]`
+`[Planned PIX-7: Lint import zones · Planned PIX-7: Hook architecture-guard]`
 
 ## A port is a domain-typed interface; an adapter maps at the edge
 `port/outgoing/<name>.interface.ts` exports `I<Name>`; adapters map with `toDomain`, and no persistence record leaves

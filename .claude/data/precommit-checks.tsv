@@ -29,3 +29,12 @@ generated: no
 ^(scripts/ticket\.ts|scripts/check-settings\.ts|scripts/lib/(ticket|hooks|agents)/|\.claude/hooks/|\.claude/settings\.json|\.claude/data/(ticket-types\.tsv|protected-paths\.txt|model-routing\.md)|scripts/probe-hooks\.sh)	bash scripts/probe-hooks.sh
 ^(scripts/lib/shell/|\.claude/hooks/guard-(shell|state)\.ts|scripts/ticket\.ts|scripts/probe-commands\.ts)	node scripts/probe-commands.ts
 ^(scripts/lib/shell/is-pr-create\.ts|scripts/probe-pr-gate\.ts)$	node scripts/probe-pr-gate.ts
+^(\.claude/skills/|\.claude/SKILLS\.md$|\.claude/data/generated-files\.tsv$|scripts/generate-|docs/ADR/|docs/plans/impl/|scripts/check-generated\.ts$)	node scripts/check-generated.ts && node scripts/generate-skills-index.ts --check && node scripts/generate-adr-state.ts --check
+^(scripts/(check-generated|generate-skills-index|generate-adr-state)\.ts|scripts/probe-generated\.sh)$	bash scripts/probe-generated.sh
+^(docs/|CLAUDE\.md$|\.claude/data/document-classes\.tsv$|scripts/check-docs\.ts$)	node scripts/check-docs.ts
+^(scripts/check-docs\.ts|scripts/probe-docs\.sh)$	bash scripts/probe-docs.sh
+^(\.claude/skills/|\.claude/data/skill-conformance\.tsv$|scripts/check-skills\.ts$)	node scripts/check-skills.ts
+^(scripts/check-skills\.ts|scripts/probe-skills\.sh)$	bash scripts/probe-skills.sh
+^(scripts/check-carriers\.ts|scripts/probe-carriers\.sh)$	bash scripts/probe-carriers.sh
+^(scripts/check-memory\.ts|scripts/lib/memory/|scripts/lib/rules/|scripts/lib/frontmatter\.ts|scripts/lib/hooks/|\.claude/rules/|CLAUDE\.md$|\.claude/hooks/memory-guard\.ts|scripts/probe-memory\.sh)	bash scripts/probe-memory.sh
+^(scripts/find-references\.ts|scripts/lib/references/|scripts/lib/comments/|scripts/lib/shell/command-lexer\.ts|scripts/lib/data-rows\.ts|scripts/probe-find-references\.sh)	bash scripts/probe-find-references.sh
