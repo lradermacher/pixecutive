@@ -127,8 +127,8 @@ These are the basis and core rules applied to this card:
 | 1 | Domain types, schemas, prompt builder, reference loop, ports | `pnpm test` in core | 73241cb, reworked to the pattern in the next commit |
 | 2 | Data files from the approved sheet | schema tests green | 8b28e12 |
 | 3 | Qwen, vision, verdict log, clock and cutout adapters; the old render script deleted (F4) | adapter specs, `bash scripts/probe-cutout.sh` | e2686ca |
-| 4 | App commands `reference`, `cutout`, `status`, bundled by vite for Node | `pnpm assets reference base-m --dry` | this commit |
+| 4 | App commands `reference`, `cutout`, `status`, bundled by vite for Node | `pnpm assets reference base-m --dry` | f987626 |
 | 5 | Skill `blender-character`, ruleset, Blender helpers with probe | `node scripts/check-skills.ts`, silhouette probe | open |
-| 5b | Asset layout and its gate with probe cases | `bash scripts/probe-pre-commit.sh` | open |
+| 5b | Asset layout and its gate with probe cases; the ops rule names the layout | `bash scripts/probe-pre-commit.sh` (59) | this commit |
 | 6 | Real run: M reference, cutout, Blender rebuild, office PNG | the maintainer's verdict on the PNG | open |
 | 7 | Full gate | `node scripts/verify-full.ts` | open |

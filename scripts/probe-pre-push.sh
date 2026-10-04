@@ -60,7 +60,7 @@ probe "an oversized asset deleted again is still rejected" red \
 	"mkdir -p apps/office-ui/assets && head -c 300000 /dev/zero > apps/office-ui/assets/big.png && git add apps/office-ui && $commit big &&
 	 git rm -q apps/office-ui/assets/big.png && $commit gone && $push"
 probe "a small PNG asset passes" green \
-	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit asset && $push"
+	"mkdir -p apps/office-ui/assets/furniture/desk/textures && printf 'x' > apps/office-ui/assets/furniture/desk/textures/oak.png && git add apps/office-ui && $commit asset && $push"
 probe "a denylisted word in a commit message is rejected" red \
 	"echo new >> README.txt && git -c user.email=probe@example.com -c user.name=probe commit -q -a -m 'ship Zebra-Falcon' && $push"
 probe "a new branch without a remote counterpart is scanned too" red \

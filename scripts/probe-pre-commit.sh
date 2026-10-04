@@ -116,12 +116,20 @@ echo
 echo "── Images ──────────────────────────────────────────────────────────────"
 probe "a screenshot is rejected" red \
 	"printf 'x' > shot.png && git add shot.png && $commit"
-probe "a PNG asset under apps/office-ui/assets passes" green \
+probe "a sprite sheet in the asset layout passes" green \
+	"mkdir -p apps/office-ui/assets/furniture/desk/animations/idle && printf 'x' > apps/office-ui/assets/furniture/desk/animations/idle/2.png && git add apps/office-ui && $commit"
+probe "a manifest and a texture in the asset layout pass" green \
+	"mkdir -p apps/office-ui/assets/furniture/desk/textures && printf '{}' > apps/office-ui/assets/furniture/desk/manifest.json && printf 'x' > apps/office-ui/assets/furniture/desk/textures/oak.png && git add apps/office-ui && $commit"
+probe "a PNG loose in the asset folder is rejected" red \
 	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit"
+probe "a direction outside 0 to 7 is rejected" red \
+	"mkdir -p apps/office-ui/assets/furniture/desk/animations/idle && printf 'x' > apps/office-ui/assets/furniture/desk/animations/idle/8.png && git add apps/office-ui && $commit"
+probe "a stray file in an asset folder is rejected" red \
+	"mkdir -p apps/office-ui/assets/furniture/desk && printf 'x' > apps/office-ui/assets/furniture/desk/notes.txt && git add apps/office-ui && $commit"
 probe "a JPEG asset is rejected" red \
-	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.jpg && git add apps/office-ui && $commit"
+	"mkdir -p apps/office-ui/assets/furniture/desk/textures && printf 'x' > apps/office-ui/assets/furniture/desk/textures/oak.jpg && git add apps/office-ui && $commit"
 probe "an asset above 256 KB is rejected" red \
-	"mkdir -p apps/office-ui/assets && head -c 300000 /dev/zero > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit"
+	"mkdir -p apps/office-ui/assets/furniture/desk/textures && head -c 300000 /dev/zero > apps/office-ui/assets/furniture/desk/textures/oak.png && git add apps/office-ui && $commit"
 
 echo
 echo "── Identity ────────────────────────────────────────────────────────────"
