@@ -30,7 +30,8 @@ craft comes from the built-in `artifact-design` skill. Why questions go out this
 3. **Build the sheet from the template** — copy [sheet-template.html](sheet-template.html) into the scratchpad and
    fill only the head, `ITEMS`, `ASK`, `AFTER` and `COLLECTION`. Questions are `F1`, `F2` …, decided items
    `B1`, `B2` …; `COLLECTION` is unique per sheet. A choice between options gets `options` with one `rec: true`,
-   otherwise it is Yes / Other; a correction to a decided item goes into the note of a question.
+   otherwise it is Yes / Own answer. Every item also takes an own answer: text in its field without a pick
+   counts as the answer. A correction to a decided item goes into the note of a question.
    *Done when no template placeholder is left.*
 4. **Check before publishing** — count opening and closing tags of `div`, `p`, `ol`, `h1`, `h2`, `section` and
    `script`, then render at 390 px width: no horizontal scroll, no script error, and look at the screenshot
@@ -38,7 +39,7 @@ craft comes from the built-in `artifact-design` skill. Why questions go out this
 5. **Publish and check the collection** — as an artifact with the `db` capability (editors write, viewers read),
    then read the collection once. The maintainer gets the link and, in one or two sentences, what waits for them.
    Never republish while the maintainer may be filling it in. *Done when the collection is reachable.*
-6. **Read the answers, then carry them out** — "Other" with a note is the decision, not the proposal. Every
+6. **Read the answers, then carry them out** — An own answer is the decision, not the proposal. Every
    decision goes into the card and the plan, and into an ADR where it shapes the project.
    *Done when every answer is carried out or stands open on the card.*
 

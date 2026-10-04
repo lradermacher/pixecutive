@@ -119,7 +119,8 @@ details[open] summary .plus { transform: rotate(45deg) }
 
 <script>
 // Fill ITEMS, ASK, AFTER and COLLECTION. Text fields are plain text; `backticks` become code.
-// An item with `options` is a choice between options (mark one `rec: true`); without, it is Yes / Other.
+// An item with `options` is a choice between options (mark one `rec: true`); without, it is Yes / Own answer.
+// Every asked item also takes an own answer: typing in its field without picking anything is a full answer.
 const ITEMS = [
   { id: "F1", kind: "Kind of item",
     title: "One line that states the item",
@@ -147,6 +148,7 @@ const AFTER = [
 ];
 const COLLECTION = "sheet-id";
 
+const OWN = { key: "own", label: "My own answer", detail: "None of these; I write my answer in the field below." };
 const ASKED = ITEMS.filter((i) => ASK.includes(i.id));
 const state = {};
 const saveEl = document.getElementById("save-state");
@@ -190,7 +192,7 @@ function render() {
       const group = el("div", "opts");
       group.setAttribute("role", "radiogroup");
       group.setAttribute("aria-label", it.id);
-      for (const o of it.options) {
+      for (const o of it.options.concat([OWN])) {
         const b = el("button", "opt");
         b.type = "button";
         b.id = "opt-" + it.id + "-" + o.key;
@@ -209,8 +211,8 @@ function render() {
 
     const ta = el("textarea");
     ta.id = "note-" + it.id;
-    ta.placeholder = it.options ? "Note (optional)" : "Note (optional, one sentence when you pick Other)";
-    ta.setAttribute("aria-label", "Note on " + it.id);
+    ta.placeholder = "Your own answer, or a note on what you picked";
+    ta.setAttribute("aria-label", "Your answer to " + it.id);
     ta.value = s.note || "";
     let t = null;
     ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => saveNote(it.id, ta.value), 700); });
@@ -220,7 +222,7 @@ function render() {
       const foot = el("div", "foot");
       foot.append(el("span", "hint", "Yes carries out what is under “I would”."));
       const choices = el("div", "choices");
-      for (const [val, label] of [["other", "Other"], ["yes", "Yes"]]) {
+      for (const [val, label] of [["own", "Own answer"], ["yes", "Yes"]]) {
         const b = el("button", "btn", label);
         b.type = "button";
         b.id = "btn-" + it.id + "-" + val;
@@ -267,7 +269,7 @@ function updateCount() {
 function paint(id) {
   const s = state[id] || {};
   for (const b of document.querySelectorAll('[id^="opt-' + id + '-"]')) b.setAttribute("aria-checked", String(b.id === "opt-" + id + "-" + s.choice));
-  for (const v of ["yes", "other"]) {
+  for (const v of ["yes", "own"]) {
     const b = document.getElementById("btn-" + id + "-" + v);
     if (b) b.setAttribute("aria-pressed", String(s.choice === v));
   }
@@ -287,13 +289,18 @@ async function write(id) {
 
 function choose(id, choice) {
   state[id] = Object.assign({}, state[id], { choice });
+  if (choice === OWN.key) document.getElementById("note-" + id).focus();
   paint(id);
   updateCount();
   write(id);
 }
 
 function saveNote(id, note) {
-  state[id] = Object.assign({}, state[id], { note });
+  const cur = state[id] || {};
+  // A typed answer without a pick counts as an own answer.
+  state[id] = Object.assign({}, cur, { note, choice: cur.choice || (note.trim() ? OWN.key : "") });
+  paint(id);
+  updateCount();
   write(id);
 }
 
