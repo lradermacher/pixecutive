@@ -35,17 +35,23 @@ function lastStep(): string {
 
 function status(): void {
 	const memory = readMemory();
-	const running = existsSync(lockFile) ? `running ${readFileSync(lockFile, 'utf8').trim()} · ${lastStep() || 'loading'}` : 'idle';
+	const running = existsSync(lockFile)
+		? `running ${readFileSync(lockFile, 'utf8').trim()} · ${lastStep() || 'loading'}`
+		: 'idle';
 	const rows = existsSync(logFile) ? readFileSync(logFile, 'utf8').trim().split('\n').slice(-5) : [];
 	process.stdout.write(
-		[running, `memory pressure ${String(memory.pressure)} · swap ${String(memory.swapMb)} MB`, ...rows].join('\n') + '\n',
+		[running, `memory pressure ${String(memory.pressure)} · swap ${String(memory.swapMb)} MB`, ...rows].join('\n') +
+			'\n',
 	);
 }
 
 function modelCommand(input: string, prompt: string, output: string, seed: number): string[] {
 	const forced = process.env['PIX_RENDER_COMMAND'];
 	if (forced !== undefined && forced !== '') return ['sh', '-c', forced, 'render', output];
-	const snapshots = join(homedir(), '.cache/huggingface/hub/models--lightx2v--Qwen-Image-Edit-2511-Lightning/snapshots');
+	const snapshots = join(
+		homedir(),
+		'.cache/huggingface/hub/models--lightx2v--Qwen-Image-Edit-2511-Lightning/snapshots',
+	);
 	const snapshot = existsSync(snapshots) ? readdirSync(snapshots)[0] : undefined;
 	if (snapshot === undefined) fail(`The Lightning LoRA is missing under ${snapshots}.`);
 	const lora = join(snapshots, snapshot, 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors');
@@ -64,7 +70,9 @@ function run(): void {
 	const name = option('--name');
 	const seed = Number(option('--seed') ?? '11');
 	if (input === undefined || prompt === undefined || name === undefined || !/^[a-z0-9-]+$/.test(name))
-		fail('usage: node scripts/render.ts run --input <png> --prompt <txt> --name <lowercase-name> [--seed N] [--width W --height H]');
+		fail(
+			'usage: node scripts/render.ts run --input <png> --prompt <txt> --name <lowercase-name> [--seed N] [--width W --height H]',
+		);
 	mkdirSync(dir, { recursive: true });
 	if (existsSync(lockFile)) fail(`refused: a render is running (${readFileSync(lockFile, 'utf8').trim()})`);
 	const start = readMemory();
@@ -86,16 +94,19 @@ function run(): void {
 	};
 	child.stdout.on('data', keep);
 	child.stderr.on('data', keep);
-	const watch = setInterval(() => {
-		const now = readMemory();
-		peakPressure = Math.max(peakPressure, now.pressure);
-		swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
-		const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);
-		if (verdict.action === 'abort') {
-			result = `ABORT: ${verdict.reason}`;
-			child.kill('SIGTERM');
-		}
-	}, Number(process.env['PIX_RENDER_INTERVAL_MS'] ?? '5000'));
+	const watch = setInterval(
+		() => {
+			const now = readMemory();
+			peakPressure = Math.max(peakPressure, now.pressure);
+			swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
+			const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);
+			if (verdict.action === 'abort') {
+				result = `ABORT: ${verdict.reason}`;
+				child.kill('SIGTERM');
+			}
+		},
+		Number(process.env['PIX_RENDER_INTERVAL_MS'] ?? '5000'),
+	);
 	child.on('exit', (code) => {
 		clearInterval(watch);
 		if (result === 'done' && (code !== 0 || !existsSync(output))) result = `FAILED: exit ${String(code)}`;

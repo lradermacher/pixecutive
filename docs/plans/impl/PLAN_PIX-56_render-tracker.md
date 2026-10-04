@@ -6,12 +6,12 @@ because of a render.
 
 ## Acceptance
 
-- [ ] A render started through the script writes one log row with every field above, including on abort
-- [ ] The guard aborts at critical memory pressure or at the swap limit, and the row says why
-- [ ] A status command shows the running render's step and the last rows of the log
-- [ ] The log file is gitignored, and the script has a probe or test
-- [ ] verify-full is green
-- [ ] ticket.ts opens a card on a branch of an earlier card of the same series once that card's package is closed, and the probe covers it
+- [x] A render started through the script writes one log row with every field above, including on abort — probe-render.sh cases "the done row carries every column" and the two abort cases; real rows in renders/renders.tsv
+- [x] The guard aborts at critical memory pressure or at the swap limit, and the row says why — probe cases for level 4 and +9000 MB swap; a real abort at +9971 MB swap (sheet-m, 2026-10-04)
+- [x] A status command shows the running render's step and the last rows of the log — probe cases "status names the running render's step" and "status shows the last log rows"
+- [x] The log file is gitignored, and the script has a probe or test — `.gitignore` has `renders/`; `scripts/probe-render.sh` (8 cases) runs from the pre-commit row
+- [x] verify-full is green — STAGE 2 GREEN after 9f48bcb
+- [x] ticket.ts opens a card on a branch of an earlier card of the same series once that card's package is closed, and the probe covers it — 4f38a80, probe-ticket.sh two series cases (99 green)
 
 ## Inventory
 
@@ -76,8 +76,8 @@ directly.
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 0 | ticket.ts series: probe red, then green; PIX-7 package closed, PIX-56 opened | `node scripts/ticket.ts show` names PIX-56 | 4f38a80 |
-| 1 | Guard decision and log row | covered by the probe of step 3 | 4f38a80 → this commit |
-| 2 | Memory reading and the render entry with `run` and `status` | `node scripts/render.ts status` | this commit |
-| 3 | Probe red, then green; `.gitignore`; probe row in the pre-commit | `bash scripts/probe-render.sh` (8 cases) | this commit |
-| 4 | One real render of the female sketch under the guard | log row in `renders/renders.tsv` | open |
-| 5 | Full gate | `node scripts/verify-full.ts` | open |
+| 1 | Guard decision and log row | covered by the probe of step 3 | 0b78c77 |
+| 2 | Memory reading and the render entry with `run` and `status` | `node scripts/render.ts status` | 0b78c77 |
+| 3 | Probe red, then green; `.gitignore`; probe row in the pre-commit | `bash scripts/probe-render.sh` (8 cases) | 0b78c77 |
+| 4 | Real renders under the guard (base M, base F, sheets) | log rows in `renders/renders.tsv` | 9f48bcb |
+| 5 | Full gate | `node scripts/verify-full.ts` | this commit |
