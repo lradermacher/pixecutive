@@ -77,6 +77,13 @@ back. Method decided on the sheet `pix57-animation-approach` (2026-10-05):
   part. Key drawings per gesture are no longer made; the strip line of the acceptance is met by the master and the
   swap parts a gesture needs.
 
+- The part rig failed too (2026-10-05, rejected by the maintainer as unusable): rotating cut pixel-art parts by
+  30–110 degrees turns pixel edges into torn stairs, the forearm floats off the hidden upper arm, and the A-pose master
+  gave a splayed stance. Only living poses (one drawing, bends under 10 degrees) work. The maintainer chose to test a
+  figure LoRA first (sheet `pix58-anim-next` F1, card PIX-64): if it keeps redrawn frames consistent, gestures become
+  short frame sequences of real drawings. The card is blocked until PIX-64 has a verdict; the approved living poses stay
+  the asset meanwhile.
+
 ## Decided
 
 - **Asset layout:** the maintainer approved parts plus a timeline (sheet `pix57-animation-approach` B1), so the layout
