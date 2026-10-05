@@ -100,7 +100,7 @@ None.
 | --- | --- | --- | --- |
 | 1 | Hybrid key drawings for the wave | the maintainer's yes on the strips | done, then rejected in motion; kept as record |
 | 2 | Part rig from one master drawing | the maintainer's verdict | rejected; kept as record |
-| 3 | Open defects of the living poses: stand-up redrawn as standing up, the typing forearm moving, stray pixels of F jump | pinned frames looked at | open |
-| 4 | Nod and head shake through the head rig, as their own entries on the sheets | pinned frames looked at | open |
-| 5 | Each gesture's parts and rig values stored as one JSON per gesture | the files exist for every gesture of M and F | open |
+| 3 | Open defects of the living poses: stand-up redrawn as standing up, the typing forearm moving, stray pixels of F jump | pinned frames looked at | done: crumbs removed in every part; the stand-up redraw failed (figure stood on the chair) and the typing arms lie behind the laptop, so no forearm can be cut; both go to the maintainer on the sheets |
+| 4 | Nod and head shake through the head rig, as their own entries on the sheets | pinned frames looked at | done: entries `nod` and `shake`, frames looked at |
+| 5 | Each gesture's parts and rig values stored as one JSON per gesture | the files exist for every gesture of M and F | done: `renders/base-<figure>/gestures/`, 19 JSON per figure |
 | 6 | Both motion sheets rebuilt and approved with a verdict per gesture | every gesture approved | open |
