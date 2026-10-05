@@ -68,6 +68,15 @@ back. Method decided on the sheet `pix57-animation-approach` (2026-10-05):
 
 ## Changed on the way
 
+- The hybrid failed on the proof (2026-10-05): the M wave from five drawings jumped at every swap, because every
+  drawing of the image model differs a little (face, hair color, shirt shading, proportions, head 4–19 px apart).
+  The maintainer chose a part rig from one master drawing instead (sheet `pix58-rig-method` F1): the figure is drawn
+  once in an open pose with every limb visible, approved as one PNG, cut once into head, torso, upper arms,
+  forearms, hands and legs with overlap caps at the joints, and every gesture only turns and moves these parts. What
+  a rotation cannot reach (hand shapes, held objects, face expressions) is a small part drawn once and swapped on its
+  part. Key drawings per gesture are no longer made; the strip line of the acceptance is met by the master and the
+  swap parts a gesture needs.
+
 ## Decided
 
 - **Asset layout:** the maintainer approved parts plus a timeline (sheet `pix57-animation-approach` B1), so the layout
@@ -84,8 +93,9 @@ None.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Key drawings of M wave rendered and shown as one PNG strip | the maintainer's yes on the strip | open |
-| 2 | Arm split into upper arm and forearm with hand; timeline format and player | pinned frames of a test timeline, looked at | open |
+| 1 | Key drawings of M wave rendered and shown as one PNG strip | the maintainer's yes on the strip | done: sheets `pix58-wave-keys`, `pix58-wave-keys5`; superseded by the master |
+| 2 | Arm split into upper arm and forearm with hand; timeline format and player | pinned frames of a test timeline, looked at | done: timeline `renders/base-m/anim/wave.json` and the sequence player; the hybrid wave was rejected |
+| 2a | Master drawing of M in an open pose, approved as one PNG; cut into parts with joint caps | the maintainer's yes on the master; pinned frames of every joint | open |
 | 3 | M wave as a full sequence on a motion sheet | pinned frames looked at; the maintainer's yes | open |
 | 4 | Remaining gestures of M: strip, then sequence, one by one | the maintainer's yes per strip; pinned frames | open |
 | 5 | All gestures of F the same way | the maintainer's yes per strip; pinned frames | open |
