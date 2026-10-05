@@ -1,19 +1,17 @@
-# PLAN PIX-58 — Animate the base figures: every gesture as a keyframed sequence
+# PLAN PIX-58 — Animate the base figures the proven way: every gesture a living drawing with a pop on change
 
 Card: PIX-58 (feature), first card of the series PIX-58 → PIX-59 → PIX-57 on `feat/pix-7-skeleton-toolchain`, one
-pull request at the end. Goal: every gesture of the base figures M and F runs as a real animation, start → peak →
-back. Method decided on the sheet `pix57-animation-approach` (2026-10-05):
-1. A cutout rig moves the parts (upper arm, forearm, hand, head, torso) along keyframed curves with easing,
-   anticipation and overshoot, at 60 fps.
-2. The image model draws only the key drawings whose silhouette no part can be turned into, 2–3 per gesture.
-3. A drawing swap happens at the fastest moment of the motion.
+pull request at the end. Goal, decided on sheet `pix64-lora-base` F1 (2026-10-05): the gestures of M and F work the
+proven way of the reference project. Every gesture is its own drawing from the approved base, alive with the approved
+idle values; a side motion only where it holds; a short pop on change. Real in-between frames come back as a later
+card; the three failed tries are recorded below.
 
 ## Acceptance
 
-- [ ] M wave is built first as the proof: idle → arm rises → three waves → arm lowers → idle, about 3 s, and is approved by the maintainer before any other gesture is built
-- [ ] The key drawings of each gesture are approved as one PNG strip before the gesture is animated
-- [ ] Every gesture of the list runs as a keyframed sequence for M and for F
-- [ ] Each gesture is stored as part PNGs plus one JSON timeline (part, time, angle, offset, easing, drawing swap)
+- [ ] Every gesture of the list is its own drawing from the approved base, for M and for F, living with the approved idle values
+- [ ] Changing gestures plays a short pop, then the new pose lives on
+- [ ] Side motions run only where they hold: the waving forearm, nod and head shake
+- [ ] Each gesture is stored as its drawing's parts plus one JSON with its rig values
 - [ ] Every motion is checked in the real player at pinned times, zoomed at every joint, before the maintainer sees it
 - [ ] The maintainer approves every gesture on a motion sheet with a verdict per gesture
 
@@ -100,10 +98,9 @@ None.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Key drawings of M wave rendered and shown as one PNG strip | the maintainer's yes on the strip | done: sheets `pix58-wave-keys`, `pix58-wave-keys5`; superseded by the master |
-| 2 | Arm split into upper arm and forearm with hand; timeline format and player | pinned frames of a test timeline, looked at | done: timeline `renders/base-m/anim/wave.json` and the sequence player; the hybrid wave was rejected |
-| 2a | Master drawing of M in an open pose, approved as one PNG; cut into parts with joint caps | the maintainer's yes on the master; pinned frames of every joint | open |
-| 3 | M wave as a full sequence on a motion sheet | pinned frames looked at; the maintainer's yes | open |
-| 4 | Remaining gestures of M: strip, then sequence, one by one | the maintainer's yes per strip; pinned frames | open |
-| 5 | All gestures of F the same way | the maintainer's yes per strip; pinned frames | open |
-| 6 | Motion sheets M and F with a verdict per gesture | every gesture approved on the sheets | open |
+| 1 | Hybrid key drawings for the wave | the maintainer's yes on the strips | done, then rejected in motion; kept as record |
+| 2 | Part rig from one master drawing | the maintainer's verdict | rejected; kept as record |
+| 3 | Open defects of the living poses: stand-up redrawn as standing up, the typing forearm moving, stray pixels of F jump | pinned frames looked at | open |
+| 4 | Nod and head shake through the head rig, as their own entries on the sheets | pinned frames looked at | open |
+| 5 | Each gesture's parts and rig values stored as one JSON per gesture | the files exist for every gesture of M and F | open |
+| 6 | Both motion sheets rebuilt and approved with a verdict per gesture | every gesture approved | open |
