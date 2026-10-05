@@ -82,6 +82,11 @@ card; the three failed tries are recorded below.
   short frame sequences of real drawings. The card is blocked until PIX-64 has a verdict; the approved living poses stay
   the asset meanwhile.
 
+- Walking was approved on 2026-10-05: a stride pose (one image-model render from the approved base, the approved head
+  put back by the nose) alternates with the approved idle as the passing moment, four steps per second with a small
+  lift, while the figure moves across the floor. The opposite step and a separate passing pose came back identical in
+  four renders and are not pursued.
+
 ## Decided
 
 - **Asset layout:** the maintainer approved parts plus a timeline (sheet `pix57-animation-approach` B1), so the layout
@@ -104,3 +109,4 @@ None.
 | 4 | Nod and head shake through the head rig, as their own entries on the sheets | pinned frames looked at | done: entries `nod` and `shake`, frames looked at |
 | 5 | Each gesture's parts and rig values stored as one JSON per gesture | the files exist for every gesture of M and F | done: `renders/base-<figure>/gestures/`, 19 JSON per figure |
 | 6 | Both motion sheets rebuilt and approved with a verdict per gesture | every gesture approved | open |
+| 7 | Walking of M front-left from the stride pose and the idle | the maintainer's yes | done: approved, sheet `pix58-walk-floor2` |
