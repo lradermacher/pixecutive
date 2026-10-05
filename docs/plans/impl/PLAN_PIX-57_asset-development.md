@@ -126,6 +126,20 @@ These are the basis and core rules applied to this card:
   by eye in Blender through blender-mcp, the head first, each part shown to the maintainer as one PNG before the
   next. Clothes are cut from the body and offset, hair and face are parts of their own on the head bone.
 - The pixel sprite render (flat tones, a part outline in #1B1410) exists as a draft and becomes step 7 of the skill.
+- The Blender rebuild did not reach the approved look; the maintainer switched the figure path on 2026-10-04 to
+  the image model's own drawings: an approved base image per figure in high resolution (M and F, front-left and
+  back-right), each pose redrawn from it by the image model, cut out, rigged (head, one moving limb, lids) and
+  played as living motion with the approved idle values. The pixel grid is high-resolution pixel art at Full HD or
+  more (a103991). Both figures with 17 poses each are approved as living poses (2026-10-05).
+- The maintainer widened the card to the full pipeline (decision sheet `pix57-full-pipeline`, 2026-10-05): an asset
+  is made, animated and extended in the repo. It runs as the series PIX-58 (animation, method on sheet
+  `pix57-animation-approach`: rig plus few key drawings) → PIX-59 (modular layers and palette swap) → PIX-57 (the
+  chain rewritten in `apps/asset-pipeline` under the project rules and the hexagon, with skill, rule and ADR), one
+  pull request. Both proofs (M wave, the modular PNG) come before the setup.
+- What lands in the assets ships, the image model's drawings included (sheet `pix57-full-pipeline` F4): ADR 0022
+  and the rule "a generator's image never ships" are superseded in the setup step.
+- The Blender path (`figures/base-m.py`, the silhouette script, the skill `blender-character`) goes to a deletion
+  sheet with `find-references` in the setup step; nothing is deleted without the maintainer's yes per file.
 
 ## Open questions
 

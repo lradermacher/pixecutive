@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-57_asset-development.md
 | **Superseded by**   | —                                                                                  |
 | **Analysis**        | —                                                                                  |
 | **Implementation**  | [PLAN_PIX-57_asset-development.md](../plans/impl/PLAN_PIX-57_asset-development.md) |
-| **Cards**           | —                                                                                  |
+| **Cards**           | PIX-57                                                                             |
 
 <!-- STATE:END -->
 
