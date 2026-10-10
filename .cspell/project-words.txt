@@ -83,3 +83,9 @@ Zdun
 zgrep
 zod
 keyframed
+keypoint
+keypoints
+Aseprite
+Quaternius
+cel
+pxofc
