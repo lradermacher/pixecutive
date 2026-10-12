@@ -30,9 +30,8 @@ Two commands on two lines run independently. `[Prose: two commands on two lines 
 Self-hosted and hosted instances are equal; we may offer hosting, never require it. `[Agent adversarial-review]`
 
 ## Screenshots, recordings and photos never enter the repo
-A deleted image stays in the history forever. Product assets live only under
-`apps/office-ui/assets/<category>/<name>/`, as `manifest.json`, `animations/<action>/<direction>.png` and
-`textures/<variant>.png`, each PNG at most 256 KB. `[Hook pre-commit]`
+A deleted image stays in the history forever. Product assets live only under `apps/office-ui/assets/`, as PNG files
+of at most 256 KB each. `[Hook pre-commit]`
 
 ## A generated file is never edited by hand
 The generator is the source, the diff gate the proof. `[Hook pre-commit]`
