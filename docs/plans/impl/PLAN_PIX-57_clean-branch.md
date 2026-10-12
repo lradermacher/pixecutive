@@ -141,7 +141,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 15 | Review finding 5: `RenderImageCommand` as the use case input | `pnpm typecheck`, `pnpm test` | ef47b8a |
 | 16 | Review finding 6: ADR 0023 supersedes ADR 0011's value object row; ADR 0021 says `<technology>` | `check-docs`, `check-carriers`, `generate-adr-state --check` | 0014c3f |
 | 17 | Review finding 7: ADR 0022 Confirmation names what carries each point | `check-docs` | 7fb78b7 |
-| 18 | Review finding 8: the PIX-58 plan names the video guard where it is | `check-docs` | open |
+| 18 | Review finding 8: the PIX-58 plan names the video guard where it is | `check-docs` | 3831b01 |
 | 19 | Review finding 9: a spec for the render job schema | `pnpm test` | open |
 | 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | open |
 | 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | open |
