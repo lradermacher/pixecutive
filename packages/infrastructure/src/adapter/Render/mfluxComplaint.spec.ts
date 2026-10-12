@@ -175,6 +175,19 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
 	});
 
+	it('answers a warning that -W error turned into the exception ending a traceback, past its marks', () => {
+		const stream = [
+			'Killed while saving',
+			'Traceback (most recent call last):',
+			'  File "/opt/py/run.py", line 3, in render',
+			'    return warnings.warn("weights cached " + str(attempt))',
+			`${' '.repeat(20)}~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^`,
+			'UserWarning: weights cached 1',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('UserWarning: weights cached 1');
+	});
+
 	it('takes up a real error again once an ignored traceback has ended, whatever it ended with', () => {
 		const stream = [
 			'Exception ignored in: <function Model.__del__ at 0x1>',
@@ -245,6 +258,19 @@ describe('MfluxComplaint and the end of a Python run', () => {
 			'ValueError: tensor at 3:4: UserWarning: x',
 		];
 		expect(errors.map((error) => complaintOf(`${error}\nshutting down\n`))).toEqual(errors);
+	});
+
+	it('takes a warning with an empty message, or one from a frozen module, for a warning', () => {
+		const warnings = ['weights/error.py:2: UserWarning: ', '<frozen error>:3: UserWarning: imported twice'];
+		expect(warnings.map((warning) => complaintOf(`Killed while saving\n${warning}\n`))).toEqual(
+			warnings.map(() => 'Killed while saving'),
+		);
+	});
+
+	it('does not take the name in brackets inside an error for the place of a warning', () => {
+		expect(complaintOf('failed in <error>:3: UserWarning: x\nshutting down\n')).toBe(
+			'failed in <error>:3: UserWarning: x',
+		);
 	});
 
 	it("sets aside only Python's own place of a warning, not any tool's file and line", () => {

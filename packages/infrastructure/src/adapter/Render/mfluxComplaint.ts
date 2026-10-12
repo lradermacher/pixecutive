@@ -25,7 +25,10 @@ const tracebackHead = /^Traceback \(most recent call last\):/;
  * the path may hold spaces, colons or a drive letter, and the file may be named `error.py`. A line that only holds a
  * `:12: ` somewhere, as a clock time in an error, is no warning's location.
  */
-const warningSource = /^(?:.+?\.py|<[^>]+>):\d+: (?=\w*Warning: )/;
+const warningSource = /^(?:.+?\.py|<[^>]+>):\d+: (?=\w*Warning:)/;
+
+/** The marks Python draws under the failing part of a source line in a traceback, such as `~~~~^^^^`. */
+const traceMarks = /^\s*[~^]+\s*$/;
 
 /** A control sequence of the terminal, such as the cursor move tqdm writes when it clears a nested bar. */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
@@ -66,6 +69,7 @@ export class MfluxComplaint {
 	private barSteps = -1;
 	private highestStep = -1;
 	private insideIgnored = false;
+	private raising = false;
 
 	/** Takes the next chunk of the error output. */
 	listen(chunk: Buffer): void {
@@ -88,6 +92,7 @@ export class MfluxComplaint {
 		const cleared = raw.replace(terminalControl, '').replace(padding, '');
 		// Inside an exception group every line stands behind `| `; without the frame it reads like any other line.
 		const line = groupFrame.test(cleared) ? cleared.replace(groupFrame, '') : cleared;
+		if (traceMarks.test(line)) return;
 		const bar = mfluxProgress.exec(line);
 		if (bar === null) {
 			// An indented line continues the one above it, as the source line under a Python warning or in a traceback.
@@ -127,6 +132,14 @@ export class MfluxComplaint {
 			if (!tracebackHead.test(one)) this.insideIgnored = false;
 			return;
 		}
+		if (this.raising) {
+			// The first line under a traceback that is not indented is the exception that ended it, even a warning that
+			// `-W error` turned into one.
+			this.raising = false;
+			this.lastError = one;
+			return;
+		}
+		if (tracebackHead.test(one)) this.raising = true;
 		if (isWarning(one)) this.lastWarning = one;
 		else if (errorLine.test(one)) this.lastError = one;
 		else this.lastLine = one;
