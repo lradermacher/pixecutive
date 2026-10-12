@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Makes the office assets with one command per step: it wires the core's asset use cases to the generation adapters, runs one local render at a time under the memory guard and writes the layers and the manifest the office reads.
+Makes the office assets with one command per step: it wires the core's asset use cases to the generation adapters, so every local render runs one at a time under the memory guard. Today it renders one image and shows the renderer's status.
 
 ## Owner
 

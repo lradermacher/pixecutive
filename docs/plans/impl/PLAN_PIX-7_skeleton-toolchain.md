@@ -17,9 +17,8 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
 - Placement of the asset pipeline by the core rule's criteria: what an asset is (kind, footprint in tiles, anchor,
   directions, animations, layers, color slots) decides without touching the outside, so it is domain in the core;
   driving a generation tool touches the outside, so it is an adapter in infrastructure; the manifest crosses to the
-  browser, so
-  it is protocol; the command wires them, so it is an app. A new ADR 0019 adds `asset-pipeline` without replacing
-  anything.
+  browser, so it is protocol; the command wires them, so it is an app. A new ADR 0019 adds `asset-pipeline` without
+  replacing anything.
 - App names, sheet app-names of 2026-10-04 (maintainer: option A): `apps/company-server`, `apps/companion`,
   `apps/office-ui` instead of the names in ADR 0011; ADR 0020 supersedes ADR 0011 points 3 and 4 and the app names in
   ADR 0004 and 0012. The rename lands after step 3, before lint builds on the names.

@@ -9,7 +9,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 ## Acceptance
 
 - [x] `docs/ADR/README.md` says that an ADR is edited in place until its pull request is merged and superseded from then on — `docs/ADR/README.md` "Until its pull request is merged, an ADR is edited in place" (ea07edb)
-- [x] ADR 0022 states the proven asset flow and keeps what still holds; ADR 0019 names the generation tools behind adapters instead of Blender; ADR 0021 gives its reasons in this project's own terms — ADR 0022 points 1-10 with the licenses read at their source, ADR 0019 point 2, ADR 0021 Context without the other backend (ea07edb)
+- [x] ADR 0022 states the proven asset flow and keeps what still holds; ADR 0019 names the generation tools behind adapters instead of Blender; ADR 0021 gives its reasons in this project's own terms — ADR 0022 points 1-10 with the licenses read at their source, ADR 0019 point 2, ADR 0021 Context in this project's own terms (ea07edb)
 - [x] One new ADR explains the hexagon's craft layer with a neutral worked example of a feature end to end: one term for domain folders, file and type naming, edge translation of exceptions including adapters, configuration by schema, test conventions — ADR 0023 points 1-6, its naming table and the render feature under Mechanics (ea07edb, f4fe4c2)
 - [x] Every break of the hexagon rules that the audit found in this branch's code is fixed, including the architecture guard that rejects zod in the core — guard accepts zod and rejects misnamed adapters (c837edd); `globalThis.Date` lint (b97fcf0); adapter and clock names, config schema, exit code table, ports with named types, status through the port, plain errors banned in adapters (f4fe4c2); READMEs (4e218f8, 07f5463); core rule mechanisms aligned with ADR 0011 (this commit)
 - [x] The files that serve only the dropped asset path are removed per the approved per-file list, and everything that named them is updated — the 49 files of sheet `pix57-clean-branch` F3 with their exports, data rows, word and `globals` (4e218f8)
@@ -22,7 +22,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 
 ## Inventory
 
-What the reference architecture gave us before (sheet `hexagon-pattern`, 2026-10-04) stands in ADR 0021 point 2 and the naming line of `core.md`: `domain/<Aggregate>/` with camelCase files and a type suffix, zod in the domain, services, exceptions with a key enum, the clock port, adapter files `<port>-<impl>.adapter.ts`, token files only where a container binds. This card adds only what that left open and fixes where the code drifted from it.
+What sheet `hexagon-pattern` (2026-10-04) already settled stands in ADR 0021 point 2 and the naming line of `core.md`: `domain/<Aggregate>/` with camelCase files and a type suffix, zod in the domain, services, exceptions with a key enum, the clock port, adapter files `<port>-<technology>.adapter.ts`, token files only where a container binds. This card adds only what that left open and fixes where the code drifted from it.
 
 Sources: five audits of this session (every file of `git diff origin/main...HEAD` opened once; find-references run
 for every removal), kept in the session scratchpad `flow/audit/`.
@@ -51,13 +51,13 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - **Asset pipeline:** it stays an app of the hexagon (ADR 0019; maintainer, 2026-10-04: the generator does not break
   out of the architecture). What a figure is (part layers, color slots, shoe class, trouser variant per shoe class,
   layer order) belongs in the core, because the office needs the same facts at runtime. Every generation tool is an
-  adapter in infrastructure behind a core port; its Python steps lie beside it as the adapter's internals, as
-  `cutout.py` does today. The manifest is a schema in protocol, `apps/asset-pipeline` is the composition root and the
+  adapter in infrastructure behind a core port; its Python steps lie beside it as the adapter's internals, started
+  as a process. The manifest is a schema in protocol, `apps/asset-pipeline` is the composition root and the
   command line, and the skills call its commands. A tools folder outside the hexagon is the build script that ADR 0019
   rejected. This card writes the placement into ADR 0019 and builds the render port as the first adapter; PIX-66
   moves the remaining tools.
 - **Decisions** go into ADRs, **rules that can be broken** into `core.md`/`assets.md` with their mechanism, **steps** into
-  skills, **values a mechanism reads** into data files (ADR 0001). Nothing names the reference project (basis rule).
+  skills, **values a mechanism reads** into data files (ADR 0001). Nothing names another project (basis rule).
 - **Render:** the guard decides nothing about images, it decides whether a process may run; it stays an adapter
   (touches processes and files). The use case "render one image and log it" is a core service over the port; the
   outcome types are named domain types instead of inline shapes. The app only wires and translates (core rule
@@ -73,7 +73,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 
 ## Behavior
 
-- `pnpm assets render <prompt file> <input image> <seed>` renders one image under the memory guard and writes one log row;
+- `pnpm assets render <prompt file> <input image> <seed> [<width>x<height>]` renders one image under the memory guard and writes one log row;
   `pnpm assets status` prints the running render or idle, memory, and the last log rows. Every exception key has its own
   exit code and message.
 - The architecture guard lets the core import `zod` (ADR 0021) and still rejects every other package.
@@ -143,7 +143,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 17 | Review finding 7: ADR 0022 Confirmation names what carries each point | `check-docs` | 7fb78b7 |
 | 18 | Review finding 8: the PIX-58 plan names the video guard where it is | `check-docs` | 3831b01 |
 | 19 | Review finding 9: a spec for the render job schema | `pnpm test` | 29936d7 |
-| 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | open |
+| 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | 6fe955d |
 | 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | open |
 | 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | open |
 | 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | open |
