@@ -117,8 +117,8 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | ADR README sentence; ADR 0019, 0021, 0022 rewritten in place; ADR 0023 written; state tables regenerated; the skills of step 7 | `check-docs`, `check-carriers`, `generate-adr-state --check` | ea07edb |
-| 2 | `core.md` lines, `assets.md`, `CLAUDE.md` | `check-rules` | open |
-| 3 | Architecture guard accepts zod in the core; probe case first red, then green | `bash scripts/probe-architecture.sh` | open |
+| 2 | `core.md` lines, `assets.md`, `CLAUDE.md` | `check-rules` | fdae022 |
+| 3 | Architecture guard accepts zod in the core and rejects an adapter file outside `<port>-<technology>.adapter.ts`; probe cases first red, then green | `bash scripts/probe-architecture.sh` | open |
 | 4 | Lint selector for `new globalThis.Date`; probe case first red, then green | `bash scripts/probe-lint.sh` | open |
 | 5 | Removals per the approved list, with every row, export, script, dependency and word that named them | `pnpm typecheck`, `pnpm test`, `check-skills`, `check-generated` | open |
 | 6 | Guarded render port, service, adapter, clock rename, config schema, CLI handlers and exit codes, READMEs | `pnpm test`, `pnpm lint`, the architecture guard on every new file | open |

@@ -34,7 +34,10 @@ probe "node:fs, dynamic, double quotes" red "write $core 'export const load = ()
 probe "child_process through require" red "write $core \"const run = require('child_process');\" | guard"
 probe "the infrastructure package" red "write $core \"import { x } from '@pixecutive/infrastructure';\" | guard"
 probe "a framework package" red "write $core \"import { Injectable } from '@nestjs/common';\" | guard"
-probe "a re-export of a package" red "write $core \"export { z } from 'zod';\" | guard"
+probe "zod, the core's one library" green "write $core \"import { z } from 'zod';\" | guard"
+probe "a re-export of zod" green "write $core \"export { z } from 'zod';\" | guard"
+probe "a package beside zod" red "write $core \"import { z } from 'zod-extra';\" | guard"
+probe "a re-export of a package" red "write $core \"export { pick } from 'lodash';\" | guard"
 probe "vitest in a spec" green "write packages/core/src/domain/desk.spec.ts \"import { it } from 'vitest';\" | guard"
 probe "vitest outside a spec" red "write $core \"import { it } from 'vitest';\" | guard"
 probe "an import named only in a comment" green "write $core \"// Do not write: import { x } from 'node:fs';\" | guard"
@@ -55,6 +58,8 @@ probe "an adapter with its port" green \
 	"write packages/infrastructure/src/adapter/Desk/deskRepository-typeorm.adapter.ts \"import { readFileSync } from 'node:fs';\" | guard"
 probe "an adapter without a port" red \
 	"write packages/infrastructure/src/adapter/Desk/chairRepository-typeorm.adapter.ts 'export class A {}' | guard"
+probe "an adapter without its technology" red \
+	"write packages/infrastructure/src/adapter/Desk/deskRepository.adapter.ts 'export class A {}' | guard"
 probe "a port that exports its interface" green \
 	"write packages/core/src/port/outgoing/chairRepository.interface.ts 'export interface IChairRepository { count(): number; }' | guard"
 probe "a port under another name" red \

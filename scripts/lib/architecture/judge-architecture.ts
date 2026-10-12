@@ -1,5 +1,6 @@
 // judge-architecture.ts — what the architecture guard rejects in a product file before it is written (ADR 0006
-// point 9): an outside import in the core or in the office UI, and a port file without its partner.
+// point 9): an outside import in the core or in the office UI, a port file without its partner, and an adapter file
+// outside the naming pattern of ADR 0023.
 
 import { builtinModules } from 'node:module';
 import { basename, dirname, posix } from 'node:path';
@@ -10,6 +11,9 @@ const officeUi = /^apps\/office-ui\/src\//;
 const token = /^packages\/core\/src\/port\/outgoing\/(.+)\.token\.ts$/;
 const portInterface = /^packages\/core\/src\/port\/outgoing\/(.+)\.interface\.ts$/;
 const adapter = /^packages\/infrastructure\/src\/.*\/([^/]+)-[^/-]+\.adapter\.ts$/;
+const anyAdapter = /^packages\/infrastructure\/src\/.*\.adapter\.ts$/;
+// The core's one library (ADR 0021); every other package belongs to an adapter.
+const coreLibrary = 'zod';
 const builtins = new Set(builtinModules);
 
 /**
@@ -58,11 +62,11 @@ export function judgeArchitecture(path: string, text: string, exists: (other: st
 			);
 			continue;
 		}
-		if (core.test(path) && !relative && !(isSpec && specifier === 'vitest')) {
+		if (core.test(path) && !relative && specifier !== coreLibrary && !(isSpec && specifier === 'vitest')) {
 			findings.push(
 				isNodeModule(specifier)
 					? `the core imports the Node module '${specifier}'; IO belongs to an adapter in packages/infrastructure`
-					: `the core imports the package '${specifier}'; the core imports no package, an adapter does`,
+					: `the core imports the package '${specifier}'; the core imports only ${coreLibrary}, an adapter the rest`,
 			);
 		}
 		if (
@@ -71,6 +75,9 @@ export function judgeArchitecture(path: string, text: string, exists: (other: st
 		) {
 			findings.push(`the office UI imports '${specifier}'; it speaks only through @pixecutive/protocol`);
 		}
+	}
+	if (anyAdapter.test(path) && !adapter.test(path)) {
+		findings.push(`${basename(path)} is not named <port>-<technology>.adapter.ts`);
 	}
 	const port = token.exec(path)?.[1] ?? adapter.exec(path)?.[1];
 	if (port !== undefined && !exists(`packages/core/src/port/outgoing/${port}.interface.ts`)) {
