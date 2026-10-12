@@ -235,11 +235,27 @@ describe('MfluxComplaint and the end of a traceback', () => {
 		].join('\n');
 		expect(complaintOf(stream)).toBe('KeyboardInterrupt');
 	});
+});
 
-	it('keeps the line that ends a traceback an error, not a plain line, once a later bar clears it', () => {
-		expect(complaintOf('loading\nTraceback (most recent call last):\nKeyboardInterrupt\n 1/8 [00:01<00:07]\n')).toBe(
+describe('MfluxComplaint and tqdm inside a traceback', () => {
+	it('keeps the exception when the bar tqdm draws at the end shows a step it never drew, with a warning after it', () => {
+		const stream = [
 			'Traceback (most recent call last):',
-		);
+			'ValueError: weights missing',
+			`\r${' '.repeat(37)}\u001b[A\u001b[A\r 38%|███▊      | 3/8 [00:00<00:00, 1276.55it/s]`,
+			'UserWarning: resource_tracker: There appear to be 1 leaked semaphore',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('ValueError: weights missing');
+	});
+
+	it.each([
+		['two cursor moves up', `${' '.repeat(44)}\u001b[A\u001b[A`],
+		['a color code before the padding', `\u001b[0m${' '.repeat(44)}\u001b[A`],
+		['an erase code after the padding', `${' '.repeat(44)}\u001b[K\u001b[A`],
+	])('reads the exception behind a cleared bar with %s inside a traceback', (_shape, clear) => {
+		const stream = ['Traceback (most recent call last):', `${clear}ValueError: weights missing`, ''].join('\n');
+		expect(complaintOf(stream)).toBe('ValueError: weights missing');
 	});
 
 	it('reads only the line that ends a traceback as its exception, not a warning after it', () => {

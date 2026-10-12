@@ -34,9 +34,12 @@ const traceMarks = /^\s*[~^]+\s*$/;
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
 const terminalControl = /\x1b\[[0-9;]*[A-Za-z]/g;
 
-/** The padding tqdm writes to clear a bar, followed by its cursor moves up to the bar above. */
+/**
+ * The padding tqdm writes to clear a bar, up to its last cursor move up to the bar above; a color or erase code around
+ * the padding belongs to it.
+ */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
-const clearedBar = /^ {16,}(?:\x1b\[[0-9;]*A)+/;
+const clearedBar = /^(?:\x1b\[[0-9;]*[A-Za-z])* {16,}(?:\x1b\[[0-9;]*[A-Za-z])*\x1b\[[0-9;]*A/;
 
 /** The frame of an exception group, `| ` before each line; its `+---` borders are indented and skipped like any. */
 const groupFrame = /^\s*\| ?/;
@@ -74,6 +77,7 @@ export class MfluxComplaint {
 	private highestStep = -1;
 	private insideIgnored = false;
 	private raising = false;
+	private stepPassed = false;
 
 	/** Takes the next chunk of the error output. */
 	listen(chunk: Buffer): void {
@@ -114,8 +118,9 @@ export class MfluxComplaint {
 
 	/**
 	 * An error mflux reported before a later step did not stop it, so a step past every earlier one of the same bar
-	 * clears it. A bar of another length, or one that falls back to an earlier step, is a new bar with its own count;
-	 * the bar tqdm draws again when the process ends repeats the same step and clears nothing.
+	 * clears it once mflux goes on to say something else. A bar of another length, or one that falls back to an earlier
+	 * step, is a new bar with its own count. The bar tqdm draws again when the process ends may show a step it never
+	 * drew before, but nothing but warnings follows it, so it clears nothing.
 	 */
 	private step(reached: number, steps: number): void {
 		// A bar that runs again means the traceback above it ended without its last line.
@@ -126,7 +131,7 @@ export class MfluxComplaint {
 		}
 		if (reached <= this.highestStep) return;
 		this.highestStep = reached;
-		this.lastError = '';
+		this.stepPassed = true;
 	}
 
 	private note(line: string): void {
@@ -151,8 +156,15 @@ export class MfluxComplaint {
 			return;
 		}
 		if (tracebackHead.test(one)) this.raising = true;
-		if (isWarning(one)) this.lastWarning = one;
-		else if (errorLine.test(one)) this.lastError = one;
+		if (isWarning(one)) {
+			this.lastWarning = one;
+			return;
+		}
+		if (this.stepPassed) {
+			this.stepPassed = false;
+			this.lastError = '';
+		}
+		if (errorLine.test(one)) this.lastError = one;
 		else this.lastLine = one;
 	}
 }
