@@ -174,7 +174,9 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		].join('\n');
 		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
 	});
+});
 
+describe('MfluxComplaint and the end of a traceback', () => {
 	it('answers a warning that -W error turned into the exception ending a traceback, past its marks', () => {
 		const stream = [
 			'Killed while saving',
@@ -186,6 +188,49 @@ describe('MfluxComplaint and the end of a Python run', () => {
 			'',
 		].join('\n');
 		expect(complaintOf(stream)).toBe('UserWarning: weights cached 1');
+	});
+
+	it('reads a statement over several lines in a newer traceback as part of it, not as its end', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'  File "/opt/py/run.py", line 4, in render',
+			'    return load("/models/flux-weights",',
+			`${' '.repeat(25)}2)`,
+			'  File "/opt/py/run.py", line 2, in load',
+			'    raise KeyboardInterrupt',
+			'KeyboardInterrupt',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('KeyboardInterrupt');
+	});
+
+	it('reads only the line that ends a traceback as its exception, not a warning after it', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'  File "/opt/py/run.py", line 4, in render',
+			'RuntimeError: first try failed',
+			'UserWarning: retrying without the cache',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('RuntimeError: first try failed');
+	});
+
+	it('forgets a traceback cut off before its end once Python reports an ignored one', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'Exception ignored in: <function Model.__del__ at 0x1>',
+			'Traceback (most recent call last):',
+			"KeyError: 'weights'",
+			'UserWarning: at shutdown',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('Traceback (most recent call last):');
+	});
+
+	it('forgets a traceback cut off before its end once a bar runs again', () => {
+		expect(
+			complaintOf('Traceback (most recent call last):\n 3/8 [00:03<00:05, 1.0s/it]\nUserWarning: resource_tracker\n'),
+		).toBe('Traceback (most recent call last):');
 	});
 
 	it('takes up a real error again once an ignored traceback has ended, whatever it ended with', () => {
@@ -213,7 +258,9 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		].join('\n');
 		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
 	});
+});
 
+describe('MfluxComplaint and the warnings Python prints', () => {
 	it('takes an error whose message speaks of a warning for an error', () => {
 		expect(
 			complaintOf('RuntimeError: the warning threshold of the memory guard was exceeded\nUserWarning: at shutdown\n'),
@@ -258,6 +305,12 @@ describe('MfluxComplaint and the end of a Python run', () => {
 			'ValueError: tensor at 3:4: UserWarning: x',
 		];
 		expect(errors.map((error) => complaintOf(`${error}\nshutting down\n`))).toEqual(errors);
+	});
+
+	it('takes a warning of the bare Warning category for a warning', () => {
+		expect(complaintOf('Killed while saving\nloader/error.py:2: Warning: base class used\n')).toBe(
+			'Killed while saving',
+		);
 	});
 
 	it('takes a warning with an empty message, or one from a frozen module, for a warning', () => {

@@ -55,8 +55,9 @@ const pieceLength = 4096;
 /**
  * Listens to mflux's error output chunk by chunk. A line can arrive in pieces and a character can be cut between two
  * writes, so the output is decoded as one stream and the piece after the last line break waits for the rest. The
- * reason is the last error line, else the last line that is no warning, else the last warning; it follows the shape
- * Python gives its output: an indented line continues the one above it, an exception group is read inside its frame,
+ * reason is the last error line, else the last line that is no warning, else the last warning; the line that ends a
+ * traceback counts as an error line whatever it names. It follows the shape Python gives its output: an indented line
+ * continues the one above it, an exception group is read inside its frame,
  * and the error of a traceback Python cannot raise any further, when an object is freed or the process shuts down,
  * does not count.
  */
@@ -89,7 +90,10 @@ export class MfluxComplaint {
 	}
 
 	private hear(raw: string): void {
-		const cleared = raw.replace(terminalControl, '').replace(padding, '');
+		// Inside a traceback the indentation is Python's own: a statement over several lines keeps its deep indentation
+		// there, and tqdm cleared its bars before the traceback began.
+		const bare = raw.replace(terminalControl, '');
+		const cleared = this.raising ? bare : bare.replace(padding, '');
 		// Inside an exception group every line stands behind `| `; without the frame it reads like any other line.
 		const line = groupFrame.test(cleared) ? cleared.replace(groupFrame, '') : cleared;
 		if (traceMarks.test(line)) return;
@@ -110,6 +114,8 @@ export class MfluxComplaint {
 	 * the bar tqdm draws again when the process ends repeats the same step and clears nothing.
 	 */
 	private step(reached: number, steps: number): void {
+		// A bar that runs again means the traceback above it ended without its last line.
+		this.raising = false;
 		if (steps !== this.barSteps || reached < this.highestStep) {
 			this.barSteps = steps;
 			this.highestStep = -1;
@@ -124,6 +130,7 @@ export class MfluxComplaint {
 		const one = line.replace(/\s+/g, ' ').trim().slice(0, complaintLength);
 		if (one === '') return;
 		if (ignoredException.test(one)) {
+			this.raising = false;
 			this.insideIgnored = true;
 			return;
 		}
