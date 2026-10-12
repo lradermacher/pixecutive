@@ -78,6 +78,7 @@ export class MfluxComplaint {
 	private insideIgnored = false;
 	private raising = false;
 	private stepPassed = false;
+	private errorEndedTraceback = false;
 
 	/** Takes the next chunk of the error output. */
 	listen(chunk: Buffer): void {
@@ -118,9 +119,9 @@ export class MfluxComplaint {
 
 	/**
 	 * An error mflux reported before a later step did not stop it, so a step past every earlier one of the same bar
-	 * clears it once mflux goes on to say something else. A bar of another length, or one that falls back to an earlier
-	 * step, is a new bar with its own count. The bar tqdm draws again when the process ends may show a step it never
-	 * drew before, but nothing but warnings follows it, so it clears nothing.
+	 * clears it. A bar of another length, or one that falls back to an earlier step, is a new bar with its own count.
+	 * The exception that ended a traceback is cleared only once mflux goes on to say something else that is no warning:
+	 * the bar tqdm draws again when the process ends may show a step it never drew before.
 	 */
 	private step(reached: number, steps: number): void {
 		// A bar that runs again means the traceback above it ended without its last line.
@@ -131,7 +132,8 @@ export class MfluxComplaint {
 		}
 		if (reached <= this.highestStep) return;
 		this.highestStep = reached;
-		this.stepPassed = true;
+		if (this.errorEndedTraceback) this.stepPassed = true;
+		else this.lastError = '';
 	}
 
 	private note(line: string): void {
@@ -153,6 +155,7 @@ export class MfluxComplaint {
 			// `-W error` turned into one.
 			this.raising = false;
 			this.lastError = one;
+			this.errorEndedTraceback = true;
 			return;
 		}
 		if (tracebackHead.test(one)) this.raising = true;
@@ -164,8 +167,10 @@ export class MfluxComplaint {
 			this.stepPassed = false;
 			this.lastError = '';
 		}
-		if (errorLine.test(one)) this.lastError = one;
-		else this.lastLine = one;
+		if (errorLine.test(one)) {
+			this.lastError = one;
+			this.errorEndedTraceback = false;
+		} else this.lastLine = one;
 	}
 }
 

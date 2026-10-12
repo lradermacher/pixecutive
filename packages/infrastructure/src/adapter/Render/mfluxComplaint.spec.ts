@@ -237,7 +237,48 @@ describe('MfluxComplaint and the end of a traceback', () => {
 	});
 });
 
-describe('MfluxComplaint and tqdm inside a traceback', () => {
+describe('MfluxComplaint, tracebacks and the bars around them', () => {
+	it('answers nothing when mflux recovered from a logged error and then stopped without a word', () => {
+		expect(complaintOf('Error while downloading, retrying\n 1/8 [00:01<00:07]\n 3/8 [00:03<00:05]\n')).toBe('');
+	});
+
+	it('clears the exception of a traceback once mflux goes on, and only that one', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'ValueError: first try failed',
+			' 3/8 [00:03<00:05]',
+			'retrying',
+			'ValueError: second try failed',
+			'shutting down',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('ValueError: second try failed');
+	});
+
+	it('clears at once a logged error that follows a traceback, once a later step passes it', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'ValueError: first try failed',
+			'retrying',
+			'Error while loading a key, falling back',
+			' 3/8 [00:03<00:05]',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('retrying');
+	});
+
+	it('does not clear a traceback exception for a bar drawn again at a step already shown', () => {
+		const stream = [
+			' 3/8 [00:03<00:05]',
+			'Traceback (most recent call last):',
+			'ValueError: x',
+			' 3/8 [00:03<00:05]',
+			'loading',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('ValueError: x');
+	});
+
 	it('keeps the exception when the bar tqdm draws at the end shows a step it never drew, with a warning after it', () => {
 		const stream = [
 			'Traceback (most recent call last):',
