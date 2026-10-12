@@ -231,6 +231,28 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		);
 	});
 
+	it('takes a warning from a file whose name is an error word, or with a time in its message, for a warning', () => {
+		const warnings = ['error.py:3: UserWarning: weights cached', '/opt/py/run.py:5: RuntimeWarning: 12:30: overflow'];
+		expect(warnings.map((warning) => complaintOf(`Killed while saving\n${warning}\n`))).toEqual(
+			warnings.map(() => 'Killed while saving'),
+		);
+	});
+
+	it('does not take a clock time or a count in an error for the place of a warning', () => {
+		const errors = [
+			'ERROR 12:30:45: model failed (warning: low memory)',
+			'RuntimeError at 12:30:45: warning: x',
+			'ValueError: tensor at 3:4: UserWarning: x',
+		];
+		expect(errors.map((error) => complaintOf(`${error}\nshutting down\n`))).toEqual(errors);
+	});
+
+	it("sets aside only Python's own place of a warning, not any tool's file and line", () => {
+		expect(complaintOf('error.py:12: note: warning: low memory\nshutting down\n')).toBe(
+			'error.py:12: note: warning: low memory',
+		);
+	});
+
 	it('takes a warning label behind an error for part of the error', () => {
 		expect(complaintOf("ValueError: unknown action 'warning: x'\nUserWarning: at shutdown\n")).toBe(
 			"ValueError: unknown action 'warning: x'",

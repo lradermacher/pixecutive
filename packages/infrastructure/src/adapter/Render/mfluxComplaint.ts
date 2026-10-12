@@ -21,10 +21,11 @@ const ignoredException = /^Exception ignored\b/;
 const tracebackHead = /^Traceback \(most recent call last\):/;
 
 /**
- * Where Python says a warning was raised, `path/to/file.py:12: ` right before its label; the path may hold spaces, colons
- * or a drive letter, and the file may be named `error.py`.
+ * Where Python says a warning was raised, `path/to/file.py:12: ` or `<stdin>:3: `, followed by the warning's category;
+ * the path may hold spaces, colons or a drive letter, and the file may be named `error.py`. A line that only holds a
+ * `:12: ` somewhere, as a clock time in an error, is no warning's location.
  */
-const warningSource = /^.+?:\d+: /;
+const warningSource = /^(?:.+?\.py|<[^>]+>):\d+: (?=\w*Warning: )/;
 
 /** A control sequence of the terminal, such as the cursor move tqdm writes when it clears a nested bar. */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
