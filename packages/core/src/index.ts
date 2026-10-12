@@ -12,3 +12,4 @@ export { RenderImageService } from './application/service/renderImage.service.ts
 export type { RenderImageCommand } from './application/service/renderImageCommand.ts';
 export type { IClock } from './port/outgoing/clock.interface.ts';
 export type { ILocalRenderer } from './port/outgoing/localRenderer.interface.ts';
+export type { IRenderMachine } from './port/outgoing/renderMachine.interface.ts';

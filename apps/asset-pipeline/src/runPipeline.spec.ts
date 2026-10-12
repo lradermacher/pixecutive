@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { RenderMachineLocalAdapter } from '@pixecutive/infrastructure';
 import { describe, expect, it } from 'vitest';
 import { runPipeline } from './runPipeline.ts';
 
@@ -20,22 +21,36 @@ function fakeMflux(): string {
 	return mflux;
 }
 
-/** Runs one command with a throwaway renders folder and collects what it writes. */
+/** This machine, except that its repo lies in `root`. */
+class MachineWithRepoAt extends RenderMachineLocalAdapter {
+	constructor(private readonly root: string) {
+		super();
+	}
+
+	override repoRoot(): string {
+		return this.root;
+	}
+}
+
+/** Runs one command, with a throwaway renders folder unless `configuredRenders` is false, and collects its output. */
 async function run(
 	argv: readonly string[],
 	env: Record<string, string> = {},
 	interrupts: EventEmitter = new EventEmitter(),
+	machine = new RenderMachineLocalAdapter(),
+	configuredRenders = true,
 ): Promise<{ code: number; out: string; err: string }> {
 	let out = '';
 	let err = '';
-	const rendersDir = mkdtempSync(join(tmpdir(), 'pipeline-'));
+	const renders = configuredRenders ? { PIX_RENDERS_DIR: mkdtempSync(join(tmpdir(), 'pipeline-')) } : {};
 	const code = await runPipeline(
 		argv,
-		{ PIX_RENDERS_DIR: rendersDir, PIX_MFLUX: fakeMflux(), PIX_LORA: loraFile(), ...env },
+		{ ...renders, PIX_MFLUX: fakeMflux(), PIX_LORA: loraFile(), ...env },
 		{ write: (text) => (out += text) },
 		{ write: (text) => (err += text) },
 		() => ({ pressure: 1, swapMb: 0 }),
 		interrupts,
+		machine,
 	);
 	return { code, out, err };
 }
@@ -69,6 +84,13 @@ describe('runPipeline', () => {
 		setTimeout(() => interrupts.emit('SIGINT'), 300);
 		const result = await run(['render', 'figure.txt', 'figure.png', '11'], { PIX_MFLUX: mflux }, interrupts);
 		expect([result.code, result.err.includes('render.interrupted')]).toEqual([9, true]);
+	});
+
+	it('renders into the repo of the machine when no renders folder is configured', async () => {
+		const root = mkdtempSync(join(tmpdir(), 'repo-'));
+		const machine = new MachineWithRepoAt(root);
+		const result = await run(['render', 'figure.txt', 'figure.png', '11'], {}, new EventEmitter(), machine, false);
+		expect([result.code, result.out.split('\n')[1]]).toEqual([0, join(root, 'renders', 'figure-s11.png')]);
 	});
 
 	it('answers 2 and the usage for an unknown command', async () => {

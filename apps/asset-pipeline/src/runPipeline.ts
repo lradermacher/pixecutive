@@ -1,9 +1,13 @@
 // runPipeline.ts — the asset pipeline's composition root: parses the configuration, wires the renderer to the core
 // and translates every render failure through the exit code table.
-import { execFileSync } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
-import { RenderImageService } from '@pixecutive/core';
-import { ClockSystemAdapter, LocalRendererMfluxAdapter, readMemory } from '@pixecutive/infrastructure';
+import { type IRenderMachine, RenderImageService } from '@pixecutive/core';
+import {
+	ClockSystemAdapter,
+	LocalRendererMfluxAdapter,
+	readMemory,
+	RenderMachineLocalAdapter,
+} from '@pixecutive/infrastructure';
 import { exitAnswer } from './cli/exitAnswer.ts';
 import { renderImageHandler } from './cli/renderImage.handler.ts';
 import { showRenderStatusHandler } from './cli/showRenderStatus.handler.ts';
@@ -24,7 +28,8 @@ const usage = 'usage: pnpm assets render <prompt file> <input image> <seed> [<wi
 
 /**
  * Runs one command and answers the exit code: 0 done, 2 usage, a render failure's own code from the table, 1 for
- * anything unexpected. `env`, `memoryNow` and `interrupts` are passed in so tests set the paths, the memory and Ctrl-C.
+ * anything unexpected. `env`, `memoryNow`, `interrupts` and `machine` are passed in so tests set the paths, the memory,
+ * Ctrl-C and the machine.
  */
 export async function runPipeline(
 	argv: readonly string[],
@@ -33,11 +38,11 @@ export async function runPipeline(
 	err: PipelineOutput,
 	memoryNow: MemoryNow = () => readMemory(),
 	interrupts: EventEmitter = process,
+	machine: IRenderMachine = new RenderMachineLocalAdapter(),
 ): Promise<number> {
 	const [command = '', ...args] = argv;
 	try {
-		const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-		const config = renderConfig(env, repoRoot);
+		const config = renderConfig(env, machine);
 		const service = new RenderImageService(
 			new LocalRendererMfluxAdapter({
 				...config,

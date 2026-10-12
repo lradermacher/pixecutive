@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [ ] Every gate and verify-full is green, and an independent review checked the diff
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 24; review run 1 on 326986d (14 findings, all fixed in steps 11-24), run 2 over steps 11-24 with its record on that commit
 
 ## Inventory
 
@@ -146,6 +146,6 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | 6fe955d |
 | 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | b0b8db8 |
 | 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | 241d63b |
-| 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | open |
-| 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | open |
-| 25 | Review run 2 over steps 11 to 24 | review record | open |
+| 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | 1e82971 |
+| 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | this commit |
+| 25 | Review run 2 over steps 11 to 24 | review record | run over 55ef956 to this commit; its record lies on this commit |

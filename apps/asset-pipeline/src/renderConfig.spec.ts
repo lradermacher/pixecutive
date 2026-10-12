@@ -1,23 +1,33 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { RenderException, RenderExceptionKey } from '@pixecutive/core';
+import { type IRenderMachine, RenderException, RenderExceptionKey } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
 import { renderConfig } from './renderConfig.ts';
 
-/** A model binary and a LoRA that exist, in a throwaway folder. */
-function machine(): { mflux: string; lora: string } {
-	const dir = mkdtempSync(join(tmpdir(), 'config-'));
-	const files = { mflux: join(dir, 'mflux'), lora: join(dir, 'lightning.safetensors') };
-	writeFileSync(files.mflux, '');
-	writeFileSync(files.lora, '');
-	return files;
+/** A machine with the repo at /repo, mflux and a cached LoRA where it usually is, and only `files` on its disk. */
+class InMemoryRenderMachine implements IRenderMachine {
+	constructor(private readonly files: readonly string[] = ['/opt/tools/mflux', '/hub/lightning.safetensors']) {}
+
+	repoRoot(): string {
+		return '/repo';
+	}
+
+	usualMflux(): string {
+		return '/opt/tools/mflux';
+	}
+
+	cachedLora(): string | undefined {
+		return '/hub/lightning.safetensors';
+	}
+
+	exists(path: string): boolean {
+		return this.files.includes(path);
+	}
 }
 
 /** The key `renderConfig` stops with, or null when it starts. */
-function stopKey(env: Record<string, string>): RenderExceptionKey | null {
+function stopKey(env: Record<string, string>, machine: IRenderMachine): RenderExceptionKey | null {
 	try {
-		renderConfig(env, '/repo');
+		renderConfig(env, machine);
 		return null;
 	} catch (failure) {
 		return failure instanceof RenderException ? failure.key : null;
@@ -25,28 +35,31 @@ function stopKey(env: Record<string, string>): RenderExceptionKey | null {
 }
 
 describe('renderConfig', () => {
-	it('places the renders in the repo by default', () => {
-		const { mflux, lora } = machine();
-		expect(renderConfig({ PIX_MFLUX: mflux, PIX_LORA: lora }, '/repo').rendersDir).toBe(join('/repo', 'renders'));
+	it('takes the renders folder, mflux and the LoRA from the machine by default', () => {
+		expect(renderConfig({}, new InMemoryRenderMachine())).toEqual({
+			rendersDir: join('/repo', 'renders'),
+			mflux: '/opt/tools/mflux',
+			lora: '/hub/lightning.safetensors',
+		});
 	});
 
 	it('lets the environment override every machine path', () => {
-		const { mflux, lora } = machine();
-		const config = renderConfig({ PIX_RENDERS_DIR: '/tmp/r', PIX_MFLUX: mflux, PIX_LORA: lora }, '/repo');
-		expect(config).toEqual({ rendersDir: '/tmp/r', mflux, lora });
+		const machine = new InMemoryRenderMachine(['/m', '/l.safetensors']);
+		const config = renderConfig({ PIX_RENDERS_DIR: '/tmp/r', PIX_MFLUX: '/m', PIX_LORA: '/l.safetensors' }, machine);
+		expect(config).toEqual({ rendersDir: '/tmp/r', mflux: '/m', lora: '/l.safetensors' });
 	});
 
 	it('stops the start when a path names no weights', () => {
-		expect(stopKey({ PIX_MFLUX: machine().mflux, PIX_LORA: '/hub/missing' })).toBe(RenderExceptionKey.InvalidConfig);
+		expect(stopKey({ PIX_LORA: '/hub/missing' }, new InMemoryRenderMachine())).toBe(RenderExceptionKey.InvalidConfig);
 	});
 
 	it('stops the start when mflux is not on this machine', () => {
-		expect(stopKey({ PIX_MFLUX: '/nope/mflux', PIX_LORA: machine().lora })).toBe(RenderExceptionKey.InvalidConfig);
+		expect(stopKey({}, new InMemoryRenderMachine(['/hub/lightning.safetensors']))).toBe(
+			RenderExceptionKey.InvalidConfig,
+		);
 	});
 
 	it('stops the start when the LoRA file is not on this machine', () => {
-		expect(stopKey({ PIX_MFLUX: machine().mflux, PIX_LORA: '/nope/lightning.safetensors' })).toBe(
-			RenderExceptionKey.InvalidConfig,
-		);
+		expect(stopKey({}, new InMemoryRenderMachine(['/opt/tools/mflux']))).toBe(RenderExceptionKey.InvalidConfig);
 	});
 });
