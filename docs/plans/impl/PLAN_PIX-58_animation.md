@@ -1,6 +1,6 @@
 # PLAN PIX-58 — Animate the base figures from the video model: talk, wave, sit and type
 
-Card: PIX-58 (feature), a series with PIX-57 on `feat/pix-7-skeleton-toolchain`, one pull request at the end. Goal:
+Card: PIX-58 (feature), built after PIX-66 on its own branch from `main`, through the asset pipeline's commands. Goal:
 the base figures M and F talk, wave, sit and type in the office the way idle and walk were made in PIX-65, each motion
 made by the local video model from the approved still, defined before its first render and accepted by the
 maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
@@ -71,6 +71,10 @@ before PIX-66.
   between drawings. The reasons stand in ADR 0022 under Rejected.
 - 2026-10-12: the card was rewritten to the video model after PIX-65 proved idle and walk with it; this plan follows
   the card and replaces the earlier plan of living drawings with a pop on change.
+- 2026-10-13, decided by the maintainer: the setup (pipeline, rules, skills) moves into the repo under the hexagon
+  first (PIX-66), and the gestures are then made through its commands, which tests the move. The card leaves the
+  series of PIX-57 and waits for PIX-66. Step 1 was done in the scratchpad room page (version 54) and is repeated
+  through the commands; the first talk clip of M stays as a reference only.
 
 ## Open questions
 
@@ -82,7 +86,7 @@ before PIX-66.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the room page, zoomed | open |
+| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the room page, zoomed | scratchpad room page version 54; repeated after PIX-66 |
 | 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
