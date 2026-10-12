@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 48; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 50; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50)
 
 ## Inventory
 
@@ -129,6 +129,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
   steps 45 and 46, and the two cards are closed.
 - 2026-10-12: review run 7 found that step 45 let the bar tqdm draws again at exit clear the error, and 8 smaller
   points; all are fixed in step 48, the complaint now in its own unit, each fix checked red without it.
+- 2026-10-12: review run 8 was green with one regression in rare streams and five smaller points, two of them in
+  code older than this round; all are fixed in step 50. The start value of the step count is an equivalent mutant: the
+  first bar resets it, so no case can tell it apart.
 
 ## Open questions
 
@@ -187,5 +190,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 45 | Render: `isFile` never throws; a complaint split across chunks is joined; an error before a later step no longer counts; the error word keeps its boundary; `HF_HOME` expanded before the cache path as the hub does (was PIX-69) | `pnpm test`, mutations | c3db048 |
 | 46 | Lint: random IDs and `performance.now()` rejected in the core, probe cases red first (was PIX-67) | `bash scripts/probe-lint.sh` | 7ce4d61 |
 | 47 | Review run 7 over steps 45-46 | review record | run 7 on 7ce4d61: red, a regression (the tqdm bar drawn again at exit cleared the error) and 8 smaller points, fixed in step 48 |
-| 48 | mflux's complaint as its own unit `mfluxComplaint.ts`: only a step past every earlier one clears an error, stderr decoded as one stream, a bounded waiting piece; lint for `crypto` and `performance` scope-aware and for every global-object prefix, `globalThis.Math.random` too; the cache path joined as Python does, only the environment's own variables expanded; a case red without each fix | `pnpm test`, mutations, `bash scripts/probe-lint.sh` | this commit |
-| 49 | Review run 8 over step 48 | review record | open |
+| 48 | mflux's complaint as its own unit `mfluxComplaint.ts`: only a step past every earlier one clears an error, stderr decoded as one stream, a bounded waiting piece; lint for `crypto` and `performance` scope-aware and for every global-object prefix, `globalThis.Math.random` too; the cache path joined as Python does, only the environment's own variables expanded; a case red without each fix | `pnpm test`, mutations, `bash scripts/probe-lint.sh` | 482d786 |
+| 49 | Review run 8 over step 48 | review record | run 8 on 482d786: green, 1 regression in rare streams, 1 comment slip and 4 notes; the maintainer ships nothing known, so all are fixed in step 50 |
+| 50 | mflux's complaint keeps the start of a line that never ends, counts each bar on its own, reads text right after a bar, and lets a warning win only when nothing else was said; the cache join and the doc block of `renderConfig.ts`; `mfluxComplaint.ts` in ADR 0023; the lint message for `globalThis.Math` only on `random`; a case red without each fix, an equivalent mutant named | `pnpm test`, mutations, `bash scripts/probe-lint.sh` | this commit |
+| 51 | Review run 9 over step 50 | review record | open |

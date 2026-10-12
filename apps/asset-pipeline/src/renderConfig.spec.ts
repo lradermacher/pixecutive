@@ -16,7 +16,8 @@ class InMemoryRenderMachine implements IRenderMachine {
 	}
 
 	cachedWeights(cache?: string): string | undefined {
-		return cache === undefined ? '/hub/lightning.safetensors' : join(cache, 'lightning.safetensors');
+		// The cache path as it arrives, not normalized, so a test sees exactly which path the configuration built.
+		return cache === undefined ? '/hub/lightning.safetensors' : `${cache}/lightning.safetensors`;
 	}
 
 	isFile(path: string): boolean {
@@ -55,8 +56,10 @@ describe('renderConfig', () => {
 			'/a/b/../huggingface/hub',
 		],
 		['a name that only the object prototype knows', { HF_HUB_CACHE: '/cache/$constructor' }, '/cache/$constructor'],
+		['an empty XDG_CACHE_HOME, as the hub joins it', { XDG_CACHE_HOME: '' }, 'huggingface/hub'],
+		['a .. inside the variable HF_HOME names', { HF_HOME: '$X', X: '/a/b/..' }, '/a/b/../hub'],
 	])('looks for the weights in the cache that %s names', (_, env, cache) => {
-		const weights = join(cache, 'lightning.safetensors');
+		const weights = `${cache}/lightning.safetensors`;
 		expect(renderConfig(env, new InMemoryRenderMachine(['/opt/tools/mflux', weights])).weights).toBe(weights);
 	});
 

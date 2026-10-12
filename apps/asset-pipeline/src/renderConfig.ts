@@ -25,15 +25,15 @@ function expandPath(path: string, env: Readonly<Record<string, string | undefine
 	});
 }
 
+/** Joins two parts as Python's os.path.join does for the cache: without resolving `..`, an empty first part left out. */
+function joinAsPython(first: string, second: string): string {
+	return first === '' ? second : `${first}/${second}`;
+}
+
 /**
  * The Hugging Face cache this machine uses, in the order the Hugging Face hub reads its variables; none when only the
  * usual cache of the home folder applies.
  */
-/** Joins two parts as Python's os.path.join does: without resolving `..`, and without a second slash. */
-function joinAsPython(first: string, second: string): string {
-	return first === '' || first.endsWith('/') ? `${first}${second}` : `${first}/${second}`;
-}
-
 function huggingFaceCache(env: Readonly<Record<string, string | undefined>>): string | undefined {
 	const xdg = env['XDG_CACHE_HOME'];
 	const named = env['HF_HOME'] ?? (xdg === undefined ? undefined : joinAsPython(xdg, 'huggingface'));

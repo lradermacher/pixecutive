@@ -47,10 +47,38 @@ describe('MfluxComplaint', () => {
 		expect(complaintOf(`OSError: ${'x'.repeat(1_000_000)}`)).toHaveLength(300);
 	});
 
-	it('keeps the end of a line that never ends, not its start', () => {
-		const pieces = ['HEAD ', ...Array.from({ length: 50 }, () => 'x'.repeat(1000)), ' TAIL'];
+	it('keeps the start of a line that never ends, where its error names itself', () => {
+		const pieces = [
+			'ValueError: ',
+			...Array.from({ length: 50 }, () => 'x'.repeat(1000)),
+			'\nUserWarning: at shutdown\n',
+		];
 		const said = complaintOf(...pieces);
-		expect([said.startsWith('HEAD'), said.length]).toEqual([false, 300]);
+		expect([said.startsWith('ValueError: x'), said.length]).toEqual([true, 300]);
+	});
+
+	it('lets a bar of another length count its own steps', () => {
+		const stream =
+			' 17/17 [00:02<00:00]\nError while loading a key, falling back\n 1/8 [00:01<00:07]\n 8/8 [00:08<00:00]\nsaving\n';
+		expect(complaintOf(stream)).toBe('saving');
+	});
+
+	it('clears an error at the first step of the first bar', () => {
+		expect(complaintOf('Error while loading, falling back\n 0/8 [00:00<?, ?it/s]\nloading\n')).toBe('loading');
+	});
+
+	it('reads text written right after a bar without a line break', () => {
+		expect(complaintOf(' 3/8 [00:03<00:05, 1.0s/it]ValueError: out of memory\n')).toBe('ValueError: out of memory');
+	});
+
+	it('answers a plain last line before a later warning, and a warning only when nothing else was said', () => {
+		expect(complaintOf('Killed while saving\nUserWarning: resource_tracker\n')).toBe('Killed while saving');
+		expect(complaintOf('UserWarning: resource_tracker\n')).toBe('UserWarning: resource_tracker');
+	});
+
+	it('shows a character cut off at the very end instead of dropping it', () => {
+		const line = Buffer.from('OSError: 90 °C');
+		expect(complaintOf(line.subarray(0, 13))).toBe('OSError: 90 \uFFFD');
 	});
 
 	it('does not take a word that only starts like an error for one', () => {

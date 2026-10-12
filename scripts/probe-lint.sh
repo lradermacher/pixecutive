@@ -55,6 +55,7 @@ probe "self.crypto.randomUUID() in the core" red "plant 'export function f(): st
 probe "window.performance.now() in the core" red "plant 'export function f(): number { return window.performance.now(); }' && $lint $core"
 probe "globalThis.performance.now() in the core" red "plant 'export function f(): number { return globalThis.performance.now(); }' && $lint $core"
 probe "performance.timeOrigin in the core" red "plant 'export function f(): number { return performance.timeOrigin; }' && $lint $core"
+probe "globalThis.Math.floor() in the core stays allowed" green "plant 'export function f(n: number): number { return globalThis.Math.floor(n); }' && $lint $core"
 probe "globalThis.Math.random() in the core" red "plant 'export function f(): number { return globalThis.Math.random(); }' && $lint $core"
 probe "a parameter named crypto in the core stays allowed" green \
 	"plant 'export interface Ids { randomUUID(): string }' 'export function f(crypto: Ids): string { return crypto.randomUUID(); }' && $lint $core"

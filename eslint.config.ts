@@ -22,7 +22,7 @@ const coreOnly = [
 	},
 	{
 		selector:
-			"MemberExpression[object.name='Math'][property.name='random'], MemberExpression[object.object.name=/^(globalThis|global|self|window)$/][object.property.name=/^(Math|crypto)$/]",
+			"MemberExpression[object.name='Math'][property.name='random'], MemberExpression[object.object.name=/^(globalThis|global|self|window)$/][object.property.name='Math'][property.name='random'], MemberExpression[object.object.name=/^(globalThis|global|self|window)$/][object.property.name='crypto']",
 		message: 'IDs and tokens come from an adapter (core rule).',
 	},
 	{
