@@ -96,8 +96,9 @@ Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it rea
 
 ### Confirmation
 
-The rule area `assets` carries points 2 to 10; `node scripts/check-rules.ts` and `scripts/probe-rules.sh` check its
-form. The skills `animate-figure` and `figure-part` carry the steps and their checks. The renderer spec covers the
+The rule area `assets` carries points 2, 3, 5 and 7 to 10; `node scripts/check-rules.ts` and `scripts/probe-rules.sh`
+check its form. The skill `figure-part` carries points 1 and 4, the skill `animate-figure` the steps of points 2 and 3;
+point 6 is read per tool, from its source, before its output enters the repo. The renderer spec covers the
 lock and the guard; the history guard probe covers the denylist.
 
 ## Mechanics
