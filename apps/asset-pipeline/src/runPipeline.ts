@@ -44,6 +44,11 @@ export async function runPipeline(
 ): Promise<number> {
 	const [command = '', ...args] = argv;
 	try {
+		const known = z.enum(PipelineCommand).safeParse(command);
+		if (!known.success) {
+			err.write(`${usage}\n`);
+			return 2;
+		}
 		const config = renderConfig(env, machine);
 		const service = new RenderImageService(
 			new LocalRendererMfluxAdapter({
@@ -54,11 +59,6 @@ export async function runPipeline(
 				interrupts,
 			}),
 		);
-		const known = z.enum(PipelineCommand).safeParse(command);
-		if (!known.success) {
-			err.write(`${usage}\n`);
-			return 2;
-		}
 		if (known.data === PipelineCommand.Status) return answer(out, showRenderStatusHandler(service));
 		return answer(out, await renderImageHandler(args, service));
 	} catch (failure) {

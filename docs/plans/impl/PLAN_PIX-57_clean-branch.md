@@ -166,4 +166,4 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 34 | Review run 3, only with the maintainer's yes | review record | run 3 on 45b9916 (the maintainer's yes): red, 4 findings and 4 notes, fixed in steps 35-37 |
 | 35 | The render lock as its own unit (atomic take, rewrite through a side file, mflux named from its start); a second interrupt ends the model whatever stopped the run; a start failure thrown at once, an unmovable image and a leftover side file end as keys | lock, disk and adapter specs, each case red without its fix (mutation) | 93261e6 |
 | 36 | The machine adapter reads its working folder inside the keyed try | machine adapter spec | 93261e6 (committed with step 35) |
-| 37 | The command line checks the command before it reads the configuration | composition root spec | open |
+| 37 | The command line checks the command before it reads the configuration | composition root spec | this commit |

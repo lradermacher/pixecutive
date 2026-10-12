@@ -93,6 +93,11 @@ describe('runPipeline', () => {
 		expect([result.code, result.out.split('\n')[1]]).toEqual([0, join(root, 'renders', 'figure-s11.png')]);
 	});
 
+	it('answers the usage for an unknown command before it reads the configuration', async () => {
+		const result = await run(['dance'], { PIX_LORA: '/hub/missing' });
+		expect([result.code, result.err.startsWith('usage:')]).toEqual([2, true]);
+	});
+
 	it('takes a command only in its exact spelling', async () => {
 		expect((await run(['Status'])).code).toBe(2);
 	});
