@@ -145,7 +145,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 19 | Review finding 9: a spec for the render job schema | `pnpm test` | 29936d7 |
 | 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | 6fe955d |
 | 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | b0b8db8 |
-| 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | open |
+| 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | 241d63b |
 | 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | open |
 | 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | open |
 | 25 | Review run 2 over steps 11 to 24 | review record | open |

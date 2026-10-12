@@ -97,6 +97,10 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const base = basename(job.promptFile, '.txt');
 		const name = `${base}-s${String(job.seed)}`;
 		const image = join(rendersDir, `${name}.png`);
+		// An image left by an earlier run of the same name must not count as this run's result.
+		onDisk('remove an earlier image of the same name', () => {
+			rmSync(image, { force: true });
+		});
 		onDisk('write the lock', () => {
 			writeFileSync(lock, `${String(process.pid)}\t${name}`);
 		});

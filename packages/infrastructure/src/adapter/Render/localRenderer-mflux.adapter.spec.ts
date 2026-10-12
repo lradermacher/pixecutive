@@ -141,6 +141,18 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.MemoryUnreadable);
 	});
 
+	it('never takes an image of an earlier run as the result', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (folder) => {
+			const silent = join(folder, 'silent-mflux');
+			writeFileSync(silent, '#!/bin/sh\nexit 0\n');
+			chmodSync(silent, 0o755);
+			return { mflux: silent };
+		});
+		writeFileSync(join(dir, 'figure-s11.png'), 'an earlier image');
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: no image');
+	});
+
 	it('refuses a second render while one runs', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tother`);
