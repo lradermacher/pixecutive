@@ -22,7 +22,7 @@ maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 | Video clip in `cycle` or `loop` mode, frame cut, unique poses with holds | exists, outside the repo until PIX-66 | session scratchpad pipeline |
 | Per-frame placement of face, hair, garment and accessory layers by the head origin | exists, outside the repo until PIX-66 | session scratchpad export |
 | Room page with the office's draw functions | exists, outside the repo until PIX-66 | session scratchpad |
-| One local render at a time under the memory guard | exists | `pnpm assets render`, `pnpm assets status` |
+| One video render at a time under the memory guard (pressure level and swap, like `pnpm assets render` for images) | exists, outside the repo until PIX-66 | session scratchpad `anim.sh` |
 | The steps and their checks | exists | skill `animate-figure` |
 | Mirroring to front-right | new | the export of the pipeline |
 | Seated still for sit and type | new | the last frame of a sit-down clip |
