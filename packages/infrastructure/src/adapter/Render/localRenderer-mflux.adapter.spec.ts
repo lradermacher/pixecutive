@@ -187,6 +187,20 @@ describe('LocalRendererMfluxAdapter and its lock', () => {
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Busy);
 	});
 
+	it('clears an empty lock and renders', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		writeFileSync(join(dir, 'current.lock'), '');
+		expect(renderer.status().running).toBeNull();
+		expect((await renderer.render(job)).name).toBe('figure-s11');
+	});
+
+	it('stays busy while mflux of a lock still runs, though its first process is gone', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		const gone = spawnSync('true').pid;
+		writeFileSync(join(dir, 'current.lock'), `${String(gone)},${String(process.pid)}\tfigure-s9 3/8`);
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Busy);
+	});
+
 	it('clears a lock whose process is gone and renders', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		const gone = spawnSync('true').pid;

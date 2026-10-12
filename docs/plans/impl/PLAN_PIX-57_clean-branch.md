@@ -153,7 +153,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | this commit |
 | 25 | Review run 2 over steps 11 to 24 | review record | run 2 on 3e11007: red, 4 findings and 8 notes, all fixed in steps 26-32 |
 | 26 | Run 2, R1: a failed step write ends the run as `render.storage_failed` instead of crashing | adapter spec; built app with the renders folder removed | 9b4c3b6 |
-| 27 | Run 2, R2: mflux writes a side file, so an interrupted re-run keeps the earlier image | adapter spec; built app with Ctrl-C on a re-run | open |
+| 27 | Run 2, R2: mflux writes a side file, so an interrupted re-run keeps the earlier image | adapter spec; built app with Ctrl-C on a re-run | 9c9f1a5 |
 | 28 | Run 2, R3: the lock is atomic, carries the IDs of Node and mflux, and an empty one is stale | adapter spec; built app with an empty lock | open |
 | 29 | Run 2, R4: a second interrupt ends a model that ignores the first | adapter spec | open |
 | 30 | Run 2, R5: the LoRA search covers every snapshot and keys a broken cache | machine adapter spec | open |

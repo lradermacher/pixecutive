@@ -64,8 +64,14 @@ function onDisk<T>(what: string, step: () => T): T {
 	}
 }
 
-/** Whether the process that wrote a lock still runs; a lock of a dead process is stale. */
+/** One lock line: the IDs of this process and of mflux, then the running render. */
+function lockLine(processIds: readonly number[], label: string): string {
+	return `${processIds.join(',')}\t${label}`;
+}
+
+/** Whether a process of a lock still runs; an ID that is no positive integer belongs to no process. */
 function isAlive(pid: number): boolean {
+	if (!Number.isInteger(pid) || pid <= 0) return false;
 	try {
 		process.kill(pid, 0);
 		return true;
@@ -76,8 +82,9 @@ function isAlive(pid: number): boolean {
 
 /**
  * One render at a time: a lock file refuses a second one, a start under memory pressure is refused, and a running
- * render is stopped at critical pressure, past the swap limit or by an interrupt. The lock carries the process ID,
- * the running render and its step; a lock whose process is gone is cleared. Every run leaves one row in `renders.tsv`.
+ * render is stopped at critical pressure, past the swap limit or by an interrupt. The lock is created atomically and
+ * carries the IDs of this process and of mflux, the running render and its step; a lock whose processes are all gone
+ * is cleared. Every run leaves one row in `renders.tsv`.
  * @throws {RenderException} from `render`, with the key of the failure; never a plain error.
  */
 export class LocalRendererMfluxAdapter implements ILocalRenderer {
@@ -104,13 +111,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		onDisk('remove an unfinished image of an earlier run', () => {
 			rmSync(rendering, { force: true });
 		});
-		onDisk('write the lock', () => {
-			writeFileSync(lock, `${String(process.pid)}\t${name}`);
-		});
+		this.createLock(lock, lockLine([process.pid], name));
 		try {
-			const outcome = await this.run(start, this.argv(job, rendering), (progress) => {
+			const outcome = await this.run(start, this.argv(job, rendering), (progress, mfluxPid) => {
 				onDisk('write the step into the lock', () => {
-					writeFileSync(lock, `${String(process.pid)}\t${name} ${progress}`);
+					writeFileSync(lock, lockLine([process.pid, mfluxPid], `${name} ${progress}`));
 				});
 			});
 			const finished = outcome.result === 'done' && existsSync(rendering);
@@ -171,13 +176,28 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		}
 	}
 
-	/** The running render named by `lock`, or null; a lock left by a process that is gone is removed. */
+	/**
+	 * Creates `lock` only if no other render created it in the meantime.
+	 * @throws {RenderException} busy when another render was quicker, the storage key when the lock cannot be written.
+	 */
+	private createLock(lock: string, line: string): void {
+		try {
+			writeFileSync(lock, line, { flag: 'wx' });
+		} catch (failure) {
+			if ((failure as NodeJS.ErrnoException).code === 'EEXIST') {
+				throw new RenderException(RenderExceptionKey.Busy, 'another render took the lock first');
+			}
+			throw new RenderException(RenderExceptionKey.StorageFailed, `write the lock: ${(failure as Error).message}`);
+		}
+	}
+
+	/** The running render named by `lock`, or null; a lock whose processes are all gone is removed. */
 	private running(lock: string): string | null {
 		if (!existsSync(lock)) return null;
-		const [pid = '', label = ''] = onDisk('read the lock', () => readFileSync(lock, 'utf8'))
+		const [processIds = '', label = ''] = onDisk('read the lock', () => readFileSync(lock, 'utf8'))
 			.trim()
 			.split('\t');
-		if (isAlive(Number(pid))) return label;
+		if (processIds.split(',').map(Number).some(isAlive)) return label;
 		onDisk('clear a stale lock', () => {
 			rmSync(lock, { force: true });
 		});
@@ -197,8 +217,12 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		];
 	}
 
-	/** Runs mflux under the guard; `onStep` hears each new step as `n/total`, so the status can show it. */
-	private run(start: MemoryReading, argv: readonly string[], onStep: (progress: string) => void): Promise<RunOutcome> {
+	/** Runs mflux under the guard; `onStep` hears each new step as `n/total` with mflux's process ID, for the status. */
+	private run(
+		start: MemoryReading,
+		argv: readonly string[],
+		onStep: (progress: string, mfluxPid: number) => void,
+	): Promise<RunOutcome> {
 		const [binary = '', ...rest] = argv;
 		const startedAt = Date.now();
 		let firstStepAt: number | null = null;
@@ -219,7 +243,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				lastStep = step[0];
 				// A listener's throw would never reach the render: a failed write stops mflux and ends the run instead.
 				try {
-					onStep(`${step[1] ?? ''}/${step[2] ?? ''}`);
+					onStep(`${step[1] ?? ''}/${step[2] ?? ''}`, child.pid ?? 0);
 				} catch (failure) {
 					result = `${storagePrefix}${(failure as Error).message}`;
 					child.kill('SIGTERM');
