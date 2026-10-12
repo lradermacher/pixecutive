@@ -5,15 +5,15 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { type IRenderMachine, RenderException, RenderExceptionKey } from '@pixecutive/core';
 
-/** The Lightning LoRA's folder in the Hugging Face cache; its snapshot folder is named by a hash. */
-const loraSnapshots = ['.cache', 'huggingface', 'hub', 'models--lightx2v--Qwen-Image-Edit-2511-Lightning', 'snapshots'];
+/** The Lightning LoRA's folder in a Hugging Face cache; its snapshot folder is named by a hash. */
+const loraSnapshots = ['models--lightx2v--Qwen-Image-Edit-2511-Lightning', 'snapshots'];
 const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
 /**
  * Reads the machine for the render configuration; `home` is the user's home folder and `cwd` the folder git runs in,
- * the app's own folder unless a test names another.
- * @throws {RenderException} with the invalid configuration key: from `repoRoot` outside a git repo, from `cachedLora`
- * when the cache cannot be read.
+ * the app's own folder unless a test names another. The weights are the Lightning LoRA, the command is mflux.
+ * @throws {RenderException} with the invalid configuration key: from `repoRoot` outside a git repo, from
+ * `cachedWeights` when the cache cannot be read.
  */
 export class RenderMachineLocalAdapter implements IRenderMachine {
 	constructor(
@@ -36,16 +36,16 @@ export class RenderMachineLocalAdapter implements IRenderMachine {
 		}
 	}
 
-	usualMflux(): string {
+	usualModelCommand(): string {
 		return join(this.home, '.local', 'bin', 'mflux-generate-qwen-edit');
 	}
 
 	/**
-	 * The LoRA in whichever snapshot folder holds it; none when the cache holds it nowhere.
+	 * The LoRA in whichever snapshot folder holds it, in `cache` or in the usual Hugging Face cache of the home folder.
 	 * @throws {RenderException} the invalid configuration key when the cache folder cannot be read.
 	 */
-	cachedLora(): string | undefined {
-		const snapshots = join(this.home, ...loraSnapshots);
+	cachedWeights(cache: string = join(this.home, '.cache', 'huggingface', 'hub')): string | undefined {
+		const snapshots = join(cache, ...loraSnapshots);
 		if (!existsSync(snapshots)) return undefined;
 		let folders: string[];
 		try {

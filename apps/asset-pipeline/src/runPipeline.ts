@@ -52,7 +52,9 @@ export async function runPipeline(
 		const config = renderConfig(env, machine);
 		const service = new RenderImageService(
 			new LocalRendererMfluxAdapter({
-				...config,
+				rendersDir: config.rendersDir,
+				mflux: config.modelCommand,
+				lora: config.weights,
 				intervalMs: guardIntervalMs,
 				readMemory: memoryNow,
 				clock: new ClockSystemAdapter(),

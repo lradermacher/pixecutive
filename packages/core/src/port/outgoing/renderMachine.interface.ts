@@ -1,9 +1,13 @@
 // renderMachine.interface.ts — what this machine offers a local render before the configuration is parsed.
 
-/** Where the repo lies, where mflux and the cached LoRA usually are, and whether a configured file exists. */
+/**
+ * Where the repo lies, where the model's command and its weights usually are, and whether a configured file exists;
+ * which model and which weights stays the adapter's knowledge.
+ */
 export interface IRenderMachine {
 	repoRoot(): string;
-	usualMflux(): string;
-	cachedLora(): string | undefined;
+	usualModelCommand(): string;
+	/** The weights in `cache` when given, otherwise in the machine's usual cache; none when neither holds them. */
+	cachedWeights(cache?: string): string | undefined;
 	exists(path: string): boolean;
 }

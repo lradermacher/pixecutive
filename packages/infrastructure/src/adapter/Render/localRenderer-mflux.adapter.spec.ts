@@ -7,7 +7,17 @@ import { type RenderJob, RenderException, RenderExceptionKey } from '@pixecutive
 import { describe, expect, it } from 'vitest';
 import { LocalRendererMfluxAdapter, type MfluxRenderConfig } from './localRenderer-mflux.adapter.ts';
 
-const job: RenderJob = { promptFile: 'figure.txt', inputImage: 'figure.png', seed: 11, width: 1024, height: 768 };
+/** A prompt and an input image that exist, as every render now checks before it starts the model. */
+const inputs = mkdtempSync(join(tmpdir(), 'inputs-'));
+writeFileSync(join(inputs, 'figure.txt'), 'a prompt');
+writeFileSync(join(inputs, 'figure.png'), 'an image');
+const job: RenderJob = {
+	promptFile: join(inputs, 'figure.txt'),
+	inputImage: join(inputs, 'figure.png'),
+	seed: 11,
+	width: 1024,
+	height: 768,
+};
 
 /**
  * A fake mflux: keeps its arguments, prints a progress step like mflux, waits, then writes the image named after
@@ -67,7 +77,7 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await renderer.render(job)).toEqual({ name: 'figure-s11', image: join(dir, 'figure-s11.png') });
 		const row = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t');
 		expect(row).toHaveLength(11);
-		expect([row[0], row[4], row[10]]).toEqual(['2026-10-12 09:30', '1024x768', 'done']);
+		expect([row[0], row[4], row[10]]).toEqual(['2026-10-12 09:30 UTC', '1024x768', 'done']);
 	});
 
 	it('hands mflux the job, the LoRA and the side file it writes into', async () => {
@@ -119,6 +129,28 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toMatch(/\tFAILED: spawn .*ENOENT/);
 	});
 
+	it.each([
+		['prompt file', { promptFile: join(inputs, 'no-such.txt') }],
+		['input image', { inputImage: join(inputs, 'no-such.png') }],
+	])('refuses a missing %s before it takes the lock or starts the model', async (_, missing) => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		expect(await failureKey(renderer.render({ ...job, ...missing }))).toBe(RenderExceptionKey.InvalidJob);
+		expect([existsSync(join(dir, 'current.lock')), existsSync(join(dir, 'args.txt'))]).toEqual([false, false]);
+	});
+
+	it('logs the last complaint of mflux with its exit code', async () => {
+		const { renderer, dir } = adapter(
+			[{ pressure: 1, swapMb: 100 }],
+			'0.2',
+			0,
+			model(
+				"#!/bin/sh\nprintf ' 1/8 [00:01<00:07, 1.0s/it]\\n' >&2\necho 'FileNotFoundError: prompt.txt' >&2\nexit 1\n",
+			),
+		);
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: exit 1: FileNotFoundError: prompt.txt');
+	});
+
 	it('answers the failed key and logs the exit code when mflux fails', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0', 3);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
@@ -126,10 +158,15 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 	});
 
 	it('names the running render with its current step while it runs', async () => {
-		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '1');
+		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '2');
 		const running = renderer.render(job);
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		expect(renderer.status().running).toBe('figure-s11 1/8');
+		// The fake prints its step at once; a loaded machine may still take a moment to start it.
+		let seen: string | null = null;
+		for (let tries = 0; tries < 40 && seen !== 'figure-s11 1/8'; tries += 1) {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			seen = renderer.status().running;
+		}
+		expect(seen).toBe('figure-s11 1/8');
 		await running;
 		expect(renderer.status().running).toBeNull();
 	});
@@ -311,6 +348,32 @@ describe('LocalRendererMfluxAdapter when it is stopped or cannot finish', () => 
 			existsSync(join(dir, 'figure-s11.rendering.png')),
 			readFileSync(join(dir, 'figure-s11.png'), 'utf8'),
 		]).toEqual([false, 'an earlier image']);
+	});
+
+	it('never takes an unfinished image of an earlier killed run as the result', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nexit 0\n'));
+		writeFileSync(join(dir, 'figure-s11.rendering.png'), 'left by a killed run');
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: no image');
+	});
+
+	it('stops the run as an abort when the memory cannot be read while mflux runs', async () => {
+		let reads = 0;
+		const { renderer, dir } = adapter([], '2', 0, () => ({
+			readMemory: (): { pressure: number; swapMb: number } => {
+				reads += 1;
+				if (reads > 1) throw new TypeError('sysctl is gone');
+				return { pressure: 1, swapMb: 100 };
+			},
+		}));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Aborted);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('ABORT: the memory cannot be read');
+	});
+
+	it('leaves no interrupt listener behind after a run', async () => {
+		const { renderer, interrupts } = adapter([{ pressure: 1, swapMb: 100 }]);
+		await renderer.render(job);
+		expect(['SIGINT', 'SIGTERM', 'SIGHUP'].map((signal) => interrupts.listenerCount(signal))).toEqual([0, 0, 0]);
 	});
 
 	it('logs a finished run whose image cannot be moved into place as a storage failure', async () => {

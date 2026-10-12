@@ -70,8 +70,9 @@ drift above arose.
    `src/cli/<verb><Noun>.handler.ts` exporting `<verb><Noun>Handler`; "Command" keeps its meaning as a use case's
    input. `[Hook architecture-guard · Agent adversarial-review]`
 3. **An adapter turns every outside failure into a core exception with a key.** A failed process, a refused request
-   or a missing file becomes the port's exception; a plain `Error` never leaves the infrastructure package.
-   `[Lint no-restricted-syntax throw Error]`
+   or a missing file becomes the port's exception; a plain `Error` never leaves the infrastructure package. The lint
+   sees the errors an adapter builds; the review sees those it would let pass from a Node call.
+   `[Lint no-restricted-syntax throw Error · Agent adversarial-review]`
 4. **Each edge translates keys through a typed table.** A `Record` from the exception key enum to the edge's answer
    (exit code and message, HTTP status, WebSocket error); a key without an answer does not compile.
    `[Gate verify-full: type check]`
@@ -122,7 +123,7 @@ its file goes and why there.
 | 2 | `packages/core/src/application/exception/render.exception.ts`, `renderExceptionKey.enum.ts` (`render.busy`, `render.memory_pressure` and seven more) | The failures the use case can name. |
 | 3 | `packages/core/src/port/outgoing/localRenderer.interface.ts`, `renderMachine.interface.ts` | What the use case and the start need from outside, in domain types. |
 | 4 | `packages/core/src/application/service/renderImageCommand.ts`, `renderImage.service.ts` with its spec and an `InMemoryLocalRenderer` | The use case: its input as a command, parsed into a render job before the renderer starts. |
-| 5 | `packages/infrastructure/src/adapter/Render/localRenderer-mflux.adapter.ts`, `renderMachine-local.adapter.ts`, each with its spec, beside the adapter's own parts `renderLock.ts`, `onDisk.ts`, `runEnd.enum.ts`, `memoryAction.enum.ts` | Touches processes and files: adapter; translates every failure into a key. |
+| 5 | `packages/infrastructure/src/adapter/Render/localRenderer-mflux.adapter.ts`, `renderMachine-local.adapter.ts`, each with its spec, beside the adapter's own parts `renderLock.ts`, `onDisk.ts`, `judgeMemory.ts`, `readMemory.ts`, `renderLogRow.ts`, `runEnd.enum.ts`, `memoryAction.enum.ts`, `memoryReading.interface.ts` | Touches processes and files: adapter; translates every failure into a key. |
 | 6 | `apps/asset-pipeline/src/renderConfig.ts`, `src/cli/renderImage.handler.ts`, `src/cli/showRenderStatus.handler.ts`, `src/cli/renderExitCode.ts`, `src/cli/exitAnswer.ts`, `src/cli/pipelineCommand.enum.ts`, `src/runPipeline.ts` | Parses the configuration, wires the port to the adapter, translates keys. |
 | 7 | `packages/protocol` | Only when the result crosses the wire; this one does not. |
 

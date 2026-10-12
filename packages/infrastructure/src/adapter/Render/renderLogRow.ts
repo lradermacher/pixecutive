@@ -16,11 +16,11 @@ export interface RenderRecord {
 	readonly result: string;
 }
 
-/** Formats a record as one log row; a value that was never measured is written as a dash. */
+/** Formats a record as one log row, its time in UTC; a value that was never measured is written as a dash. */
 export function renderLogRow(record: RenderRecord): string {
 	const or = (value: number | null): string => (value === null ? '-' : String(value));
 	return [
-		record.at.toISOString().slice(0, 16).replace('T', ' '),
+		`${record.at.toISOString().slice(0, 16).replace('T', ' ')} UTC`,
 		`${record.name}·s${String(record.seed)}`,
 		record.model,
 		String(record.steps),

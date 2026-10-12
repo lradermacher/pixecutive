@@ -32,7 +32,7 @@ an answer does not compile. `[Lint no-restricted-syntax throw Error · Gate veri
 
 ## An adapter turns every outside failure into a core exception with a key
 A failed process, a refused request or a missing file never leaves the infrastructure package as a plain `Error`.
-`[Lint no-restricted-syntax throw Error]`
+`[Lint no-restricted-syntax throw Error · Agent adversarial-review]`
 
 ## Configuration enters at the app, secrets fail closed
 The core reads no environment; apps parse configuration with a core schema at start. A default exists only for a value

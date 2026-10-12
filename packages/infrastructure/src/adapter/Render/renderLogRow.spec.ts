@@ -20,6 +20,7 @@ describe('renderLogRow', () => {
 	it('writes eleven columns and a dash for what was never measured', () => {
 		const columns = renderLogRow(record).split('\t');
 		expect(columns).toHaveLength(11);
+		expect(columns[0]).toBe('2026-10-04 20:30 UTC');
 		expect(columns[5]).toBe('- s');
 		expect(columns[10]).toBe('ABORT: swap +9971 MB over the 8192 MB limit');
 	});

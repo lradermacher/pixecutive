@@ -46,6 +46,19 @@ describe('renderImageHandler', () => {
 		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.InvalidJob);
 	});
 
+	it.each([
+		['no seed', ['figure.txt', 'figure.png']],
+		['a seed in hexadecimal', ['figure.txt', 'figure.png', '0x1F']],
+		['a seed with an exponent', ['figure.txt', 'figure.png', '1e3']],
+		['a size with three sides', ['figure.txt', 'figure.png', '11', '512x512x9']],
+		['a fifth argument', ['figure.txt', 'figure.png', '11', '512x512', 'junk']],
+	])('rejects %s with the invalid job key and never renders', async (_, args) => {
+		const jobs: RenderJob[] = [];
+		const failure: unknown = await renderImageHandler(args, service(jobs)).catch((error: unknown) => error);
+		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.InvalidJob);
+		expect(jobs).toEqual([]);
+	});
+
 	it('rejects missing arguments with the invalid job key', async () => {
 		const failure: unknown = await renderImageHandler(['figure.txt'], service([])).catch((error: unknown) => error);
 		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.InvalidJob);

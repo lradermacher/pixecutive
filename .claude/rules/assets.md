@@ -16,7 +16,8 @@ summary: >
 No file, no traced shape, no name. `[Gate history guard denylist]`
 
 ## A local model renders one job at a time under the memory guard
-A lock refuses a second render; the guard refuses a start under pressure and stops a run at critical pressure.
+The lock refuses a second render in the same renders folder; the guard refuses any start under pressure and stops a
+run at critical pressure.
 `[Gate verify-full: renderer spec]`
 
 ## Motion comes only from the local video model

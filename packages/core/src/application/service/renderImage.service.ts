@@ -18,7 +18,7 @@ export class RenderImageService {
 			return Promise.reject(
 				new RenderException(
 					RenderExceptionKey.InvalidJob,
-					parsed.error.issues.map((issue) => issue.message).join('; '),
+					parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; '),
 				),
 			);
 		}

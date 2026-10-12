@@ -53,6 +53,13 @@ describe('RenderImageService', () => {
 		expect(renderer.jobs).toEqual([]);
 	});
 
+	it('names the field that is wrong', async () => {
+		const failure: unknown = await new RenderImageService(new InMemoryLocalRenderer())
+			.render({ ...command, seed: Number.NaN })
+			.catch((error: unknown) => error);
+		expect(failure instanceof RenderException && failure.detail).toMatch(/^seed: /);
+	});
+
 	it('answers the renderer status', () => {
 		expect(new RenderImageService(new InMemoryLocalRenderer()).status().lastRows).toEqual(['0 jobs']);
 	});

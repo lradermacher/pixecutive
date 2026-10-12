@@ -54,6 +54,9 @@ const statusRows = 5;
 /** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
 const interruptSignals: readonly NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP'];
 
+/** A progress line of mflux, such as ` 3/8 [00:41<01:23, 20.8s/it]`. */
+const progressLine = /[0-9]+\/[0-9]+ \[[^\]]*\]/;
+
 /** The word the log's result column holds for each end of a run; a reason follows it for every end but done. */
 const logWord: Readonly<Record<RunEnd, string>> = Object.freeze({
 	[RunEnd.Done]: 'done',
@@ -89,6 +92,14 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 	async render(job: RenderJob): Promise<RenderResult> {
 		const { rendersDir } = this.config;
 		onDisk('create the renders folder', () => mkdirSync(rendersDir, { recursive: true }));
+		// A wrong path is refused before the model loads for half a minute only to fail on it.
+		const inputs: readonly (readonly [string, string])[] = [
+			['prompt file', job.promptFile],
+			['input image', job.inputImage],
+		];
+		for (const [what, path] of inputs) {
+			if (!existsSync(path)) throw new RenderException(RenderExceptionKey.InvalidJob, `${what} ${path} does not exist`);
+		}
 		const lock = new RenderLock(join(rendersDir, 'current.lock'));
 		const running = lock.running();
 		if (running !== null) throw new RenderException(RenderExceptionKey.Busy, `a render is running (${running})`);
@@ -215,6 +226,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const startedAt = Date.now();
 		let firstStepAt: number | null = null;
 		let lastStep = '';
+		// mflux says why it failed on its error output; the last line that is no progress line becomes the reason.
+		let lastComplaint = '';
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
 		let end = RunEnd.Done;
@@ -258,12 +271,14 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			};
 			if (child.pid !== undefined) tell('');
 			const watchOutput = (chunk: Buffer): void => {
-				const step = [
-					...chunk
-						.toString()
-						.replaceAll('\r', '\n')
-						.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g),
-				].at(-1);
+				const text = chunk.toString().replaceAll('\r', '\n');
+				const complaint = text
+					.split('\n')
+					.map((line) => line.trim())
+					.filter((line) => line !== '' && !progressLine.test(line))
+					.at(-1);
+				if (complaint !== undefined) lastComplaint = complaint.slice(0, 300);
+				const step = [...text.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g)].at(-1);
 				if (step === undefined) return;
 				lastStep = step[0];
 				tell(`${step[1] ?? ''}/${step[2] ?? ''}`);
@@ -302,7 +317,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('close', (code) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
-				if (code !== 0) stop(RunEnd.Failed, `exit ${String(code)}`);
+				if (code !== 0)
+					stop(RunEnd.Failed, lastComplaint === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${lastComplaint}`);
 				resolve(outcome());
 			});
 		});

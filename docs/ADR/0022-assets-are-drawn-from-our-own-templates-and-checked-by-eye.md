@@ -63,7 +63,8 @@ figure LoRA, pose control, and code that clipped or redrew where two layers meet
 Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it reached the approved look.
 
 1. **A base figure comes from our own template and style.** The local image model renders the approved template with
-   our style LoRA; the result is accepted by the maintainer before anything is built on it. `[Skill figure-part]`
+   the style LoRA we trained on our own approved drawings; the result is accepted by the maintainer before anything
+   is built on it. `[Prose: a base figure is made once per figure and accepted by eye]`
 2. **Motion comes only from the local video model.** A walk or another cycle is cut from a free clip, a gesture on the
    spot is a loop anchored on the same still at both ends; no part is stretched, rotated or moved like a puppet.
    `[Skill animate-figure]`
@@ -77,7 +78,8 @@ Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it rea
 6. **Drawings by an image model ship, with the tool's terms read first.** Every tool's license or terms are read from
    their source before its output enters the repo: OpenAI assigns its rights in output to the user (Terms of Use,
    effective 2026-01-01, section "Content"); the LTX-2 Community License claims no rights in output (point 5);
-   Z-Image Turbo and Qwen-Image-Edit are Apache-2.0 (their model cards). `[Prose: a license is read, not measured]`
+   Z-Image Turbo, Qwen-Image-Edit and its Lightning LoRA are Apache-2.0 (their model cards).
+   `[Prose: a license is read, not measured]`
 7. **Nothing from another game enters the repo:** no file, no traced shape, no name. `[Gate history guard denylist]`
 8. **A local model renders one job at a time under the memory guard.** `[Gate verify-full: renderer spec]`
 9. **A score checks a result; nothing is tuned towards it.**
@@ -97,8 +99,9 @@ Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it rea
 ### Confirmation
 
 The rule area `assets` carries points 2, 3, 5 and 7 to 10; `node scripts/check-rules.ts` and `scripts/probe-rules.sh`
-check its form. The skill `figure-part` carries points 1 and 4, the skill `animate-figure` the steps of points 2 and 3;
-point 6 is read per tool, from its source, before its output enters the repo. The renderer spec covers the
+check its form. The skill `figure-part` carries point 4, the skill `animate-figure` the steps of points 2 and 3;
+points 1 and 6 are prose: a base figure is accepted once by eye, and a license is read per tool from its source
+before its output enters the repo. The renderer spec covers the
 lock and the guard; the history guard probe covers the denylist.
 
 ## Mechanics

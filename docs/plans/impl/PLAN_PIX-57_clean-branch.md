@@ -11,14 +11,14 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] `docs/ADR/README.md` says that an ADR is edited in place until its pull request is merged and superseded from then on — `docs/ADR/README.md` "Until its pull request is merged, an ADR is edited in place" (ea07edb)
 - [x] ADR 0022 states the proven asset flow and keeps what still holds; ADR 0019 names the generation tools behind adapters instead of Blender; ADR 0021 gives its reasons in this project's own terms — ADR 0022 points 1-10 with the licenses read at their source, ADR 0019 point 2, ADR 0021 Context in this project's own terms (ea07edb)
 - [x] One new ADR explains the hexagon's craft layer with a neutral worked example of a feature end to end: one term for domain folders, file and type naming, edge translation of exceptions including adapters, configuration by schema, test conventions — ADR 0023 points 1-6, its naming table and the render feature under Mechanics (ea07edb, f4fe4c2)
-- [x] Every break of the hexagon rules that the audit found in this branch's code is fixed, including the architecture guard that rejects zod in the core — guard accepts zod and rejects misnamed adapters (c837edd); `globalThis.Date` lint (b97fcf0); adapter and clock names, config schema, exit code table, ports with named types, status through the port, plain errors banned in adapters (f4fe4c2); READMEs (4e218f8, 07f5463); core rule mechanisms aligned with ADR 0011 (this commit)
+- [x] Every break of the hexagon rules that the audit found in this branch's code is fixed, including the architecture guard that rejects zod in the core — guard accepts zod and rejects misnamed adapters (c837edd); `globalThis.Date` lint (b97fcf0); adapter and clock names, config schema, exit code table, ports with named types, status through the port, plain errors banned in adapters (f4fe4c2); READMEs (4e218f8, 07f5463); core rule mechanisms aligned with ADR 0011 (326986d)
 - [x] The files that serve only the dropped asset path are removed per the approved per-file list, and everything that named them is updated — the 49 files of sheet `pix57-clean-branch` F3 with their exports, data rows, word and `globals` (4e218f8)
 - [x] The memory guard, render log and status are served through a general guarded render port with tests — `ILocalRenderer`, `RenderImageService`, `LocalRendererMfluxAdapter` and their specs (f4fe4c2); running step in the status (07f5463)
 - [x] `assets.md` carries the approved rules, `core.md` the approved lines of the craft layer, and `CLAUDE.md` names the assets rule — fdae022
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 37; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 41; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41)
 
 ## Inventory
 
@@ -119,6 +119,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: review run 3 (with the maintainer's yes) was red with 4 findings and 4 notes, none a blocker; all are
   measured defects or specs that passed without their fix, fixed in steps 35 to 37, each new case checked red
   without its fix.
+- 2026-10-12: a real mflux render (768x768, 175 s), a second render refused while one runs, and Ctrl-C to the whole
+  process group (exit 9, no mflux left, no lock) were measured on this Mac. Review run 4 over the whole card (the
+  maintainer asked for it) found 14 more; all are fixed in steps 39 to 41, commit bodies stay as written.
 
 ## Open questions
 
@@ -153,7 +156,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | b0b8db8 |
 | 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | 241d63b |
 | 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | 1e82971 |
-| 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | this commit |
+| 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | 3e11007 |
 | 25 | Review run 2 over steps 11 to 24 | review record | run 2 on 3e11007: red, 4 findings and 8 notes, all fixed in steps 26-32 |
 | 26 | Run 2, R1: a failed step write ends the run as `render.storage_failed` instead of crashing | adapter spec; built app with the renders folder removed | 9b4c3b6 |
 | 27 | Run 2, R2: mflux writes a side file, so an interrupted re-run keeps the earlier image | adapter spec; built app with Ctrl-C on a re-run | 9c9f1a5 |
@@ -161,9 +164,13 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 29 | Run 2, R4: a second interrupt ends a model that ignores the first | adapter spec | fe7a4e9 |
 | 30 | Run 2, R5: the LoRA search covers every snapshot and keys a broken cache | machine adapter spec | 283b99e |
 | 31 | Run 2, R6: git's complaint reaches the user once | machine adapter spec | 550bd7c |
-| 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | this commit |
-| 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | this commit |
+| 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | 45b9916 |
+| 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | 45b9916 |
 | 34 | Review run 3, only with the maintainer's yes | review record | run 3 on 45b9916 (the maintainer's yes): red, 4 findings and 4 notes, fixed in steps 35-37 |
 | 35 | The render lock as its own unit (atomic take, rewrite through a side file, mflux named from its start); a second interrupt ends the model whatever stopped the run; a start failure thrown at once, an unmovable image and a leftover side file end as keys | lock, disk and adapter specs, each case red without its fix (mutation) | 93261e6 |
 | 36 | The machine adapter reads its working folder inside the keyed try | machine adapter spec | 93261e6 (committed with step 35) |
-| 37 | The command line checks the command before it reads the configuration | composition root spec | this commit |
+| 37 | The command line checks the command before it reads the configuration | composition root spec | b31fb5f |
+| 38 | Review run 4 over the whole card, which the maintainer asked for | review record | run 4 on b31fb5f: red, 11 of 11 lines fulfilled, 14 findings, fixed in steps 39-41 |
+| 39 | Render: strict arguments, inputs checked before the lock, mflux's complaint kept, the field named, log time in UTC, the core free of tool names, the Hugging Face cache variables honored; a case red without each fix | `pnpm test`, mutations | committed with step 41 |
+| 40 | Docs: ADR 0018 point 2 edited in place instead of superseded, ADR 0019 Confirmation, ADR 0022 points 1 and 6, ADR 0023 point 3 and Mechanics, core and assets rules, the PIX-56 plan's cache claim | `check-docs`, `check-carriers`, `check-rules` | committed with step 41 |
+| 41 | Findings outside this card as Backlog cards | the cards' keys | PIX-67, PIX-68; this commit |

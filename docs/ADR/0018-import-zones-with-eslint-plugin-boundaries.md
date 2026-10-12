@@ -6,7 +6,7 @@ consulted: —
 informed: —
 kind: technology
 supersedes: [6, 11] # 6: point 8 only; 11: the zone mechanism in Confirmation and the zone directions in Mechanics; the rest of both stands
-superseded-by: [21] # point 2 only, for the one package zod
+superseded-by: null
 analysis: —
 implementation: docs/plans/impl/PLAN_PIX-7_skeleton-toolchain.md
 ---
@@ -22,10 +22,10 @@ implementation: docs/plans/impl/PLAN_PIX-7_skeleton-toolchain.md
 | **Kind**            | technology                                                                                                                                                                                               |
 | **Decision-makers** | lradermacher                                                                                                                                                                                             |
 | **Supersedes**      | [0006](0006-typing-and-import-zones.md) · [0011](0011-hexagonal-architecture.md) (6: point 8 only; 11: the zone mechanism in Confirmation and the zone directions in Mechanics; the rest of both stands) |
-| **Superseded by**   | [0021](0021-zod-is-the-cores-one-library.md) (point 2 only, for the one package zod)                                                                                                                     |
+| **Superseded by**   | —                                                                                                                                                                                                        |
 | **Analysis**        | —                                                                                                                                                                                                        |
 | **Implementation**  | [PLAN_PIX-7_skeleton-toolchain.md](../plans/impl/PLAN_PIX-7_skeleton-toolchain.md)                                                                                                                       |
-| **Cards**           | PIX-7                                                                                                                                                                                                    |
+| **Cards**           | PIX-7 · PIX-57                                                                                                                                                                                           |
 
 <!-- STATE:END -->
 
@@ -63,9 +63,10 @@ Chosen: **A** (maintainer, tool-evaluation sheet F2), because only it forbids by
    (a domain rule fails with a key, ADR 0011 point 7), ports import the domain, the services import all three, and the
    entry imports every layer. The infrastructure may import the core's entry and the protocol, because an outgoing
    adapter that talks to another part of Pixecutive sends the protocol's messages. `[Lint import zones]`
-2. **The core imports no package and no Node module; the office UI imports no Node module and neither the core nor
-   an adapter.** Packages and Node modules are allowed only to the infrastructure and the apps; a spec file may import
-   the test runner. `[Lint import zones]`
+2. **The core imports no package but zod and no Node module; the office UI imports no Node module and neither the
+   core nor an adapter.** zod is the core's one library ([ADR 0021](0021-zod-is-the-cores-one-library.md)); every
+   other package and every Node module is allowed only to the infrastructure and the apps; a spec file may import the
+   test runner. `[Lint import zones]`
 3. **The resolver is eslint-import-resolver-typescript 4.4.5**, so package names resolve through the workspace links
    to the files they point at. `[Config eslint.config.ts]`
 4. **The probe proves each zone by the zone rule's own message,** for a static import, `import()` and `require()`; a

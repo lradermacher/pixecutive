@@ -37,12 +37,12 @@ implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 ## Context and problem
 
 Characters, their wardrobe and later the furniture are drawn by image models, animated by a local video model and cut
-into layers colored at runtime ([ADR 0022](0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md)). The office
-composes them at runtime: it picks the trouser drawn for the shoe class worn, lays a skirt over the shoes and under a
-jacket, and recolors only the pixels marked as the garment's main color. ADR 0011 names three apps; a generator has
-no place there. The office needs the same facts about an asset that the generator produces, and the tools differ in
-language and runtime: a model run as a local process, an outside image service through its official command line,
-image steps written in Python.
+into layers colored at runtime ([ADR 0022](0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md)). The
+office composes them at runtime: it picks the trouser drawn for the shoe class worn, lays a skirt over the shoes and
+under a jacket, and recolors only the pixels marked as the garment's main color. ADR 0011 names three apps; a generator
+has no place there. The office needs the same facts about an asset that the generator produces, and the tools differ in
+language and runtime: a model run as a local process, an outside image service through its official command line, image
+steps written in Python.
 
 ## Decision drivers
 
@@ -86,9 +86,10 @@ Chosen: **A**, because only it keeps the asset model in one tested place that th
 
 ### Confirmation
 
-The import-zone probe turns red on `node:child_process` in the core and green on `apps/asset-pipeline` importing
-infrastructure. The guarded render port is the first adapter, specified with a fake process; every further tool
-arrives as a port with an in-memory fake and an adapter with its spec.
+`scripts/probe-architecture.sh` turns red on `node:child_process` in the core, and `scripts/probe-lint.sh` turns red on
+`node:fs` in the core and green on `apps/asset-pipeline` importing infrastructure. The guarded render port is the first
+adapter, specified with a fake process; every further tool arrives as a port with an in-memory fake and an adapter with
+its spec.
 
 ## Rejected
 

@@ -6,6 +6,13 @@ import { RenderMachineLocalAdapter } from '@pixecutive/infrastructure';
 import { describe, expect, it } from 'vitest';
 import { runPipeline } from './runPipeline.ts';
 
+/** A prompt and an input image that exist, as a render checks before it starts the model. */
+const inputs = mkdtempSync(join(tmpdir(), 'inputs-'));
+const prompt = join(inputs, 'figure.txt');
+const image = join(inputs, 'figure.png');
+writeFileSync(prompt, 'a prompt');
+writeFileSync(image, 'an image');
+
 /** A LoRA file that exists, so the configuration starts. */
 function loraFile(): string {
 	const path = join(mkdtempSync(join(tmpdir(), 'lora-')), 'lightning.safetensors');
@@ -61,12 +68,12 @@ describe('runPipeline', () => {
 	});
 
 	it('renders through the wired adapter', async () => {
-		const result = await run(['render', 'figure.txt', 'figure.png', '11']);
+		const result = await run(['render', prompt, image, '11']);
 		expect([result.code, result.out.split('\n')[0]]).toEqual([0, 'done figure-s11']);
 	});
 
 	it('answers the table code and message of a render failure', async () => {
-		const result = await run(['render', 'figure.txt', 'figure.png', 'eleven']);
+		const result = await run(['render', prompt, image, 'eleven']);
 		expect(result.code).toBe(4);
 		expect(result.err.split('\n')[0]).toMatch(/^The render job is invalid \(render\.invalid_job\): .+/);
 	});
@@ -82,14 +89,14 @@ describe('runPipeline', () => {
 		chmodSync(mflux, 0o755);
 		const interrupts = new EventEmitter();
 		setTimeout(() => interrupts.emit('SIGINT'), 300);
-		const result = await run(['render', 'figure.txt', 'figure.png', '11'], { PIX_MFLUX: mflux }, interrupts);
+		const result = await run(['render', prompt, image, '11'], { PIX_MFLUX: mflux }, interrupts);
 		expect([result.code, result.err.includes('render.interrupted')]).toEqual([9, true]);
 	});
 
 	it('renders into the repo of the machine when no renders folder is configured', async () => {
 		const root = mkdtempSync(join(tmpdir(), 'repo-'));
 		const machine = new MachineWithRepoAt(root);
-		const result = await run(['render', 'figure.txt', 'figure.png', '11'], {}, new EventEmitter(), machine, false);
+		const result = await run(['render', prompt, image, '11'], {}, new EventEmitter(), machine, false);
 		expect([result.code, result.out.split('\n')[1]]).toEqual([0, join(root, 'renders', 'figure-s11.png')]);
 	});
 

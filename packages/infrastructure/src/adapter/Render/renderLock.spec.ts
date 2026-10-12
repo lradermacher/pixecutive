@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RenderException, RenderExceptionKey } from '@pixecutive/core';
@@ -46,6 +46,23 @@ describe('RenderLock', () => {
 			`${String(process.pid)},4711\tfigure-s11 3/8`,
 			false,
 		]);
+	});
+
+	it('rewrites through the side file, never in place', () => {
+		const path = lockPath();
+		const lock = new RenderLock(path);
+		lock.take('figure-s11');
+		mkdirSync(`${path}.next`);
+		const failure: unknown = ((): unknown => {
+			try {
+				lock.update([process.pid], 'figure-s11 2/8');
+				return null;
+			} catch (error) {
+				return error;
+			}
+		})();
+		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.StorageFailed);
+		expect(readFileSync(path, 'utf8')).toBe(`${String(process.pid)}\tfigure-s11`);
 	});
 
 	it.each([

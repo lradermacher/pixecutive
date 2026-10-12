@@ -11,12 +11,12 @@ class InMemoryRenderMachine implements IRenderMachine {
 		return '/repo';
 	}
 
-	usualMflux(): string {
+	usualModelCommand(): string {
 		return '/opt/tools/mflux';
 	}
 
-	cachedLora(): string | undefined {
-		return '/hub/lightning.safetensors';
+	cachedWeights(cache?: string): string | undefined {
+		return cache === undefined ? '/hub/lightning.safetensors' : join(cache, 'lightning.safetensors');
 	}
 
 	exists(path: string): boolean {
@@ -35,18 +35,39 @@ function stopKey(env: Record<string, string>, machine: IRenderMachine): RenderEx
 }
 
 describe('renderConfig', () => {
+	it.each([
+		['HF_HUB_CACHE', { HF_HUB_CACHE: '/cache/hub' }, '/cache/hub'],
+		['HF_HOME', { HF_HOME: '/cache/hf' }, '/cache/hf/hub'],
+		['XDG_CACHE_HOME', { XDG_CACHE_HOME: '/cache/xdg' }, '/cache/xdg/huggingface/hub'],
+		['HF_HUB_CACHE over HF_HOME', { HF_HUB_CACHE: '/cache/hub', HF_HOME: '/cache/hf' }, '/cache/hub'],
+	])('looks for the weights in the cache that %s names', (_, env, cache) => {
+		const weights = join(cache, 'lightning.safetensors');
+		expect(renderConfig(env, new InMemoryRenderMachine(['/opt/tools/mflux', weights])).weights).toBe(weights);
+	});
+
+	it('names the variable to set when the weights are missing', () => {
+		const failure: unknown = ((): unknown => {
+			try {
+				return renderConfig({}, new InMemoryRenderMachine(['/opt/tools/mflux']));
+			} catch (error) {
+				return error;
+			}
+		})();
+		expect(failure instanceof RenderException && failure.detail).toContain('weights (PIX_LORA)');
+	});
+
 	it('takes the renders folder, mflux and the LoRA from the machine by default', () => {
 		expect(renderConfig({}, new InMemoryRenderMachine())).toEqual({
 			rendersDir: join('/repo', 'renders'),
-			mflux: '/opt/tools/mflux',
-			lora: '/hub/lightning.safetensors',
+			modelCommand: '/opt/tools/mflux',
+			weights: '/hub/lightning.safetensors',
 		});
 	});
 
 	it('lets the environment override every machine path', () => {
 		const machine = new InMemoryRenderMachine(['/m', '/l.safetensors']);
 		const config = renderConfig({ PIX_RENDERS_DIR: '/tmp/r', PIX_MFLUX: '/m', PIX_LORA: '/l.safetensors' }, machine);
-		expect(config).toEqual({ rendersDir: '/tmp/r', mflux: '/m', lora: '/l.safetensors' });
+		expect(config).toEqual({ rendersDir: '/tmp/r', modelCommand: '/m', weights: '/l.safetensors' });
 	});
 
 	it('stops the start when a path names no weights', () => {
