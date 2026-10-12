@@ -74,7 +74,8 @@ before PIX-66.
 
 ## Open questions
 
-- **The maintainer decides:** the approval of this plan, on a sheet, before the first render of this card.
+- **Decided by the maintainer:** the approval of this plan, given in chat on 2026-10-13 (approved, go ahead), before
+  the first render of this card.
 - **I decide:** the order of the gestures and the seed of each clip, because they follow from the definitions.
 
 ## Order
