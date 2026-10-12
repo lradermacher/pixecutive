@@ -108,7 +108,9 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Aborted);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('ABORT: swap +16900 MB over the 16384 MB limit');
 	});
+});
 
+describe('LocalRendererMfluxAdapter when something fails', () => {
 	it('answers the failed key and logs the exit code when mflux fails', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0', 3);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
@@ -128,6 +130,19 @@ describe('LocalRendererMfluxAdapter', () => {
 		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (dir) => {
 			writeFileSync(join(dir, 'blocked'), 'a file, not a folder');
 			return { rendersDir: join(dir, 'blocked', 'renders') };
+		});
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
+	});
+
+	it('ends the run with the storage key when the renders folder goes away while mflux runs', async () => {
+		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (dir) => {
+			const vanishing = join(dir, 'vanishing-mflux');
+			writeFileSync(
+				vanishing,
+				`#!/bin/sh\nrm -rf "${join(dir, 'renders')}"\nprintf ' 1/8 [00:01<00:07, 1.0s/it]\\n'\nsleep 1\n`,
+			);
+			chmodSync(vanishing, 0o755);
+			return { mflux: vanishing, rendersDir: join(dir, 'renders') };
 		});
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
 	});
@@ -152,7 +167,9 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: no image');
 	});
+});
 
+describe('LocalRendererMfluxAdapter and its lock', () => {
 	it('refuses a second render while one runs', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tother`);

@@ -49,6 +49,8 @@ const statusRows = 5;
 /** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
 const interruptSignals = ['SIGINT', 'SIGTERM', 'SIGHUP'];
 const interrupted = 'ABORT: interrupted';
+/** The result of a run stopped because the renders folder could not be written while mflux ran. */
+const storagePrefix = 'STORAGE: ';
 
 /**
  * Runs one step on the renders folder; whatever the file system answers leaves the adapter with the storage key.
@@ -122,9 +124,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			const key =
 				result === interrupted
 					? RenderExceptionKey.Interrupted
-					: result.startsWith('ABORT')
-						? RenderExceptionKey.Aborted
-						: RenderExceptionKey.Failed;
+					: result.startsWith(storagePrefix)
+						? RenderExceptionKey.StorageFailed
+						: result.startsWith('ABORT')
+							? RenderExceptionKey.Aborted
+							: RenderExceptionKey.Failed;
 			throw new RenderException(key, result);
 		} finally {
 			onDisk('remove the lock', () => {
@@ -207,7 +211,13 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				].at(-1);
 				if (step === undefined) return;
 				lastStep = step[0];
-				onStep(`${step[1] ?? ''}/${step[2] ?? ''}`);
+				// A listener's throw would never reach the render: a failed write stops mflux and ends the run instead.
+				try {
+					onStep(`${step[1] ?? ''}/${step[2] ?? ''}`);
+				} catch (failure) {
+					result = `${storagePrefix}${(failure as Error).message}`;
+					child.kill('SIGTERM');
+				}
 				if (firstStepAt === null && Number(step[1]) >= 1) firstStepAt = Date.now();
 			};
 			child.stdout.on('data', watchOutput);
