@@ -1,6 +1,7 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { RenderException } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
 import { RenderMachineLocalAdapter } from './renderMachine-local.adapter.ts';
 
@@ -15,6 +16,24 @@ describe('RenderMachineLocalAdapter', () => {
 		expect(new RenderMachineLocalAdapter(home).cachedLora()).toBe(
 			join(folder, 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors'),
 		);
+	});
+
+	it('finds the LoRA in a later snapshot folder when an earlier one lacks it', () => {
+		const home = mkdtempSync(join(tmpdir(), 'home-'));
+		mkdirSync(join(home, ...snapshots, 'a-first'), { recursive: true });
+		const second = join(home, ...snapshots, 'b-second');
+		mkdirSync(second, { recursive: true });
+		writeFileSync(join(second, 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors'), '');
+		expect(new RenderMachineLocalAdapter(home).cachedLora()).toBe(
+			join(second, 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors'),
+		);
+	});
+
+	it('answers the invalid configuration key when the cache folder is a file', () => {
+		const home = mkdtempSync(join(tmpdir(), 'home-'));
+		mkdirSync(join(home, ...snapshots.slice(0, -1)), { recursive: true });
+		writeFileSync(join(home, ...snapshots), 'not a folder');
+		expect(() => new RenderMachineLocalAdapter(home).cachedLora()).toThrow(RenderException);
 	});
 
 	it('answers no LoRA when the cache holds none', () => {

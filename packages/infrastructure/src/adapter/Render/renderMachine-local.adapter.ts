@@ -11,7 +11,8 @@ const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
 /**
  * Reads the machine for the render configuration; `home` is the user's home folder and is replaced in tests.
- * @throws {RenderException} from `repoRoot`, with the invalid configuration key, when the app runs outside a git repo.
+ * @throws {RenderException} with the invalid configuration key: from `repoRoot` outside a git repo, from `cachedLora`
+ * when the cache cannot be read.
  */
 export class RenderMachineLocalAdapter implements IRenderMachine {
 	constructor(private readonly home: string = homedir()) {}
@@ -28,11 +29,20 @@ export class RenderMachineLocalAdapter implements IRenderMachine {
 		return join(this.home, '.local', 'bin', 'mflux-generate-qwen-edit');
 	}
 
+	/**
+	 * The LoRA in whichever snapshot folder holds it; none when the cache holds it nowhere.
+	 * @throws {RenderException} the invalid configuration key when the cache folder cannot be read.
+	 */
 	cachedLora(): string | undefined {
 		const snapshots = join(this.home, ...loraSnapshots);
-		const snapshot = existsSync(snapshots) ? readdirSync(snapshots)[0] : undefined;
-		const path = snapshot === undefined ? undefined : join(snapshots, snapshot, loraFile);
-		return path !== undefined && existsSync(path) ? path : undefined;
+		if (!existsSync(snapshots)) return undefined;
+		let folders: string[];
+		try {
+			folders = readdirSync(snapshots);
+		} catch (failure) {
+			throw new RenderException(RenderExceptionKey.InvalidConfig, `the LoRA cache: ${(failure as Error).message}`);
+		}
+		return folders.map((folder) => join(snapshots, folder, loraFile)).find((path) => existsSync(path));
 	}
 
 	exists(path: string): boolean {

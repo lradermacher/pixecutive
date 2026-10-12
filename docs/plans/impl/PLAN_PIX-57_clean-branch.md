@@ -155,7 +155,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 26 | Run 2, R1: a failed step write ends the run as `render.storage_failed` instead of crashing | adapter spec; built app with the renders folder removed | 9b4c3b6 |
 | 27 | Run 2, R2: mflux writes a side file, so an interrupted re-run keeps the earlier image | adapter spec; built app with Ctrl-C on a re-run | 9c9f1a5 |
 | 28 | Run 2, R3: the lock is atomic, carries the IDs of Node and mflux, and an empty one is stale | adapter spec; built app with an empty lock | 822e8d5 |
-| 29 | Run 2, R4: a second interrupt ends a model that ignores the first | adapter spec | open |
+| 29 | Run 2, R4: a second interrupt ends a model that ignores the first | adapter spec | fe7a4e9 |
 | 30 | Run 2, R5: the LoRA search covers every snapshot and keys a broken cache | machine adapter spec | open |
 | 31 | Run 2, R6: git's complaint reaches the user once | machine adapter spec | open |
 | 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | open |
