@@ -219,6 +219,18 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		).toBe('Killed while saving');
 	});
 
+	it('finds where a warning was raised in any path, and compares its label on what follows', () => {
+		const warnings = [
+			'/opt/py/with space/error.py:3: UserWarning: weights cached',
+			'/opt/py/with:colon/error.py:3: UserWarning: weights cached',
+			'C:\\py\\error.py:3: UserWarning: weights cached',
+			'/opt/py/net.py:3: UserWarning: ConnectionError, retried',
+		];
+		expect(warnings.map((warning) => complaintOf(`Killed while saving\n${warning}\n`))).toEqual(
+			warnings.map(() => 'Killed while saving'),
+		);
+	});
+
 	it('takes a warning label behind an error for part of the error', () => {
 		expect(complaintOf("ValueError: unknown action 'warning: x'\nUserWarning: at shutdown\n")).toBe(
 			"ValueError: unknown action 'warning: x'",

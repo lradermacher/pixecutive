@@ -20,8 +20,11 @@ const ignoredException = /^Exception ignored\b/;
 /** The head of a traceback; inside an ignored one it belongs to the traceback, not to its end. */
 const tracebackHead = /^Traceback \(most recent call last\):/;
 
-/** Where Python says a warning was raised, `path/to/file.py:12: `, before its label; a file may be named `error.py`. */
-const warningSource = /^[^\s:]+:\d+: /;
+/**
+ * Where Python says a warning was raised, `path/to/file.py:12: ` right before its label; the path may hold spaces, colons
+ * or a drive letter, and the file may be named `error.py`.
+ */
+const warningSource = /^.+?:\d+: /;
 
 /** A control sequence of the terminal, such as the cursor move tqdm writes when it clears a nested bar. */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
@@ -50,7 +53,8 @@ const pieceLength = 4096;
  * writes, so the output is decoded as one stream and the piece after the last line break waits for the rest. The
  * reason is the last error line, else the last line that is no warning, else the last warning; it follows the shape
  * Python gives its output: an indented line continues the one above it, an exception group is read inside its frame,
- * and the error of a traceback Python ignores at shutdown does not count.
+ * and the error of a traceback Python cannot raise any further, when an object is freed or the process shuts down,
+ * does not count.
  */
 export class MfluxComplaint {
 	private readonly decoder = new StringDecoder('utf8');
