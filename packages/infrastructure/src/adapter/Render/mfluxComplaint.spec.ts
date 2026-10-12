@@ -75,7 +75,9 @@ describe('MfluxComplaint', () => {
 		expect(complaintOf('Killed while saving\nUserWarning: resource_tracker\n')).toBe('Killed while saving');
 		expect(complaintOf('UserWarning: resource_tracker\n')).toBe('UserWarning: resource_tracker');
 	});
+});
 
+describe('MfluxComplaint and the shapes of Python output', () => {
 	it('answers an abort before the two lines of a Python warning printed at shutdown', () => {
 		const stream = [
 			'libc++abi: terminating due to uncaught exception of type std::runtime_error: [METAL] out of memory',
@@ -117,6 +119,49 @@ describe('MfluxComplaint', () => {
 
 	it('does not take a message with a count in brackets for a bar', () => {
 		expect(complaintOf('ValueError: shape 1/2 [batch] wrong\n')).toBe('ValueError: shape 1/2 [batch] wrong');
+	});
+
+	it('reads the error inside the frame of an exception group', () => {
+		const group = [
+			'  + Exception Group Traceback (most recent call last):',
+			'  |   File "run.py", line 3, in <module>',
+			'  | ExceptionGroup: renders failed (1 sub-exception)',
+			'  +-+---------------- 1 ----------------',
+			'    | Traceback (most recent call last):',
+			'    |   File "run.py", line 2, in render',
+			'    | TypeError: width must be an integer',
+			'    +------------------------------------',
+			'',
+		].join('\n');
+		expect(complaintOf(group)).toBe('TypeError: width must be an integer');
+	});
+
+	it('takes a logging warning for a warning, not for an error it names', () => {
+		expect(
+			complaintOf('WARNING:root:connection error, using the cached weights\nSaving image failed: disk full\n'),
+		).toBe('Saving image failed: disk full');
+	});
+
+	it('folds whitespace before it bounds a line that has not ended yet', () => {
+		expect(complaintOf(`ValueError:${' '.repeat(400)}disk full`, '\n')).toBe('ValueError: disk full');
+	});
+
+	it('reads a message written over the padding and cursor move of a cleared nested bar', () => {
+		expect(complaintOf(`\u001b[A${' '.repeat(60)}ValueError: no space left\n\u001b[A\n`)).toBe(
+			'ValueError: no space left',
+		);
+	});
+
+	it('does not take the error of a traceback Python ignores at shutdown', () => {
+		const stream = [
+			'RuntimeError: [METAL] Command buffer execution failed',
+			'Exception ignored in: <function Model.__del__ at 0x1>',
+			'Traceback (most recent call last):',
+			'  File "model.py", line 9, in __del__',
+			"AttributeError: 'NoneType' object has no attribute 'free'",
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
 	});
 
 	it('shows a character cut off at the very end instead of dropping it', () => {

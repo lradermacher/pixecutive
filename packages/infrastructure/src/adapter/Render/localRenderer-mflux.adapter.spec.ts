@@ -183,10 +183,32 @@ describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 		]);
 	});
 
+	it('does not take a count in brackets inside a message for the step', async () => {
+		const { renderer } = adapter(
+			[{ pressure: 1, swapMb: 100 }],
+			'0.2',
+			0,
+			model("#!/bin/sh\necho 'shape 1/2 [batch] checked' >&2\nexec sleep 1\n"),
+		);
+		const running = renderer.render(job).catch(() => null);
+		await new Promise((resolve) => setTimeout(resolve, 400));
+		expect(renderer.status().running).toBe('figure-s11');
+		await running;
+	});
+
+	it('joins a complaint that reaches the adapter in two pieces', async () => {
+		const pieces = "{ printf 'ValueError: width must '; sleep 0.3; echo 'be even'; } >&2\nexit 1\n";
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${pieces}`));
+		await renderer.render(job).catch(() => null);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(
+			'FAILED: exit 1: ValueError: width must be even',
+		);
+	});
+
 	it('names the signal that ended mflux instead of an exit code', async () => {
-		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nkill -ABRT $$\n'));
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nkill -KILL $$\n'));
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
-		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe('FAILED: signal SIGABRT');
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe('FAILED: signal SIGKILL');
 	});
 
 	it('answers the failed key and logs the exit code when mflux fails', async () => {

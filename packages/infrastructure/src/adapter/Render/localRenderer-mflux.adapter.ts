@@ -14,6 +14,7 @@ import {
 } from '@pixecutive/core';
 import { judgeMemory } from './judgeMemory.ts';
 import { MfluxComplaint } from './mfluxComplaint.ts';
+import { mfluxProgress } from './mfluxProgress.ts';
 import { MemoryAction } from './memoryAction.enum.ts';
 import type { MemoryReading } from './memoryReading.interface.ts';
 import { onDisk } from './onDisk.ts';
@@ -270,7 +271,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			if (child.pid !== undefined) tell('');
 			const watchOutput = (chunk: Buffer): void => {
 				const text = chunk.toString().replaceAll('\r', '\n');
-				const step = [...text.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g)].at(-1);
+				const step = text
+					.split('\n')
+					.map((line) => mfluxProgress.exec(line))
+					.filter((found) => found !== null)
+					.at(-1);
 				if (step === undefined) return;
 				lastStep = step[0];
 				tell(`${step[1] ?? ''}/${step[2] ?? ''}`);

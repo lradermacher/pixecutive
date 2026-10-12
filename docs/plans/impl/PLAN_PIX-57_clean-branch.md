@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 52; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 54; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52), run 10 on c7fb654 (green; its 7 points fixed in step 54)
 
 ## Inventory
 
@@ -135,6 +135,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: review run 9 showed that the third rule in a row on mflux's output still missed real Python output, so
   the input changed instead of a fourth rule: the complaint now follows the shape Python gives its output (indented
   continuation lines, warnings, tracebacks, tqdm's time), fixed in step 52.
+- 2026-10-12: review run 10 was green on real Python output (tracebacks, logging, tqdm, a real libc++abi abort) and
+  measured seven smaller points, one of them the macOS crash report the SIGABRT case left on every test run; all are
+  fixed in step 54.
 
 ## Open questions
 
@@ -197,5 +200,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 49 | Review run 8 over step 48 | review record | run 8 on 482d786: green, 1 regression in rare streams, 1 comment slip and 4 notes; the maintainer ships nothing known, so all are fixed in step 50 |
 | 50 | mflux's complaint keeps the start of a line that never ends, counts each bar on its own, reads text right after a bar, and lets a warning win only when nothing else was said; the cache join and the doc block of `renderConfig.ts`; `mfluxComplaint.ts` in ADR 0023; the lint message for `globalThis.Math` only on `random`; a case red without each fix, an equivalent mutant named | `pnpm test`, mutations, `bash scripts/probe-lint.sh` | c0d2682 |
 | 51 | Review run 9 over step 50 | review record | run 9 on c0d2682: red, the source line under a Python warning won over the real abort, and 7 smaller points; fixed in step 52 |
-| 52 | mflux's complaint follows the shape of Python output: an indented line continues the one above, a warning stays a warning, a tqdm bar is known by its time, a bar that falls back starts its own count, an error may be lower case; a signal is named instead of `exit null`; the cache join keeps no second slash; a case red without each rule (the bound of the waiting piece protects memory only, so no case can see it) | `pnpm test`, mutations | this commit |
-| 53 | Review run 10 over step 52 | review record | open |
+| 52 | mflux's complaint follows the shape of Python output: an indented line continues the one above, a warning stays a warning, a tqdm bar is known by its time, a bar that falls back starts its own count, an error may be lower case; a signal is named instead of `exit null`; the cache join keeps no second slash; a case red without each rule (the bound of the waiting piece protects memory only, so no case can see it) | `pnpm test`, mutations | c7fb654 |
+| 53 | Review run 10 over step 52 | review record | run 10 on c7fb654: green, 2 should-fix and 5 notes, all measured; fixed in step 54 |
+| 54 | mflux's complaint reads exception groups inside their frame, logging warnings in any case, the padding and cursor moves of a cleared nested bar, and skips the error of a traceback Python ignores at shutdown; the waiting piece is folded before it is bounded; the adapter's step uses the same tqdm pattern (`mfluxProgress.ts`); the signal case uses SIGKILL, which leaves no macOS crash report; the adapter has its two-piece case again; a case red without each rule, a redundant border rule removed | `pnpm test`, mutations | this commit |
+| 55 | Review run 11 over step 54 | review record | open |
