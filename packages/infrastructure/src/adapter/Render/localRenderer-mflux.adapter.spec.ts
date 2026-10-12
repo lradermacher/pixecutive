@@ -183,6 +183,11 @@ describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 			"{ echo 'Errors were ignored'; echo 'plain last line'; } >&2",
 			'exit 1: plain last line',
 		],
+		[
+			'the bar tqdm draws again at the end, after the error and before a warning',
+			"{ printf ' 0/8 [00:00<?, ?it/s]\\r'; echo 'ValueError: width must be even'; printf '\\r  0%%| | 0/8 [00:00<?, ?it/s]\\n'; echo 'UserWarning: resource_tracker'; } >&2",
+			'exit 1: ValueError: width must be even',
+		],
 	])('takes the reason right from %s', async (_, lines, reason) => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${lines}\nexit 1\n`));
 		await renderer.render(job).catch(() => null);

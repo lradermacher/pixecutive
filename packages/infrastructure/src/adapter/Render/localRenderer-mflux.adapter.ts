@@ -13,6 +13,7 @@ import {
 	RenderExceptionKey,
 } from '@pixecutive/core';
 import { judgeMemory } from './judgeMemory.ts';
+import { MfluxComplaint } from './mfluxComplaint.ts';
 import { MemoryAction } from './memoryAction.enum.ts';
 import type { MemoryReading } from './memoryReading.interface.ts';
 import { onDisk } from './onDisk.ts';
@@ -53,12 +54,6 @@ const statusRows = 5;
 
 /** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
 const interruptSignals: readonly NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP'];
-
-/** A progress line of mflux, such as ` 3/8 [00:41<01:23, 20.8s/it]`. */
-const progressLine = /[0-9]+\/[0-9]+ \[[^\]]*\]/;
-
-/** A line that names an error, such as `ValueError: width must be even`; a warning after it does not hide it. */
-const errorLine = /\b\w*(Error|Exception)\b/;
 
 /** The word the log's result column holds for each end of a run; a reason follows it for every end but done. */
 const logWord: Readonly<Record<RunEnd, string>> = Object.freeze({
@@ -230,22 +225,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		let firstStepAt: number | null = null;
 		let lastStep = '';
 		// mflux says why it failed on its error output: its last error line, else its last line that is no progress line.
-		let lastError = '';
-		let lastLine = '';
-		// A line can arrive in two pieces; the piece after the last line break waits for the rest.
-		let pending = '';
-		const hear = (line: string): void => {
-			// An error mflux reported before a later step did not stop it, so a new step clears it.
-			if (progressLine.test(line)) {
-				lastError = '';
-				return;
-			}
-			// One line of the log's last column: whitespace such as a tab would split the row, so it becomes a space.
-			const one = line.replace(/\s+/g, ' ').trim().slice(0, 300);
-			if (one === '') return;
-			lastLine = one;
-			if (errorLine.test(one)) lastError = one;
-		};
+		const complaint = new MfluxComplaint();
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
 		let end = RunEnd.Done;
@@ -288,11 +268,6 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				}
 			};
 			if (child.pid !== undefined) tell('');
-			const watchComplaints = (chunk: Buffer): void => {
-				const parts = `${pending}${chunk.toString()}`.split(/[\r\n]+/);
-				pending = parts.pop() ?? '';
-				for (const part of parts) hear(part);
-			};
 			const watchOutput = (chunk: Buffer): void => {
 				const text = chunk.toString().replaceAll('\r', '\n');
 				const step = [...text.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g)].at(-1);
@@ -303,7 +278,9 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			};
 			child.stdout?.on('data', watchOutput);
 			child.stderr?.on('data', watchOutput);
-			child.stderr?.on('data', watchComplaints);
+			child.stderr?.on('data', (chunk: Buffer) => {
+				complaint.listen(chunk);
+			});
 			child.on('error', (failure) => {
 				stop(RunEnd.Failed, failure.message);
 			});
@@ -335,10 +312,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('close', (code) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
-				hear(pending);
-				const complaint = lastError === '' ? lastLine : lastError;
-				if (code !== 0)
-					stop(RunEnd.Failed, complaint === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${complaint}`);
+				const said = complaint.finish();
+				if (code !== 0) stop(RunEnd.Failed, said === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${said}`);
 				resolve(outcome());
 			});
 		});

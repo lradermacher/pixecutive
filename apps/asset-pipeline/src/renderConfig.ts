@@ -18,23 +18,29 @@ const variableOf: Readonly<Record<keyof RenderConfig, string>> = Object.freeze({
 /** `~` and `$NAME` or `${NAME}` resolved from `env`, as the Hugging Face hub does; an unknown name stays as written. */
 function expandPath(path: string, env: Readonly<Record<string, string | undefined>>): string {
 	const home = path === '~' || path.startsWith('~/') ? `${env['HOME'] ?? '~'}${path.slice(1)}` : path;
-	return home.replace(
-		/\$\{(\w+)\}|\$(\w+)/g,
-		(written, braced?: string, plain?: string) => env[braced ?? plain ?? ''] ?? written,
-	);
+	return home.replace(/\$\{(\w+)\}|\$(\w+)/g, (written, braced?: string, plain?: string) => {
+		const name = braced ?? plain ?? '';
+		// Only the environment's own variables count; a name such as `constructor` must not reach the object's prototype.
+		return Object.hasOwn(env, name) ? (env[name] ?? written) : written;
+	});
 }
 
 /**
  * The Hugging Face cache this machine uses, in the order the Hugging Face hub reads its variables; none when only the
  * usual cache of the home folder applies.
  */
+/** Joins two parts as Python's os.path.join does: without resolving `..`, and without a second slash. */
+function joinAsPython(first: string, second: string): string {
+	return first === '' || first.endsWith('/') ? `${first}${second}` : `${first}/${second}`;
+}
+
 function huggingFaceCache(env: Readonly<Record<string, string | undefined>>): string | undefined {
 	const xdg = env['XDG_CACHE_HOME'];
-	const named = env['HF_HOME'] ?? (xdg === undefined ? undefined : join(xdg, 'huggingface'));
+	const named = env['HF_HOME'] ?? (xdg === undefined ? undefined : joinAsPython(xdg, 'huggingface'));
 	// The hub expands its home folder first and the cache path built from it again, so a variable may name another.
 	const home = named === undefined ? undefined : expandPath(named, env);
 	const cache =
-		env['HF_HUB_CACHE'] ?? env['HUGGINGFACE_HUB_CACHE'] ?? (home === undefined ? undefined : join(home, 'hub'));
+		env['HF_HUB_CACHE'] ?? env['HUGGINGFACE_HUB_CACHE'] ?? (home === undefined ? undefined : joinAsPython(home, 'hub'));
 	return cache === undefined ? undefined : expandPath(cache, env);
 }
 

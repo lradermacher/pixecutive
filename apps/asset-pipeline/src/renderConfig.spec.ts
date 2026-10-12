@@ -49,6 +49,12 @@ describe('renderConfig', () => {
 			{ HF_HOME: '$X', X: '~/viaX', HOME: '/opt/someone' },
 			'/opt/someone/viaX/hub',
 		],
+		[
+			'a .. in XDG_CACHE_HOME, kept as the hub keeps it',
+			{ XDG_CACHE_HOME: '$X/..', X: '/a/b' },
+			'/a/b/../huggingface/hub',
+		],
+		['a name that only the object prototype knows', { HF_HUB_CACHE: '/cache/$constructor' }, '/cache/$constructor'],
 	])('looks for the weights in the cache that %s names', (_, env, cache) => {
 		const weights = join(cache, 'lightning.safetensors');
 		expect(renderConfig(env, new InMemoryRenderMachine(['/opt/tools/mflux', weights])).weights).toBe(weights);

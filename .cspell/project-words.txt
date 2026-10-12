@@ -60,6 +60,7 @@ subshells
 swapusage
 swp
 toplevel
+tqdm
 tsc
 typeorm
 unmatch

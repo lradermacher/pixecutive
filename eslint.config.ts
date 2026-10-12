@@ -22,12 +22,12 @@ const coreOnly = [
 	},
 	{
 		selector:
-			"MemberExpression[object.name='Math'][property.name='random'], MemberExpression[object.name='crypto'][property.name=/^(randomUUID|getRandomValues)$/], MemberExpression[object.object.name='globalThis'][object.property.name='crypto']",
+			"MemberExpression[object.name='Math'][property.name='random'], MemberExpression[object.object.name=/^(globalThis|global|self|window)$/][object.property.name=/^(Math|crypto)$/]",
 		message: 'IDs and tokens come from an adapter (core rule).',
 	},
 	{
 		selector:
-			"MemberExpression[object.name='performance'][property.name='now'], MemberExpression[object.object.name='globalThis'][object.property.name='performance']",
+			"MemberExpression[object.object.name=/^(globalThis|global|self|window)$/][object.property.name='performance']",
 		message: 'Time comes through a clock port (core rule).',
 	},
 	{
@@ -178,7 +178,15 @@ export default defineConfig(
 	},
 	{
 		files: ['packages/core/**/*.{ts,tsx,mts,cts}'],
-		rules: { 'no-restricted-syntax': ['error', stringUnion, ...coreOnly] },
+		rules: {
+			'no-restricted-syntax': ['error', stringUnion, ...coreOnly],
+			// A global, not a local name: a parameter called crypto or performance is a port's value and stays allowed.
+			'no-restricted-globals': [
+				'error',
+				{ name: 'crypto', message: 'IDs and tokens come from an adapter (core rule).' },
+				{ name: 'performance', message: 'Time comes through a clock port (core rule).' },
+			],
+		},
 	},
 	{
 		// An adapter answers every outside failure with a keyed core exception (ADR 0023 point 3); a spec may build

@@ -51,6 +51,17 @@ probe "crypto.randomUUID() in the core" red "plant 'export function f(): string 
 probe "crypto.getRandomValues() in the core" red "plant 'export function f(): Uint8Array { return crypto.getRandomValues(new Uint8Array(4)); }' && $lint $core"
 probe "performance.now() in the core" red "plant 'export function f(): number { return performance.now(); }' && $lint $core"
 probe "globalThis.crypto.randomUUID() in the core" red "plant 'export function f(): string { return globalThis.crypto.randomUUID(); }' && $lint $core"
+probe "self.crypto.randomUUID() in the core" red "plant 'export function f(): string { return self.crypto.randomUUID(); }' && $lint $core"
+probe "window.performance.now() in the core" red "plant 'export function f(): number { return window.performance.now(); }' && $lint $core"
+probe "globalThis.performance.now() in the core" red "plant 'export function f(): number { return globalThis.performance.now(); }' && $lint $core"
+probe "performance.timeOrigin in the core" red "plant 'export function f(): number { return performance.timeOrigin; }' && $lint $core"
+probe "globalThis.Math.random() in the core" red "plant 'export function f(): number { return globalThis.Math.random(); }' && $lint $core"
+probe "a parameter named crypto in the core stays allowed" green \
+	"plant 'export interface Ids { randomUUID(): string }' 'export function f(crypto: Ids): string { return crypto.randomUUID(); }' && $lint $core"
+probe "a parameter named performance in the core stays allowed" green \
+	"plant 'export interface Clock { now(): number }' 'export function f(performance: Clock): number { return performance.now(); }' && $lint $core"
+probe "performance.now() in an app is allowed" green \
+	"printf '%s\\n' 'export function f(): number { return performance.now(); }' > apps/company-server/src/probe.ts && $lint apps/company-server/src/probe.ts"
 probe "crypto.randomUUID() in an app is allowed" green \
 	"printf '%s\\n' 'export function f(): string { return crypto.randomUUID(); }' > apps/company-server/src/probe.ts && $lint apps/company-server/src/probe.ts"
 probe "Math.random() in the core" red "plant 'export function f(): number { return Math.random(); }' && $lint $core"
