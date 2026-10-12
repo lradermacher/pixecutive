@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of steps 32 and 33; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 37; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37)
 
 ## Inventory
 
@@ -116,6 +116,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: review run 2 was red with 4 findings and 8 notes, two of them slips in the fixes of run 1; all are
   measured defects and are fixed as steps 26 to 32. The end of a run and the commands were sets of strings against the
   basis rule (the maintainer); step 33 makes them enums. A third run needs the maintainer's yes.
+- 2026-10-12: review run 3 (with the maintainer's yes) was red with 4 findings and 4 notes, none a blocker; all are
+  measured defects or specs that passed without their fix, fixed in steps 35 to 37, each new case checked red
+  without its fix.
 
 ## Open questions
 
@@ -160,4 +163,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 31 | Run 2, R6: git's complaint reaches the user once | machine adapter spec | 550bd7c |
 | 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | this commit |
 | 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | this commit |
-| 34 | Review run 3, only with the maintainer's yes | review record | open |
+| 34 | Review run 3, only with the maintainer's yes | review record | run 3 on 45b9916 (the maintainer's yes): red, 4 findings and 4 notes, fixed in steps 35-37 |
+| 35 | The render lock as its own unit (atomic take, rewrite through a side file, mflux named from its start); a second interrupt ends the model whatever stopped the run; a start failure thrown at once, an unmovable image and a leftover side file end as keys | lock, disk and adapter specs, each case red without its fix (mutation) | open |
+| 36 | The machine adapter reads its working folder inside the keyed try | machine adapter spec | open |
+| 37 | The command line checks the command before it reads the configuration | composition root spec | open |

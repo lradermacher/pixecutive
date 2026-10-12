@@ -10,22 +10,23 @@ const loraSnapshots = ['.cache', 'huggingface', 'hub', 'models--lightx2v--Qwen-I
 const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
 /**
- * Reads the machine for the render configuration; `home` and `cwd` are the user's home folder and the folder the app
- * runs in, replaced in tests.
+ * Reads the machine for the render configuration; `home` is the user's home folder and `cwd` the folder git runs in,
+ * the app's own folder unless a test names another.
  * @throws {RenderException} with the invalid configuration key: from `repoRoot` outside a git repo, from `cachedLora`
  * when the cache cannot be read.
  */
 export class RenderMachineLocalAdapter implements IRenderMachine {
 	constructor(
 		private readonly home: string = homedir(),
-		private readonly cwd: string = process.cwd(),
+		private readonly cwd?: string,
 	) {}
 
 	repoRoot(): string {
 		try {
 			// git's own complaint is caught with the failure, so it reaches the user once, inside the key's detail.
 			const options: ExecFileSyncOptionsWithStringEncoding = {
-				cwd: this.cwd,
+				// Read inside the try: when the app's folder is gone there is no cwd, and that is a key too.
+				cwd: this.cwd ?? process.cwd(),
 				encoding: 'utf8',
 				stdio: ['ignore', 'pipe', 'pipe'],
 			};

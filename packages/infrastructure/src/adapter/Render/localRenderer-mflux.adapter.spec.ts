@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type RenderJob, RenderException, RenderExceptionKey } from '@pixecutive/core';
@@ -147,12 +147,14 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 			const vanishing = join(dir, 'vanishing-mflux');
 			writeFileSync(
 				vanishing,
-				`#!/bin/sh\nrm -rf "${join(dir, 'renders')}"\nprintf ' 1/8 [00:01<00:07, 1.0s/it]\\n'\nsleep 1\n`,
+				`#!/bin/sh\nsleep 0.3\nrm -rf "${join(dir, 'renders')}"\nprintf ' 1/8 [00:01<00:07, 1.0s/it]\\n'\nexec sleep 20\n`,
 			);
 			chmodSync(vanishing, 0o755);
 			return { mflux: vanishing, rendersDir: join(dir, 'renders') };
 		});
+		const startedAt = Date.now();
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
+		expect(Date.now() - startedAt).toBeLessThan(5000);
 	});
 
 	it('answers the unreadable memory key before a start without its guard', async () => {
@@ -248,5 +250,73 @@ describe('LocalRendererMfluxAdapter and its lock', () => {
 		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tfigure-s12`);
 		const status = renderer.status();
 		expect([status.running, status.pressure, status.swapMb, status.lastRows.length]).toEqual(['figure-s12', 1, 100, 1]);
+	});
+});
+
+/** An mflux written as `script`, for the cases that need a model behaving in one particular way. */
+function model(script: string): (folder: string) => Partial<MfluxRenderConfig> {
+	return (folder) => {
+		const path = join(folder, 'model-mflux');
+		writeFileSync(path, script);
+		chmodSync(path, 0o755);
+		return { mflux: path };
+	};
+}
+
+/** A model that ignores TERM and INT from its first line, writes its image at once, then waits until it is killed. */
+const stubbornWriter = `#!/bin/sh\ntrap '' TERM INT\nout=""; while [ $# -gt 0 ]; do [ "$1" = "--output" ] && out="$2"; shift; done\nprintf x > "$out"\nexec sleep 20\n`;
+
+describe('LocalRendererMfluxAdapter when it is stopped or cannot finish', () => {
+	it('names mflux in the lock from the moment it starts', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nexec sleep 1\n'));
+		const running = renderer.render(job).catch(() => null);
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		const [processIds = ''] = readFileSync(join(dir, 'current.lock'), 'utf8').split('\t');
+		expect(processIds.split(',')).toHaveLength(2);
+		await running;
+	});
+
+	it('ends a stubborn model at the second interrupt even after the guard stopped the run', async () => {
+		const readings = [
+			{ pressure: 1, swapMb: 100 },
+			{ pressure: 4, swapMb: 100 },
+		];
+		// The guard reads after 500 ms, when the model surely ignores TERM already; the interrupts come after it.
+		const { renderer, interrupts } = adapter(readings, '0.2', 0, (folder) => ({
+			...model(stubbornWriter)(folder),
+			intervalMs: 500,
+		}));
+		const startedAt = Date.now();
+		const running = failureKey(renderer.render(job));
+		setTimeout(() => interrupts.emit('SIGINT'), 900);
+		setTimeout(() => interrupts.emit('SIGINT'), 1200);
+		expect(await running).toBe(RenderExceptionKey.Aborted);
+		expect(Date.now() - startedAt).toBeLessThan(5000);
+	});
+
+	it('answers the failed key and logs why when the model file cannot be run at all', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('no shebang, no binary\n'));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toMatch(/\tFAILED: spawn/);
+	});
+
+	it('leaves no unfinished image beside the earlier one after an interrupted run', async () => {
+		const { renderer, dir, interrupts } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(stubbornWriter));
+		writeFileSync(join(dir, 'figure-s11.png'), 'an earlier image');
+		const running = failureKey(renderer.render(job));
+		setTimeout(() => interrupts.emit('SIGINT'), 300);
+		setTimeout(() => interrupts.emit('SIGINT'), 600);
+		expect(await running).toBe(RenderExceptionKey.Interrupted);
+		expect([
+			existsSync(join(dir, 'figure-s11.rendering.png')),
+			readFileSync(join(dir, 'figure-s11.png'), 'utf8'),
+		]).toEqual([false, 'an earlier image']);
+	});
+
+	it('logs a finished run whose image cannot be moved into place as a storage failure', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		mkdirSync(join(dir, 'figure-s11.png'));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('STORAGE: move the image into place');
 	});
 });

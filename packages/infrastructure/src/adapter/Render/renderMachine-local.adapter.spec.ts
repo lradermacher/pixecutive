@@ -51,6 +51,11 @@ describe('RenderMachineLocalAdapter', () => {
 		expect(() => outside.repoRoot()).toThrow(/not a git repository/);
 	});
 
+	it('answers the invalid configuration key when the folder git runs in does not exist', () => {
+		const gone = join(mkdtempSync(join(tmpdir(), 'gone-')), 'removed');
+		expect(() => new RenderMachineLocalAdapter('/opt/someone', gone).repoRoot()).toThrow(RenderException);
+	});
+
 	it('answers the root of the repo it runs in and whether a file exists', () => {
 		const machine = new RenderMachineLocalAdapter();
 		const root = machine.repoRoot();
