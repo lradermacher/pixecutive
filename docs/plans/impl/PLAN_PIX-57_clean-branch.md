@@ -123,7 +123,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 2 | `core.md` lines, `assets.md`, `CLAUDE.md` | `check-rules` | fdae022 |
 | 3 | Architecture guard accepts zod in the core and rejects an adapter file outside `<port>-<technology>.adapter.ts`; probe cases first red, then green | `bash scripts/probe-architecture.sh` | c837edd |
 | 4 | Lint selector for `new globalThis.Date`; probe case first red, then green | `bash scripts/probe-lint.sh` | open |
-| 5 | Removals per the approved list, with every row, export, script, dependency and word that named them | `pnpm typecheck`, `pnpm test`, `check-skills`, `check-generated` | open |
+| 5 | Removals per the approved list, with every row, export, script, dependency and word that named them | `pnpm typecheck`, `pnpm test`, `check-skills`, `check-generated` | 4e218f8 |
 | 6 | Guarded render port, service, adapter, clock rename, config schema, CLI handlers and exit codes, READMEs | `pnpm test`, `pnpm lint`, the architecture guard on every new file | open |
 | 7 | Skills `animate-figure` and `figure-part`; conformance rows; register regenerated | `check-skills`, `check-generated` | built in step 1 |
 | 8 | Asset layout out of `ops.md` and `check-images`; probe cases adjusted | `bash scripts/probe-pre-commit.sh` | open |

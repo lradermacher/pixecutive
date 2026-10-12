@@ -45,6 +45,8 @@ echo
 echo "── the core (core rule) ────────────────────────────────────────────────"
 probe "new Date() in the core" red "plant 'export function f(): number { return new Date().getTime(); }' && $lint $core"
 probe "Date.now() in the core" red "plant 'export function f(): number { return Date.now(); }' && $lint $core"
+probe "new globalThis.Date() in the core" red "plant 'export function f(): number { return new globalThis.Date().getTime(); }' && $lint $core"
+probe "globalThis.Date.now() in the core" red "plant 'export function f(): number { return globalThis.Date.now(); }' && $lint $core"
 probe "Math.random() in the core" red "plant 'export function f(): number { return Math.random(); }' && $lint $core"
 probe "throw new Error in the core" red "plant 'export function f(): never { throw new Error(\"x\"); }' && $lint $core"
 probe "Date.now() in an app is allowed" green \

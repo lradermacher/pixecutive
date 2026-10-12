@@ -17,7 +17,7 @@ const stringUnion = {
 const coreOnly = [
 	{
 		selector:
-			"NewExpression[callee.name='Date'], CallExpression[callee.name='Date'], MemberExpression[object.name='Date']",
+			"NewExpression[callee.name='Date'], CallExpression[callee.name='Date'], MemberExpression[object.name='Date'], MemberExpression[object.name=/^(globalThis|global|self|window)$/][property.name='Date']",
 		message: 'Time comes through a clock port (core rule).',
 	},
 	{
