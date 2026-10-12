@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 78; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52), run 10 on c7fb654 (green; its 7 points fixed in step 54), run 11 on 93596ca (5, fixed in step 56), run 12 on f4f2e73 (green; its 3 points fixed in step 58), run 13 on e872ea1 (green; its 3 notes fixed in step 60), run 14 on 3f6ea61 (green; its 3 notes fixed in step 62), run 15 on 46d9d48 (green; its 3 notes and one older gap fixed in step 64), run 16 on 87ef137 (green; its 2 should and 3 notes fixed in step 66), run 17 on 62b705c (green; its 3 notes fixed in step 68), run 18 on d75d82f (green; its should and note fixed in step 70), run 19 on 611f63f (green; its 3 notes fixed in step 72), run 20 on 966b35f (green; its 2 should and a note fixed in step 74), run 21 on 190bdad (green; 3 notes, its count corrected and two limits recorded in step 76), run 22 on b87d942 (green; its should and 2 notes corrected in step 78); the record of the last run lies on the head of the pull request
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 80; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52), run 10 on c7fb654 (green; its 7 points fixed in step 54), run 11 on 93596ca (5, fixed in step 56), run 12 on f4f2e73 (green; its 3 points fixed in step 58), run 13 on e872ea1 (green; its 3 notes fixed in step 60), run 14 on 3f6ea61 (green; its 3 notes fixed in step 62), run 15 on 46d9d48 (green; its 3 notes and one older gap fixed in step 64), run 16 on 87ef137 (green; its 2 should and 3 notes fixed in step 66), run 17 on 62b705c (green; its 3 notes fixed in step 68), run 18 on d75d82f (green; its should and note fixed in step 70), run 19 on 611f63f (green; its 3 notes fixed in step 72), run 20 on 966b35f (green; its 2 should and a note fixed in step 74), run 21 on 190bdad (green; 3 notes, its count corrected and two limits recorded in step 76), run 22 on b87d942 (green; its should and 2 notes corrected in step 78), run 23 on 0781663 (green; its 2 notes corrected in step 80); the record of the last run lies on the head of the pull request
 
 ## Inventory
 
@@ -169,9 +169,12 @@ for every removal), kept in the session scratchpad `flow/audit/`.
   and two limits that stay. A printed traceback followed by a new bar that runs through and a silent end keeps the
   printed exception, since tqdm's own redraw at the end looks the same. A run that prints a traceback, recovers, logs an
   error, finishes a bar and ends silently answers the traceback's head, as it did before step 72: the head is the plain
-  line that cut-off tracebacks depend on for their answer. Both measured on Python 3.10 (the mflux environment) and 3.14 with
-  tqdm 4.70.0 from that environment on its import path. mflux itself prints no traceback (no traceback, print_exc or format_exc in
-  its source), so neither shape has a real mflux source found.
+  line that cut-off tracebacks depend on for their answer. Both measured on Python 3.10 (the mflux environment) and
+  3.14 with tqdm 4.70.0 from that environment on its import path. mflux itself prints no traceback: its source imports
+  no traceback module and calls no print_exc or format_exc, so neither shape has a real mflux source found; whether a
+  library under mflux prints one and carries on was not measured.
+- 2026-10-12: the maintainer accepted both limits (sheet pix57-run23, F2). Review run 23 was green with two notes on
+  this record's wording, corrected in step 80.
 
 ## Open questions
 
@@ -260,5 +263,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 75 | Review run 21 over step 74 | review record | run 21 on 190bdad: green, 3 notes, all measured; recorded in step 76 |
 | 76 | Row 74's count corrected; the two limits run 21 measured stand under Changed on the way with their measurements | the diff | b87d942 |
 | 77 | Review run 22 over step 76 | review record | run 22 on b87d942: green, 1 should and 2 notes, all on the wording of the record; corrected in step 78 |
-| 78 | The record of run 21 states why each limit stays, how Python 3.14 got tqdm, and that mflux prints no traceback (it has five logged errors, not one) | the diff | this commit |
-| 79 | Review run 23 over step 78 | review record | open |
+| 78 | The record of run 21 states why each limit stays, how Python 3.14 got tqdm, and that mflux prints no traceback (it has five logged errors, not one) | the diff | 0781663 |
+| 79 | Review run 23 over step 78 | review record | run 23 on 0781663: green, 2 notes on wording; corrected in step 80 |
+| 80 | The record says mflux imports no traceback module, names what was not measured, and records the maintainer's acceptance of both limits | the diff | this commit |
+| 81 | Review run 24 over step 80 | review record | open |
