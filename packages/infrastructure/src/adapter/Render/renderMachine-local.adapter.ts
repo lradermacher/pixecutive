@@ -1,5 +1,5 @@
 // renderMachine-local.adapter.ts — this Mac's answers for a local render: the git root, mflux and the cached LoRA.
-import { execFileSync } from 'node:child_process';
+import { type ExecFileSyncOptionsWithStringEncoding, execFileSync } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -10,16 +10,26 @@ const loraSnapshots = ['.cache', 'huggingface', 'hub', 'models--lightx2v--Qwen-I
 const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
 /**
- * Reads the machine for the render configuration; `home` is the user's home folder and is replaced in tests.
+ * Reads the machine for the render configuration; `home` and `cwd` are the user's home folder and the folder the app
+ * runs in, replaced in tests.
  * @throws {RenderException} with the invalid configuration key: from `repoRoot` outside a git repo, from `cachedLora`
  * when the cache cannot be read.
  */
 export class RenderMachineLocalAdapter implements IRenderMachine {
-	constructor(private readonly home: string = homedir()) {}
+	constructor(
+		private readonly home: string = homedir(),
+		private readonly cwd: string = process.cwd(),
+	) {}
 
 	repoRoot(): string {
 		try {
-			return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
+			// git's own complaint is caught with the failure, so it reaches the user once, inside the key's detail.
+			const options: ExecFileSyncOptionsWithStringEncoding = {
+				cwd: this.cwd,
+				encoding: 'utf8',
+				stdio: ['ignore', 'pipe', 'pipe'],
+			};
+			return execFileSync('git', ['rev-parse', '--show-toplevel'], options).trim();
 		} catch (failure) {
 			throw new RenderException(RenderExceptionKey.InvalidConfig, `no git repo: ${(failure as Error).message}`);
 		}

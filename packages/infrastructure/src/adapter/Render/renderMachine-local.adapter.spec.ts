@@ -46,6 +46,11 @@ describe('RenderMachineLocalAdapter', () => {
 		);
 	});
 
+	it('answers the invalid configuration key with the complaint of git outside a repo', () => {
+		const outside = new RenderMachineLocalAdapter('/opt/someone', mkdtempSync(join(tmpdir(), 'no-repo-')));
+		expect(() => outside.repoRoot()).toThrow(/not a git repository/);
+	});
+
 	it('answers the root of the repo it runs in and whether a file exists', () => {
 		const machine = new RenderMachineLocalAdapter();
 		const root = machine.repoRoot();
