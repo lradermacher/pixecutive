@@ -64,7 +64,7 @@ Chosen: **A**, sheet hexagon-pattern of 2026-10-04, F1.
      (`.interface.ts`, `.enum.ts`, `.schema.ts`).
    - Services are `application/service/<name>.service.ts`.
    - Exceptions are `<aggregate>.exception.ts` with `<aggregate>ExceptionKey.enum.ts`.
-   - Adapters are `adapter/<Area>/<port>-<impl>.adapter.ts`.
+   - Adapters are `adapter/<Area>/<port>-<technology>.adapter.ts`.
 
    `[Agent adversarial-review]`
 
