@@ -213,6 +213,12 @@ describe('MfluxComplaint and the end of a Python run', () => {
 		);
 	});
 
+	it('takes a warning raised in a file named for an error for a warning', () => {
+		expect(
+			complaintOf('Killed while saving\nloader/error.py:3: UserWarning: weights cached\n  warnings.warn(text)\n'),
+		).toBe('Killed while saving');
+	});
+
 	it('takes a warning label behind an error for part of the error', () => {
 		expect(complaintOf("ValueError: unknown action 'warning: x'\nUserWarning: at shutdown\n")).toBe(
 			"ValueError: unknown action 'warning: x'",

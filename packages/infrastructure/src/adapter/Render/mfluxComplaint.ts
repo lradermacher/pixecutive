@@ -11,11 +11,17 @@ const errorLine = /\b\w*(error|exception)\b/i;
  */
 const warningLabel = /\b\w*warning:/i;
 
-/** The line Python prints before a traceback it ignores at shutdown; the error under it is not why mflux failed. */
+/**
+ * The line Python prints before a traceback it cannot raise any further, as when an object is freed or the process shuts
+ * down; the error under it is not why mflux failed.
+ */
 const ignoredException = /^Exception ignored\b/;
 
 /** The head of a traceback; inside an ignored one it belongs to the traceback, not to its end. */
 const tracebackHead = /^Traceback \(most recent call last\):/;
+
+/** Where Python says a warning was raised, `path/to/file.py:12: `, before its label; a file may be named `error.py`. */
+const warningSource = /^[^\s:]+:\d+: /;
 
 /** A control sequence of the terminal, such as the cursor move tqdm writes when it clears a nested bar. */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
@@ -124,8 +130,9 @@ export class MfluxComplaint {
 
 /** A warning whose label comes before any error it names, as in `UserWarning: ConnectionError, retried`. */
 function isWarning(line: string): boolean {
-	const label = warningLabel.exec(line);
+	const said = line.replace(warningSource, '');
+	const label = warningLabel.exec(said);
 	if (label === null) return false;
-	const error = errorLine.exec(line);
+	const error = errorLine.exec(said);
 	return error === null || label.index < error.index;
 }

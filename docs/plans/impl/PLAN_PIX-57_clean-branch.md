@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 54; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52), run 10 on c7fb654 (green; its 7 points fixed in step 54)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 58; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46), run 7 on 7ce4d61 (9, fixed in step 48), run 8 on 482d786 (green; its 6 points fixed in step 50), run 9 on c0d2682 (8, fixed in step 52), run 10 on c7fb654 (green; its 7 points fixed in step 54), run 11 on 93596ca (5, fixed in step 56), run 12 on f4f2e73 (green; its 3 points fixed in step 58); the record of the last run lies on the head of the pull request
 
 ## Inventory
 
@@ -138,6 +138,10 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: review run 10 was green on real Python output (tracebacks, logging, tqdm, a real libc++abi abort) and
   measured seven smaller points, one of them the macOS crash report the SIGABRT case left on every test run; all are
   fixed in step 54.
+- 2026-10-12: review run 11 found that folding the waiting piece broke the padding of a cleared nested bar in real
+  chunked output, and four smaller points; all are fixed in step 56, real nested tqdm output read right 10 of 10.
+- 2026-10-12: review run 12 (with the maintainer's yes) was green with one should and two notes: this plan's evidence,
+  a warning raised in a file named for an error, and a comment on ignored tracebacks; all are fixed in step 58.
 
 ## Open questions
 
@@ -204,5 +208,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 53 | Review run 10 over step 52 | review record | run 10 on c7fb654: green, 2 should-fix and 5 notes, all measured; fixed in step 54 |
 | 54 | mflux's complaint reads exception groups inside their frame, logging warnings in any case, the padding and cursor moves of a cleared nested bar, and skips the error of a traceback Python ignores at shutdown; the waiting piece is folded before it is bounded; the adapter's step uses the same tqdm pattern (`mfluxProgress.ts`); the signal case uses SIGKILL, which leaves no macOS crash report; the adapter has its two-piece case again; a case red without each rule, a redundant border rule removed | `pnpm test`, mutations | 93596ca |
 | 55 | Review run 11 over step 54 | review record | run 11 on 93596ca: red, folding the waiting piece broke the padding of a cleared nested bar in real chunked output, and 4 smaller points; fixed in step 56 |
-| 56 | mflux's complaint keeps the waiting piece as written, bounded to 4096 characters; an ignored traceback ends with its own last line, whatever it names, and is known in the wording of newer Python; only a warning label before any error makes a warning; `mfluxProgress.ts` in ADR 0023; a case red without each rule, real nested tqdm output through a pipe read right 10 of 10 (the bound itself protects memory only, so dropping it is an equivalent mutant) | `pnpm test`, mutations | this commit |
-| 57 | Review run 12 over step 56 | review record | open |
+| 56 | mflux's complaint keeps the waiting piece as written, bounded to 4096 characters; an ignored traceback ends with its own last line, whatever it names, and is known in the wording of newer Python; only a warning label before any error makes a warning; `mfluxProgress.ts` in ADR 0023; a case red without each rule, real nested tqdm output through a pipe read right 10 of 10 (the bound itself protects memory only, so dropping it is an equivalent mutant) | `pnpm test`, mutations | f4f2e73 |
+| 57 | Review run 12 over step 56 | review record | run 12 on f4f2e73: green, 1 should and 2 notes, all measured; fixed in step 58 |
+| 58 | The plan's evidence carries runs 11 and 12; a warning's source location `path:line: ` is left out before its label is compared, so a warning raised in `error.py` stays a warning (real Python 3.10 and 3.14); the comment on ignored tracebacks names both wordings; a case red without the fix | `pnpm test`, mutation, real Python | this commit |
+| 59 | Review run 13 over step 58 | review record | open |
