@@ -1,7 +1,7 @@
 // renderMachine.interface.ts — what this machine offers a local render before the configuration is parsed.
 
 /**
- * Where the repo lies, where the model's command and its weights usually are, and whether a configured file exists;
+ * Where the repo lies, where the model's command and its weights usually are, and whether a configured path is a file;
  * which model and which weights stays the adapter's knowledge.
  */
 export interface IRenderMachine {
@@ -9,5 +9,5 @@ export interface IRenderMachine {
 	usualModelCommand(): string;
 	/** The weights in `cache` when given, otherwise in the machine's usual cache; none when neither holds them. */
 	cachedWeights(cache?: string): string | undefined;
-	exists(path: string): boolean;
+	isFile(path: string): boolean;
 }

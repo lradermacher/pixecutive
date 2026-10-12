@@ -57,6 +57,9 @@ const interruptSignals: readonly NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHU
 /** A progress line of mflux, such as ` 3/8 [00:41<01:23, 20.8s/it]`. */
 const progressLine = /[0-9]+\/[0-9]+ \[[^\]]*\]/;
 
+/** A line that names an error, such as `ValueError: width must be even`; a warning after it does not hide it. */
+const errorLine = /\b\w*(Error|Exception)\b/;
+
 /** The word the log's result column holds for each end of a run; a reason follows it for every end but done. */
 const logWord: Readonly<Record<RunEnd, string>> = Object.freeze({
 	[RunEnd.Done]: 'done',
@@ -86,8 +89,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 
 	/**
 	 * Renders `job` into the renders folder and logs the run.
-	 * @throws {RenderException} busy, memory pressure before the start, memory unreadable, aborted by the guard,
-	 * interrupted, storage failed, or failed in mflux.
+	 * @throws {RenderException} invalid job for a missing input, busy, memory pressure before the start, memory
+	 * unreadable, aborted by the guard, interrupted, storage failed, or failed in mflux.
 	 */
 	async render(job: RenderJob): Promise<RenderResult> {
 		const { rendersDir } = this.config;
@@ -226,8 +229,9 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const startedAt = Date.now();
 		let firstStepAt: number | null = null;
 		let lastStep = '';
-		// mflux says why it failed on its error output; the last line that is no progress line becomes the reason.
-		let lastComplaint = '';
+		// mflux says why it failed on its error output: its last error line, else its last line that is no progress line.
+		let lastError = '';
+		let lastLine = '';
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
 		let end = RunEnd.Done;
@@ -270,14 +274,18 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				}
 			};
 			if (child.pid !== undefined) tell('');
+			const watchComplaints = (chunk: Buffer): void => {
+				// One line of the log's last column: whitespace such as a tab would split the row, so it becomes a space.
+				const lines = chunk
+					.toString()
+					.split(/[\r\n]+/)
+					.map((line) => line.replace(/\s+/g, ' ').trim().slice(0, 300))
+					.filter((line) => line !== '' && !progressLine.test(line));
+				lastLine = lines.at(-1) ?? lastLine;
+				lastError = lines.filter((line) => errorLine.test(line)).at(-1) ?? lastError;
+			};
 			const watchOutput = (chunk: Buffer): void => {
 				const text = chunk.toString().replaceAll('\r', '\n');
-				const complaint = text
-					.split('\n')
-					.map((line) => line.trim())
-					.filter((line) => line !== '' && !progressLine.test(line))
-					.at(-1);
-				if (complaint !== undefined) lastComplaint = complaint.slice(0, 300);
 				const step = [...text.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g)].at(-1);
 				if (step === undefined) return;
 				lastStep = step[0];
@@ -286,6 +294,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			};
 			child.stdout?.on('data', watchOutput);
 			child.stderr?.on('data', watchOutput);
+			child.stderr?.on('data', watchComplaints);
 			child.on('error', (failure) => {
 				stop(RunEnd.Failed, failure.message);
 			});
@@ -317,8 +326,9 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('close', (code) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
+				const complaint = lastError === '' ? lastLine : lastError;
 				if (code !== 0)
-					stop(RunEnd.Failed, lastComplaint === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${lastComplaint}`);
+					stop(RunEnd.Failed, complaint === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${complaint}`);
 				resolve(outcome());
 			});
 		});

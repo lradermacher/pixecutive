@@ -31,6 +31,7 @@ probe "a relative import" green "write $core \"import { value } from '../domain.
 probe "node:fs, static" red "write $core \"import { readFileSync } from 'node:fs';\" | guard"
 probe "fs without the node: prefix" red "write $core \"import { readFileSync } from 'fs';\" | guard"
 probe "node:fs, dynamic, double quotes" red "write $core 'export const load = () => import(\"node:fs\");' | guard"
+probe "node:child_process, static" red "write $core \"import { spawn } from 'node:child_process';\" | guard"
 probe "child_process through require" red "write $core \"const run = require('child_process');\" | guard"
 probe "the infrastructure package" red "write $core \"import { x } from '@pixecutive/infrastructure';\" | guard"
 probe "a framework package" red "write $core \"import { Injectable } from '@nestjs/common';\" | guard"

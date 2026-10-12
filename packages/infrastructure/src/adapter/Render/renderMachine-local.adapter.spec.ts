@@ -77,12 +77,13 @@ describe('RenderMachineLocalAdapter', () => {
 		}
 	});
 
-	it('answers the root of the repo it runs in and whether a file exists', () => {
+	it('answers the root of the repo it runs in and whether a path is a file', () => {
 		const machine = new RenderMachineLocalAdapter();
 		const root = machine.repoRoot();
-		expect([machine.exists(join(root, 'package.json')), machine.exists(join(root, 'no-such-file'))]).toEqual([
-			true,
-			false,
-		]);
+		expect([
+			machine.isFile(join(root, 'package.json')),
+			machine.isFile(join(root, 'no-such-file')),
+			machine.isFile(join(root, 'packages')),
+		]).toEqual([true, false, false]);
 	});
 });

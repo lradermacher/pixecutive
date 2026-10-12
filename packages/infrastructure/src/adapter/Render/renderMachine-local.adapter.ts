@@ -1,6 +1,6 @@
 // renderMachine-local.adapter.ts — this Mac's answers for a local render: the git root, mflux and the cached LoRA.
 import { type ExecFileSyncOptionsWithStringEncoding, execFileSync } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { type IRenderMachine, RenderException, RenderExceptionKey } from '@pixecutive/core';
@@ -56,7 +56,8 @@ export class RenderMachineLocalAdapter implements IRenderMachine {
 		return folders.map((folder) => join(snapshots, folder, loraFile)).find((path) => existsSync(path));
 	}
 
-	exists(path: string): boolean {
-		return existsSync(path);
+	isFile(path: string): boolean {
+		// A folder or a missing path is no file; asking never fails, so the start can name every wrong path at once.
+		return statSync(path, { throwIfNoEntry: false })?.isFile() ?? false;
 	}
 }

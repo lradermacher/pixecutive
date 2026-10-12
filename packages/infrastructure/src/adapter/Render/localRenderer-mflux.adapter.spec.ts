@@ -137,7 +137,9 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 		expect(await failureKey(renderer.render({ ...job, ...missing }))).toBe(RenderExceptionKey.InvalidJob);
 		expect([existsSync(join(dir, 'current.lock')), existsSync(join(dir, 'args.txt'))]).toEqual([false, false]);
 	});
+});
 
+describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 	it('logs the last complaint of mflux with its exit code', async () => {
 		const { renderer, dir } = adapter(
 			[{ pressure: 1, swapMb: 100 }],
@@ -151,12 +153,57 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: exit 1: FileNotFoundError: prompt.txt');
 	});
 
+	it('logs the last error line of mflux on one line, past a warning and a progress line after it', async () => {
+		const { renderer, dir } = adapter(
+			[{ pressure: 1, swapMb: 100 }],
+			'0.2',
+			0,
+			model(
+				"#!/bin/sh\n{ echo 'RuntimeError: first'; printf 'ValueError: width\\tmust be even\\n'; echo 'UserWarning: resource_tracker'; printf ' 2/8 [00:02<00:06, 1.0s/it]\\n'; } >&2\nexit 1\n",
+			),
+		);
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		const row = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t');
+		expect([row.length, row[10]]).toEqual([11, 'FAILED: exit 1: ValueError: width must be even']);
+	});
+
+	it.each([
+		[
+			'a progress line after a plain complaint',
+			"{ echo 'model weights look odd'; printf ' 2/8 [00:02<00:06, 1.0s/it]\\n'; } >&2",
+			'exit 1: model weights look odd',
+		],
+		['a line on the standard output only', "echo 'ValueError: printed, not complained'", 'exit 1'],
+	])('keeps the right reason with %s', async (_, lines, reason) => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${lines}\nexit 1\n`));
+		await renderer.render(job).catch(() => null);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(`FAILED: ${reason}`);
+	});
+
+	it('takes no complaint from the standard output and cuts a long one', async () => {
+		const long = 'x'.repeat(400);
+		const { renderer, dir } = adapter(
+			[{ pressure: 1, swapMb: 100 }],
+			'0.2',
+			0,
+			model(`#!/bin/sh\necho 'Saving image...'\necho 'OSError: ${long}' >&2\nexit 2\n`),
+		);
+		await renderer.render(job).catch(() => null);
+		const result = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10] ?? '';
+		expect([result.startsWith('FAILED: exit 2: OSError: x'), result.length]).toEqual([
+			true,
+			'FAILED: exit 2: '.length + 300,
+		]);
+	});
+
 	it('answers the failed key and logs the exit code when mflux fails', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0', 3);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: exit 3');
 	});
+});
 
+describe('LocalRendererMfluxAdapter when its folder or the memory fails', () => {
 	it('names the running render with its current step while it runs', async () => {
 		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '2');
 		const running = renderer.render(job);

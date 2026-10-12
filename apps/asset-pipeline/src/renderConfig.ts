@@ -15,14 +15,25 @@ const variableOf: Readonly<Record<keyof RenderConfig, string>> = Object.freeze({
 	weights: 'PIX_LORA',
 });
 
+/** `~` and `$NAME` or `${NAME}` resolved from `env`, as the Hugging Face hub does; an unknown name stays as written. */
+function expandPath(path: string, env: Readonly<Record<string, string | undefined>>): string {
+	const home = path === '~' || path.startsWith('~/') ? `${env['HOME'] ?? '~'}${path.slice(1)}` : path;
+	return home.replace(
+		/\$\{(\w+)\}|\$(\w+)/g,
+		(written, braced?: string, plain?: string) => env[braced ?? plain ?? ''] ?? written,
+	);
+}
+
 /**
  * The Hugging Face cache this machine uses, in the order the Hugging Face hub reads its variables; none when only the
  * usual cache of the home folder applies.
  */
 function huggingFaceCache(env: Readonly<Record<string, string | undefined>>): string | undefined {
-	const home =
-		env['HF_HOME'] ?? (env['XDG_CACHE_HOME'] === undefined ? undefined : join(env['XDG_CACHE_HOME'], 'huggingface'));
-	return env['HF_HUB_CACHE'] ?? env['HUGGINGFACE_HUB_CACHE'] ?? (home === undefined ? undefined : join(home, 'hub'));
+	const xdg = env['XDG_CACHE_HOME'];
+	const home = env['HF_HOME'] ?? (xdg === undefined ? undefined : join(xdg, 'huggingface'));
+	const cache =
+		env['HF_HUB_CACHE'] ?? env['HUGGINGFACE_HUB_CACHE'] ?? (home === undefined ? undefined : join(home, 'hub'));
+	return cache === undefined ? undefined : expandPath(cache, env);
 }
 
 /** One line per field: what is wrong with it and which variable sets it. */
@@ -33,7 +44,7 @@ function fieldLine(field: string, problem: string): string {
 
 /**
  * Parses the configuration once at the start; `env` and `machine` are passed in so tests set them. None of the values
- * is a secret, so each has a default; a value that is missing or a file that does not exist stops the start.
+ * is a secret, so each has a default; a value that is missing or a path that is no file stops the start.
  * @throws {RenderException} with the invalid configuration key, each wrong field named with its variable.
  */
 export function renderConfig(env: Readonly<Record<string, string | undefined>>, machine: IRenderMachine): RenderConfig {
@@ -47,8 +58,8 @@ export function renderConfig(env: Readonly<Record<string, string | undefined>>, 
 		throw new RenderException(RenderExceptionKey.InvalidConfig, fields.join('; '));
 	}
 	const missing = Object.entries({ modelCommand: parsed.data.modelCommand, weights: parsed.data.weights })
-		.filter(([, path]) => !machine.exists(path))
-		.map(([field, path]) => fieldLine(field, `${path} does not exist`));
+		.filter(([, path]) => !machine.isFile(path))
+		.map(([field, path]) => fieldLine(field, `${path} is no file`));
 	if (missing.length > 0) throw new RenderException(RenderExceptionKey.InvalidConfig, missing.join('; '));
 	return parsed.data;
 }
