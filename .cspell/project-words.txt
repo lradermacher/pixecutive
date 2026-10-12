@@ -2,16 +2,12 @@
 # read-by: cspell.json, scripts/check-english.ts
 # adr: docs/ADR/0014-english-everywhere.md
 # generated: no
-abspath
 ack
 ADR
 AKIA
 awk
-bmesh
-bpy
 Bron
 BVH
-bvhtree
 cjs
 cksum
 CLI
@@ -35,7 +31,6 @@ localdomain
 lradermacher
 ltx
 makedirs
-mathutils
 mcp
 memorystatus
 mflux
@@ -45,7 +40,6 @@ mlx
 mts
 NNN
 nohup
-numpy
 oneline
 OOM
 pathlib
@@ -63,7 +57,6 @@ shutil
 statusline
 subshell
 subshells
-subsurf
 swapusage
 swp
 toplevel
@@ -76,15 +69,8 @@ utf
 uvsphere
 vae
 valueonly
-vec
-verts
 vitest
 Zdun
 zgrep
 zod
 keyframed
-keypoint
-keypoints
-Quaternius
-cel
-pxofc
