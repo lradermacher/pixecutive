@@ -45,7 +45,8 @@ const statusRows = 5;
 
 /**
  * One render at a time: a lock file refuses a second one, a start under memory pressure is refused, and a running
- * render is stopped at critical pressure or past the swap limit. Every run leaves one row in `renders.tsv`.
+ * render is stopped at critical pressure or past the swap limit. The lock names the running render and its step.
+ * Every run leaves one row in `renders.tsv`.
  * @throws {RenderException} from `render`, with the key of the failure; never a plain error.
  */
 export class LocalRendererMfluxAdapter implements ILocalRenderer {
@@ -70,7 +71,9 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const image = join(rendersDir, `${name}.png`);
 		writeFileSync(lock, name);
 		try {
-			const outcome = await this.run(start, this.argv(job, image));
+			const outcome = await this.run(start, this.argv(job, image), (progress) => {
+				writeFileSync(lock, `${name} ${progress}`);
+			});
 			const finished = outcome.result === 'done' && existsSync(image);
 			const result = finished ? 'done' : outcome.result === 'done' ? 'FAILED: no image' : outcome.result;
 			appendFileSync(
@@ -110,7 +113,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		];
 	}
 
-	private run(start: MemoryReading, argv: readonly string[]): Promise<RunOutcome> {
+	/** Runs mflux under the guard; `onStep` hears each new step as `n/total`, so the status can show it. */
+	private run(start: MemoryReading, argv: readonly string[], onStep: (progress: string) => void): Promise<RunOutcome> {
 		const [binary = '', ...rest] = argv;
 		const startedAt = Date.now();
 		let firstStepAt: number | null = null;
@@ -125,10 +129,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 					...chunk
 						.toString()
 						.replaceAll('\r', '\n')
-						.matchAll(/ ([0-9]+)\/[0-9]+ \[[^\]]*\]/g),
+						.matchAll(/ ([0-9]+)\/([0-9]+) \[[^\]]*\]/g),
 				].at(-1);
 				if (step === undefined) return;
 				lastStep = step[0];
+				onStep(`${step[1] ?? ''}/${step[2] ?? ''}`);
 				if (firstStepAt === null && Number(step[1]) >= 1) firstStepAt = Date.now();
 			};
 			child.stdout.on('data', watchOutput);

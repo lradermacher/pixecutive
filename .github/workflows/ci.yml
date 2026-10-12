@@ -1,4 +1,5 @@
-# CI — the secret scan and every code gate on each pull request, forks included (ADR 0004, ADR 0008).
+# CI — the secret scan, lint, format, types, tests and the spec check on each pull request, forks included
+# (ADR 0004, ADR 0008).
 # Actions are pinned by commit and gitleaks by version and checksum, so a moved tag cannot change what runs.
 name: CI
 

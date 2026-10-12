@@ -108,6 +108,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: step 5 is committed before step 4, because a spec on the removal list uses `Date` in the core and the
   closed lint hole turns it red; the app keeps only `status` until step 6 rewrites it. The removals also take the
   unused word of the vision service and the unused dependency `globals`.
+- 2026-10-12: the status had lost the running render's step when the guard moved into the adapter, which PIX-56's
+  third acceptance line asks for; the adapter now writes the step into its lock, with a spec case. The cards PIX-7,
+  PIX-56 and PIX-58 were brought to today's state first, then their plans.
 
 ## Open questions
 
@@ -126,6 +129,6 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 5 | Removals per the approved list, with every row, export, script, dependency and word that named them | `pnpm typecheck`, `pnpm test`, `check-skills`, `check-generated` | 4e218f8 |
 | 6 | Guarded render port, service, adapter, clock rename, config schema, CLI handlers and exit codes, READMEs; the lint ban on plain errors widened to the infrastructure package, probe first red, then green | `pnpm test`, `pnpm lint`, the architecture guard on every new file | f4fe4c2 |
 | 7 | Skills `animate-figure` and `figure-part`; conformance rows; register regenerated | `check-skills`, `check-generated` | built in step 1 |
-| 8 | Asset layout out of `ops.md` and `check-images`; probe cases adjusted | `bash scripts/probe-pre-commit.sh` | open |
+| 8 | Asset layout out of `ops.md` and `check-images`; probe cases adjusted | `bash scripts/probe-pre-commit.sh` | 12cbe49 |
 | 9 | Plans of PIX-7, PIX-56, PIX-58 rewritten; plan of PIX-64 removed; `ci.yml:1`, unit-readme template, routing row | `check-docs`, `generate-adr-state --check` | open |
 | 10 | Full gate, every box with its evidence, independent review | `node scripts/verify-full.ts`, `ticket.ts boxes`, review record | open |

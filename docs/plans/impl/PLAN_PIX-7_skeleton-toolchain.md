@@ -16,7 +16,8 @@ lint, import zones, the architecture guard, tests and CI, each proven by a probe
   architecture later; it is the first step of this card, and every gate is proven on it before the card ends.
 - Placement of the asset pipeline by the core rule's criteria: what an asset is (kind, footprint in tiles, anchor,
   directions, animations, layers, color slots) decides without touching the outside, so it is domain in the core;
-  driving Blender touches the outside, so it is an adapter in infrastructure; the manifest crosses to the browser, so
+  driving a generation tool touches the outside, so it is an adapter in infrastructure; the manifest crosses to the
+  browser, so
   it is protocol; the command wires them, so it is an app. A new ADR 0019 adds `asset-pipeline` without replacing
   anything.
 - App names, sheet app-names of 2026-10-04 (maintainer: option A): `apps/company-server`, `apps/companion`,
@@ -43,7 +44,7 @@ Taken verbatim from the card.
 
 - [x] The skeleton of ADR 0011 exists: `packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`, `apps/companion`, `apps/office-ui`, each a workspace package with `package.json`, `tsconfig`, an entry and one test
 - [x] `packages/core` holds the folders of ADR 0011 point 1 (`domain/`, `application/service/`, `application/exception/`, `port/outgoing/`)
-- [x] `apps/asset-pipeline` is a seventh workspace package, placed by a new ADR that makes the asset pipeline an app of the hexagon (asset model in the core, Blender adapter in infrastructure, manifest in protocol), under the same import zones
+- [x] `apps/asset-pipeline` is a seventh workspace package, placed by a new ADR that makes the asset pipeline an app of the hexagon (asset model in the core, generation tools behind adapters in infrastructure, manifest in protocol), under the same import zones
 - [x] Root scripts `lint`, `format`, `format:check`, `typecheck`, `test`, each green on the skeleton
 - [x] ESLint with no `any`, explicit return and boundary types, no non-null assertion, enum over string union, `--max-warnings 0`
 - [x] Import zones for `@pixecutive/*` that also catch `import()` and `require()`: core imports no framework, no infrastructure, no app and no IO; `apps/office-ui` never imports the core; a planted forbidden import fails, with a probe
@@ -63,11 +64,10 @@ Taken verbatim from the card.
 | @typescript/native (for `tsc`) | `npm:typescript@7.0.2` | measured: `node_modules/.bin/tsc` is 7.0.2 beside `tsc6` |
 | eslint-plugin-boundaries | 7.2.0 | peer `eslint >=6`, Node ≥ 18.18 |
 | @eslint-community/eslint-plugin-eslint-comments | 4.8.1 | `require-description` for ADR 0005 point 11 |
-| globals | 17.13.0 | |
 | prettier | 3.9.9 | |
 | eslint-config-prettier | 10.1.8 | |
 | vitest, @vitest/coverage-v8 | 5.0.3 | |
-| zod | 4.6.5 | `packages/protocol` |
+| zod | 4.6.5 | `packages/protocol`, and `packages/core` since ADR 0021 |
 | tsdown | 0.23.0 | `apps/companion` build, wired with the first client story |
 | gitleaks | v8.30.1 | pinned binary with checksum in CI |
 | actions/checkout, pnpm/action-setup, actions/setup-node | v7.0.1, v6.1.0, v7.0.0 | pinned by commit SHA |
@@ -81,7 +81,7 @@ Every version is measured again on the day it is installed and pinned exactly.
 | Workspace root, `typecheck` over scripts and hooks | exists, extend | `package.json`, `tsconfig.json` |
 | Workspace globs `apps/*`, `packages/*` | exists | `pnpm-workspace.yaml` |
 | Six packages | new | `packages/{core,infrastructure,protocol}/`, `apps/{company-server,companion,office-ui}/` (ADR 0020) |
-| Asset pipeline app and its ADR | new | `apps/asset-pipeline/`, `docs/ADR/0019-*.md` (asset model in the core, Blender adapter in infrastructure, manifest in protocol; their code is PIX-25) |
+| Asset pipeline app and its ADR | new | `apps/asset-pipeline/`, `docs/ADR/0019-*.md` (asset model in the core, generation tools behind adapters in infrastructure, manifest in protocol; their code is PIX-66) |
 | Shared compiler options for product code | new | `tsconfig.base.json` (product code may use `enum`, so no `erasableSyntaxOnly`; tooling keeps it in `tsconfig.json`) |
 | Comment, English, one-export gates and `quality-guard` | exists | `scripts/check-*.ts`, `.claude/hooks/quality-guard.ts` |
 | ESLint flat config | new | `eslint.config.ts` |
@@ -110,7 +110,7 @@ Every version is measured again on the day it is installed and pinned exactly.
   union, `new Date()` and `throw new Error` in the core, and an `eslint-disable` without reason: each red, the clean
   skeleton green.
 - Import zones: a probe plants core → infrastructure, core → `node:fs`, core → a framework, core → an app,
-  `apps/office-ui` → core, core → `node:child_process` (what a Blender call needs), each as static `import`, `import()`
+  `apps/office-ui` → core, core → `node:child_process` (what a model call needs), each as static `import`, `import()`
   and `require()`: each red; infrastructure → core and `apps/asset-pipeline` → infrastructure green.
 - `architecture-guard`: a probe feeds a PreToolUse write of a forbidden import (red) and of an allowed one (green).
 - `check-tests`: a probe changes a source file without its spec (red), with its spec (green), and a spec only (green).
@@ -119,7 +119,7 @@ Every version is measured again on the day it is installed and pinned exactly.
 ## Out of scope, with reasons
 
 - **Feature code in any package:** the skeleton holds only entries and one test each; the stories of M1 to M5 bring
-  the code; the asset model, the Blender adapter and the manifest are PIX-25.
+  the code; the asset model, the generation adapters and the manifest are PIX-66.
 - **NestJS, TypeORM, the renderer and tsdown wiring:** they arrive with the first story that needs them; installing
   them now would be code without a user.
 - **GitHub branch protection and squash-only merges:** PIX-9.
@@ -130,6 +130,12 @@ Every version is measured again on the day it is installed and pinned exactly.
 - **ESLint loads its TypeScript config through jiti 2.7.0:** ESLint 10.12 offers native loading only behind the flag
   `unstable_native_nodejs_ts_config` (measured in `lib/shared/flags.js`); the gate chain does not rest on an unstable
   flag.
+
+## Changed on the way
+
+- 2026-10-12 (PIX-57): acceptance line 3 says "generation tools behind adapters" instead of "Blender adapter",
+  because ADR 0019 was rewritten in place for the proven asset flow; the asset model's code moved from PIX-25 to
+  PIX-66; zod is also in the core (ADR 0021); the unused `globals` was removed. Card and plan carry the same text.
 
 ## Open questions
 

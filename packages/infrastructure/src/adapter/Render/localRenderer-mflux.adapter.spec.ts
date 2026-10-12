@@ -109,6 +109,15 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: exit 3');
 	});
 
+	it('names the running render with its current step while it runs', async () => {
+		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '1');
+		const running = renderer.render(job);
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		expect(renderer.status().running).toBe('figure-s11 1/8');
+		await running;
+		expect(renderer.status().running).toBeNull();
+	});
+
 	it('refuses a second render while one runs', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		writeFileSync(join(dir, 'current.lock'), 'other');

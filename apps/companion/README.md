@@ -16,4 +16,4 @@ Runs on a person's machine: it serves the browser UI, connects to the company se
 
 ## Entry point
 
-`src/index.ts` — the composition root of the client.
+`src/index.ts` — the composition root of the companion.

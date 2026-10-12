@@ -85,7 +85,6 @@ zod
 keyframed
 keypoint
 keypoints
-Aseprite
 Quaternius
 cel
 pxofc
