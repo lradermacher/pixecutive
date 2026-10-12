@@ -1,5 +1,6 @@
 // localRenderer-mflux.adapter.ts — renders one image with mflux on this Mac, one job at a time, under a memory guard.
 import { spawn } from 'node:child_process';
+import type { EventEmitter } from 'node:events';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import {
@@ -24,6 +25,8 @@ export interface MfluxRenderConfig {
 	readonly intervalMs: number;
 	readonly readMemory: () => MemoryReading;
 	readonly clock: IClock;
+	/** Where Ctrl-C and a closed terminal arrive; the process itself in production, a plain emitter in tests. */
+	readonly interrupts: EventEmitter;
 }
 
 /** What one run of the model measured. */
@@ -43,10 +46,24 @@ const steps = 8;
 /** How many log rows the status shows. */
 const statusRows = 5;
 
+/** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
+const interruptSignals = ['SIGINT', 'SIGTERM', 'SIGHUP'];
+const interrupted = 'ABORT: interrupted';
+
+/** Whether the process that wrote a lock still runs; a lock of a dead process is stale. */
+function isAlive(pid: number): boolean {
+	try {
+		process.kill(pid, 0);
+		return true;
+	} catch (failure) {
+		return (failure as NodeJS.ErrnoException).code === 'EPERM';
+	}
+}
+
 /**
  * One render at a time: a lock file refuses a second one, a start under memory pressure is refused, and a running
- * render is stopped at critical pressure or past the swap limit. The lock names the running render and its step.
- * Every run leaves one row in `renders.tsv`.
+ * render is stopped at critical pressure, past the swap limit or by an interrupt. The lock carries the process ID,
+ * the running render and its step; a lock whose process is gone is cleared. Every run leaves one row in `renders.tsv`.
  * @throws {RenderException} from `render`, with the key of the failure; never a plain error.
  */
 export class LocalRendererMfluxAdapter implements ILocalRenderer {
@@ -54,25 +71,24 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 
 	/**
 	 * Renders `job` into the renders folder and logs the run.
-	 * @throws {RenderException} busy, memory pressure before the start, aborted by the guard, or failed in mflux.
+	 * @throws {RenderException} busy, memory pressure before the start, aborted by the guard, interrupted, or failed in mflux.
 	 */
 	async render(job: RenderJob): Promise<RenderResult> {
 		const { rendersDir } = this.config;
 		mkdirSync(rendersDir, { recursive: true });
 		const lock = join(rendersDir, 'current.lock');
-		if (existsSync(lock)) {
-			throw new RenderException(RenderExceptionKey.Busy, `a render is running (${readFileSync(lock, 'utf8').trim()})`);
-		}
+		const running = this.running(lock);
+		if (running !== null) throw new RenderException(RenderExceptionKey.Busy, `a render is running (${running})`);
 		const start = this.config.readMemory();
 		const entry = judgeMemory(false, start.pressure, 0);
 		if (entry.action !== MemoryAction.Go) throw new RenderException(RenderExceptionKey.MemoryPressure, entry.reason);
 		const base = basename(job.promptFile, '.txt');
 		const name = `${base}-s${String(job.seed)}`;
 		const image = join(rendersDir, `${name}.png`);
-		writeFileSync(lock, name);
+		writeFileSync(lock, `${String(process.pid)}\t${name}`);
 		try {
 			const outcome = await this.run(start, this.argv(job, image), (progress) => {
-				writeFileSync(lock, `${name} ${progress}`);
+				writeFileSync(lock, `${String(process.pid)}\t${name} ${progress}`);
 			});
 			const finished = outcome.result === 'done' && existsSync(image);
 			const result = finished ? 'done' : outcome.result === 'done' ? 'FAILED: no image' : outcome.result;
@@ -81,7 +97,12 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				`${renderLogRow({ ...outcome, at: this.config.clock.now(), name: base, seed: job.seed, model, steps, size: `${String(job.width)}x${String(job.height)}`, result })}\n`,
 			);
 			if (finished) return { name, image };
-			const key = result.startsWith('ABORT') ? RenderExceptionKey.Aborted : RenderExceptionKey.Failed;
+			const key =
+				result === interrupted
+					? RenderExceptionKey.Interrupted
+					: result.startsWith('ABORT')
+						? RenderExceptionKey.Aborted
+						: RenderExceptionKey.Failed;
 			throw new RenderException(key, result);
 		} finally {
 			rmSync(lock, { force: true });
@@ -89,15 +110,23 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 	}
 
 	status(): RenderStatus {
-		const lock = join(this.config.rendersDir, 'current.lock');
 		const log = join(this.config.rendersDir, 'renders.tsv');
 		const memory = this.config.readMemory();
 		return {
-			running: existsSync(lock) ? readFileSync(lock, 'utf8').trim() : null,
+			running: this.running(join(this.config.rendersDir, 'current.lock')),
 			pressure: memory.pressure,
 			swapMb: memory.swapMb,
 			lastRows: existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').slice(-statusRows) : [],
 		};
+	}
+
+	/** The running render named by `lock`, or null; a lock left by a process that is gone is removed. */
+	private running(lock: string): string | null {
+		if (!existsSync(lock)) return null;
+		const [pid = '', label = ''] = readFileSync(lock, 'utf8').trim().split('\t');
+		if (isAlive(Number(pid))) return label;
+		rmSync(lock, { force: true });
+		return null;
 	}
 
 	/** The mflux call for one job. */
@@ -141,6 +170,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('error', (failure) => {
 				result = `FAILED: ${failure.message}`;
 			});
+			const interrupt = (): void => {
+				result = interrupted;
+				child.kill('SIGTERM');
+			};
+			for (const signal of interruptSignals) this.config.interrupts.on(signal, interrupt);
 			const watch = setInterval(() => {
 				const now = this.config.readMemory();
 				peakPressure = Math.max(peakPressure, now.pressure);
@@ -153,6 +187,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			}, this.config.intervalMs);
 			child.on('close', (code) => {
 				clearInterval(watch);
+				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
 				if (result === 'done' && code !== 0) result = `FAILED: exit ${String(code)}`;
 				const perStep = /([0-9.]+)s\/it/.exec(lastStep)?.[1];
 				resolve({

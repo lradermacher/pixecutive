@@ -7,5 +7,6 @@ export enum RenderExceptionKey {
 	Busy = 'render.busy',
 	MemoryPressure = 'render.memory_pressure',
 	Aborted = 'render.aborted',
+	Interrupted = 'render.interrupted',
 	Failed = 'render.failed',
 }

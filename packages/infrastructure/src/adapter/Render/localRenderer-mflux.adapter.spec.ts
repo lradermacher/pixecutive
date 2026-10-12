@@ -1,4 +1,6 @@
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { EventEmitter } from 'node:events';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type RenderJob, RenderException, RenderExceptionKey } from '@pixecutive/core';
@@ -31,8 +33,9 @@ function adapter(
 	readings: readonly { pressure: number; swapMb: number }[],
 	sleepSeconds = '0.2',
 	exitCode = 0,
-): { renderer: LocalRendererMfluxAdapter; dir: string } {
+): { renderer: LocalRendererMfluxAdapter; dir: string; interrupts: EventEmitter } {
 	const dir = mkdtempSync(join(tmpdir(), 'mflux-'));
+	const interrupts = new EventEmitter();
 	let reads = 0;
 	const renderer = new LocalRendererMfluxAdapter({
 		rendersDir: dir,
@@ -42,8 +45,9 @@ function adapter(
 		readMemory: (): { pressure: number; swapMb: number } =>
 			readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 },
 		clock: { now: (): Date => new Date('2026-10-12T09:30:00.000Z') },
+		interrupts,
 	});
-	return { renderer, dir };
+	return { renderer, dir, interrupts };
 }
 
 /** The key of the `RenderException` a render rejects with. */
@@ -120,14 +124,32 @@ describe('LocalRendererMfluxAdapter', () => {
 
 	it('refuses a second render while one runs', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
-		writeFileSync(join(dir, 'current.lock'), 'other');
+		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tother`);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Busy);
+	});
+
+	it('clears a lock whose process is gone and renders', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		const gone = spawnSync('true').pid;
+		writeFileSync(join(dir, 'current.lock'), `${String(gone)}\tfigure-s9 3/8`);
+		expect(renderer.status().running).toBeNull();
+		expect((await renderer.render(job)).name).toBe('figure-s11');
+	});
+
+	it('stops on an interrupt, logs why and leaves no lock behind', async () => {
+		const { renderer, dir, interrupts } = adapter([{ pressure: 1, swapMb: 100 }], '2');
+		const running = failureKey(renderer.render(job));
+		await new Promise((resolve) => setTimeout(resolve, 300));
+		interrupts.emit('SIGINT');
+		expect(await running).toBe(RenderExceptionKey.Interrupted);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('ABORT: interrupted');
+		expect(existsSync(join(dir, 'current.lock'))).toBe(false);
 	});
 
 	it('shows the running render, the memory and the last log rows', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		await renderer.render(job);
-		writeFileSync(join(dir, 'current.lock'), 'figure-s12');
+		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tfigure-s12`);
 		const status = renderer.status();
 		expect([status.running, status.pressure, status.swapMb, status.lastRows.length]).toEqual(['figure-s12', 1, 100, 1]);
 	});

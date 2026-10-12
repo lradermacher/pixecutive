@@ -111,6 +111,8 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 - 2026-10-12: the status had lost the running render's step when the guard moved into the adapter, which PIX-56's
   third acceptance line asks for; the adapter now writes the step into its lock, with a spec case. The cards PIX-7,
   PIX-56 and PIX-58 were brought to today's state first, then their plans.
+- 2026-10-12: review run 1 was red with 14 findings; the maintainer kept all of them on sheet `pix57-review-1-diffs`
+  (F12 = a: the machine lookups go behind a core port). Each is its own step from 11 on, its diff shown on the sheet.
 
 ## Open questions
 
@@ -131,4 +133,19 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 7 | Skills `animate-figure` and `figure-part`; conformance rows; register regenerated | `check-skills`, `check-generated` | built in step 1 |
 | 8 | Asset layout out of `ops.md` and `check-images`; probe cases adjusted | `bash scripts/probe-pre-commit.sh` | 12cbe49 |
 | 9 | Plans of PIX-7, PIX-56, PIX-58 rewritten; plan of PIX-64 removed; `ci.yml:1`, unit-readme template, routing row | `check-docs`, `generate-adr-state --check` | 07f5463 |
-| 10 | Full gate, every box with its evidence, independent review | `node scripts/verify-full.ts`, `ticket.ts boxes`, review record | open |
+| 10 | Full gate, every box with its evidence, independent review | `node scripts/verify-full.ts`, `ticket.ts boxes`, review record | review run 1 on 326986d: red, 14 findings, all kept (sheet `pix57-review-1-diffs`) |
+| 11 | Review finding 1: the lock carries the PID, a dead process's lock is cleared, interrupts end the render with a log row and `render.interrupted` | adapter spec; a real Ctrl-C on the built app | open |
+| 12 | Review finding 2: file system and memory failures answer `render.storage_failed` and `render.memory_unreadable` | adapter spec | open |
+| 13 | Review finding 3: the app checks at start that mflux and the LoRA exist | config spec | open |
+| 14 | Review finding 4: one case per exit key in `exitAnswer.spec.ts` | `pnpm test` | open |
+| 15 | Review finding 5: `RenderImageCommand` as the use case input | `pnpm typecheck`, `pnpm test` | open |
+| 16 | Review finding 6: ADR 0023 supersedes ADR 0011's value object row; ADR 0021 says `<technology>` | `check-docs`, `check-carriers`, `generate-adr-state --check` | open |
+| 17 | Review finding 7: ADR 0022 Confirmation names what carries each point | `check-docs` | open |
+| 18 | Review finding 8: the PIX-58 plan names the video guard where it is | `check-docs` | open |
+| 19 | Review finding 9: a spec for the render job schema | `pnpm test` | open |
+| 20 | Review finding 10: fourteen unused spell-list words removed | `check-english --all` | open |
+| 21 | Review finding 11: stale sentences in three docs | `check-english`, `check-docs` | open |
+| 22 | Review finding 13: case-insensitive PNG check with a probe case | `bash scripts/probe-pre-commit.sh` | open |
+| 23 | Review finding 14: an image of an earlier run is removed before a run | adapter spec | open |
+| 24 | Review finding 12 (F12 = a): the machine lookups behind the core port `IRenderMachine` | `pnpm test`, the architecture guard on the new files | open |
+| 25 | Review run 2 over steps 11 to 24 | review record | open |

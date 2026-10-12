@@ -18,4 +18,5 @@ export const renderExitCode: Readonly<Record<RenderExceptionKey, ExitAnswer>> = 
 	[RenderExceptionKey.MemoryPressure]: { code: 6, message: 'The memory is under pressure; the render did not start' },
 	[RenderExceptionKey.Aborted]: { code: 7, message: 'The memory guard stopped the render' },
 	[RenderExceptionKey.Failed]: { code: 8, message: 'The model failed' },
+	[RenderExceptionKey.Interrupted]: { code: 9, message: 'The render was interrupted' },
 });

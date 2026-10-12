@@ -1,3 +1,4 @@
+import { EventEmitter } from 'node:events';
 import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -10,6 +11,7 @@ const lora = '/hub/lightning.safetensors';
 async function run(
 	argv: readonly string[],
 	env: Record<string, string> = {},
+	interrupts: EventEmitter = new EventEmitter(),
 ): Promise<{ code: number; out: string; err: string }> {
 	let out = '';
 	let err = '';
@@ -20,6 +22,7 @@ async function run(
 		{ write: (text) => (out += text) },
 		{ write: (text) => (err += text) },
 		() => ({ pressure: 1, swapMb: 0 }),
+		interrupts,
 	);
 	return { code, out, err };
 }
@@ -47,6 +50,16 @@ describe('runPipeline', () => {
 	it('stops at the start with the configuration code when the weights are missing', async () => {
 		const result = await run(['status'], { PIX_LORA: '/hub/missing' });
 		expect([result.code, result.err.includes('render.invalid_config')]).toEqual([3, true]);
+	});
+
+	it('answers the interrupted code when Ctrl-C arrives during a render', async () => {
+		const mflux = join(mkdtempSync(join(tmpdir(), 'mflux-')), 'mflux');
+		writeFileSync(mflux, '#!/bin/sh\nsleep 2\n');
+		chmodSync(mflux, 0o755);
+		const interrupts = new EventEmitter();
+		setTimeout(() => interrupts.emit('SIGINT'), 300);
+		const result = await run(['render', 'figure.txt', 'figure.png', '11'], { PIX_MFLUX: mflux }, interrupts);
+		expect([result.code, result.err.includes('render.interrupted')]).toEqual([9, true]);
 	});
 
 	it('answers 2 and the usage for an unknown command', async () => {

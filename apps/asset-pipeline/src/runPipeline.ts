@@ -1,6 +1,7 @@
 // runPipeline.ts — the asset pipeline's composition root: parses the configuration, wires the renderer to the core
 // and translates every render failure through the exit code table.
 import { execFileSync } from 'node:child_process';
+import type { EventEmitter } from 'node:events';
 import { RenderException, RenderImageService } from '@pixecutive/core';
 import { ClockSystemAdapter, LocalRendererMfluxAdapter, readMemory } from '@pixecutive/infrastructure';
 import { renderExitCode } from './cli/renderExitCode.ts';
@@ -23,7 +24,7 @@ const usage = 'usage: pnpm assets render <prompt file> <input image> <seed> [<wi
 
 /**
  * Runs one command and answers the exit code: 0 done, 2 usage, a render failure's own code from the table, 1 for
- * anything unexpected. `env` and `memoryNow` are passed in so tests set the paths and the memory.
+ * anything unexpected. `env`, `memoryNow` and `interrupts` are passed in so tests set the paths, the memory and Ctrl-C.
  */
 export async function runPipeline(
 	argv: readonly string[],
@@ -31,6 +32,7 @@ export async function runPipeline(
 	out: PipelineOutput,
 	err: PipelineOutput,
 	memoryNow: MemoryNow = () => readMemory(),
+	interrupts: EventEmitter = process,
 ): Promise<number> {
 	const [command = '', ...args] = argv;
 	try {
@@ -42,6 +44,7 @@ export async function runPipeline(
 				intervalMs: guardIntervalMs,
 				readMemory: memoryNow,
 				clock: new ClockSystemAdapter(),
+				interrupts,
 			}),
 		);
 		if (command === 'status') return answer(out, showRenderStatusHandler(service));
