@@ -182,6 +182,6 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 42 | Review run 5 over 03d7325, with the maintainer's yes | review record | run 5 on 03d7325: red, 3 findings and 3 notes, fixed in step 43 |
 | 43 | The weights must be a file; mflux's complaint only from its error output, on one line, its error line first; the cache paths expanded as the hub does; the missing input key in the JSDoc; a static `node:child_process` probe case; a case red without each fix | `pnpm test`, mutations, `bash scripts/probe-architecture.sh` | 7dbc7c5 |
 | 44 | Review run 6 over 7dbc7c5, with the maintainer's yes | review record | run 6 on 7dbc7c5: green, 1 should-fix and 4 notes; the maintainer: nothing known ships, so all are fixed in steps 45-46 |
-| 45 | Render: `isFile` never throws; a complaint split across chunks is joined; an error before a later step no longer counts; the error word keeps its boundary; `HF_HOME` expanded before the cache path as the hub does (was PIX-69) | `pnpm test`, mutations | open |
-| 46 | Lint: random IDs and `performance.now()` rejected in the core, probe cases red first (was PIX-67) | `bash scripts/probe-lint.sh` | open |
+| 45 | Render: `isFile` never throws; a complaint split across chunks is joined; an error before a later step no longer counts; the error word keeps its boundary; `HF_HOME` expanded before the cache path as the hub does (was PIX-69) | `pnpm test`, mutations | c3db048 |
+| 46 | Lint: random IDs and `performance.now()` rejected in the core, probe cases red first (was PIX-67) | `bash scripts/probe-lint.sh` | this commit |
 | 47 | Review run 7 over steps 45-46 | review record | open |

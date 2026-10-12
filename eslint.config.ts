@@ -21,8 +21,14 @@ const coreOnly = [
 		message: 'Time comes through a clock port (core rule).',
 	},
 	{
-		selector: "MemberExpression[object.name='Math'][property.name='random']",
+		selector:
+			"MemberExpression[object.name='Math'][property.name='random'], MemberExpression[object.name='crypto'][property.name=/^(randomUUID|getRandomValues)$/], MemberExpression[object.object.name='globalThis'][object.property.name='crypto']",
 		message: 'IDs and tokens come from an adapter (core rule).',
+	},
+	{
+		selector:
+			"MemberExpression[object.name='performance'][property.name='now'], MemberExpression[object.object.name='globalThis'][object.property.name='performance']",
+		message: 'Time comes through a clock port (core rule).',
 	},
 	{
 		selector:

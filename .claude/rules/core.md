@@ -24,7 +24,8 @@ the infrastructure package. A token file exists only where a container binds the
 `[Lint import zones · Agent adversarial-review]`
 
 ## Time comes through a clock port, IDs from adapters
-The core never calls `new Date()` or generates tokens itself. `[Lint no-restricted-syntax Date]`
+The core never calls `new Date()` or `performance.now()`, and never draws a random ID or token itself.
+`[Lint no-restricted-syntax Date · Lint no-restricted-syntax random]`
 
 ## Errors are core exceptions with a key, translated at each edge
 HTTP, WebSocket and CLI each translate the same exception through a typed table from key to answer, so a key without

@@ -47,6 +47,12 @@ probe "new Date() in the core" red "plant 'export function f(): number { return 
 probe "Date.now() in the core" red "plant 'export function f(): number { return Date.now(); }' && $lint $core"
 probe "new globalThis.Date() in the core" red "plant 'export function f(): number { return new globalThis.Date().getTime(); }' && $lint $core"
 probe "globalThis.Date.now() in the core" red "plant 'export function f(): number { return globalThis.Date.now(); }' && $lint $core"
+probe "crypto.randomUUID() in the core" red "plant 'export function f(): string { return crypto.randomUUID(); }' && $lint $core"
+probe "crypto.getRandomValues() in the core" red "plant 'export function f(): Uint8Array { return crypto.getRandomValues(new Uint8Array(4)); }' && $lint $core"
+probe "performance.now() in the core" red "plant 'export function f(): number { return performance.now(); }' && $lint $core"
+probe "globalThis.crypto.randomUUID() in the core" red "plant 'export function f(): string { return globalThis.crypto.randomUUID(); }' && $lint $core"
+probe "crypto.randomUUID() in an app is allowed" green \
+	"printf '%s\\n' 'export function f(): string { return crypto.randomUUID(); }' > apps/company-server/src/probe.ts && $lint apps/company-server/src/probe.ts"
 probe "Math.random() in the core" red "plant 'export function f(): number { return Math.random(); }' && $lint $core"
 probe "throw new Error in the core" red "plant 'export function f(): never { throw new Error(\"x\"); }' && $lint $core"
 infra='packages/infrastructure/src/adapter/Probe/probe-fake.adapter.ts'
