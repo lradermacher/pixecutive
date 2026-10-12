@@ -7,9 +7,9 @@ paths:
 adr: docs/ADR/0011-hexagonal-architecture.md
 summary: >
   Hexagonal: the core imports no framework, no infrastructure, no app. Ports are domain-typed interfaces, adapters map
-  at the edge, time and IDs come from ports and adapters. Configuration enters at the app, secrets fail closed,
-  subscription logins are never read. The browser UI never imports the core. Changes carry their tests; comments say
-  why.
+  at the edge and throw only keyed core exceptions, edges translate keys by typed tables. Time and IDs come from
+  outside the core. Configuration is parsed by a schema at start, secrets fail closed. The browser UI never imports
+  the core. Changes carry tests.
 ---
 
 # Core — the hexagon
@@ -27,11 +27,16 @@ the infrastructure package. A token file exists only where a container binds the
 The core never calls `new Date()` or generates tokens itself. `[Lint no-restricted-syntax Date]`
 
 ## Errors are core exceptions with a key, translated at each edge
-HTTP, WebSocket and CLI each translate the same exception into their own answer.
+HTTP, WebSocket and CLI each translate the same exception through a typed table from key to answer, so a key without
+an answer does not compile. `[Lint no-restricted-syntax throw Error · Gate verify-full: type check]`
+
+## An adapter turns every outside failure into a core exception with a key
+A failed process, a refused request or a missing file never leaves the infrastructure package as a plain `Error`.
 `[Lint no-restricted-syntax throw Error]`
 
 ## Configuration enters at the app, secrets fail closed
-The core reads no environment; apps validate configuration with a core schema; a missing secret stops the start.
+The core reads no environment; apps parse configuration with a core schema at start. A default exists only for a value
+that is not a secret; a failed parse stops the start.
 `[Lint import zones]`
 
 ## Subscription logins are never read by Pixecutive
@@ -48,7 +53,9 @@ or application. Wires ports to adapters: the app. Crosses the wire: the protocol
 ## Files follow one hexagon naming pattern
 `domain/<Aggregate>/` in PascalCase holds camelCase files with a type suffix: `.interface.ts`, `.enum.ts`, `.schema.ts`.
 Services are `application/service/<name>.service.ts`, exceptions `<aggregate>.exception.ts` with
-`<aggregate>ExceptionKey.enum.ts`, adapters `adapter/<Area>/<port>-<impl>.adapter.ts`. Zod is the core's one library.
+`<aggregate>ExceptionKey.enum.ts` with keys `<aggregate>.<snake_key>`, adapters
+`adapter/<Area>/<port>-<technology>.adapter.ts` exporting `<Port><Technology>Adapter`, command line entry points
+`src/cli/<verb><Noun>.handler.ts`. Zod is the core's one library.
 `[Lint import zones · Agent adversarial-review]`
 
 ## A change carries its tests

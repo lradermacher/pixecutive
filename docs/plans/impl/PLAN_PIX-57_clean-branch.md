@@ -116,7 +116,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | ADR README sentence; ADR 0019, 0021, 0022 rewritten in place; ADR 0023 written; state tables regenerated; the skills of step 7 | `check-docs`, `check-carriers`, `generate-adr-state --check` | open |
+| 1 | ADR README sentence; ADR 0019, 0021, 0022 rewritten in place; ADR 0023 written; state tables regenerated; the skills of step 7 | `check-docs`, `check-carriers`, `generate-adr-state --check` | ea07edb |
 | 2 | `core.md` lines, `assets.md`, `CLAUDE.md` | `check-rules` | open |
 | 3 | Architecture guard accepts zod in the core; probe case first red, then green | `bash scripts/probe-architecture.sh` | open |
 | 4 | Lint selector for `new globalThis.Date`; probe case first red, then green | `bash scripts/probe-lint.sh` | open |

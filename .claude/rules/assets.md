@@ -3,33 +3,39 @@ paths:
   - "apps/asset-pipeline/**"
   - "apps/office-ui/assets/**"
   - "packages/infrastructure/src/adapter/Render/**"
-  - "packages/infrastructure/src/adapter/Vision/**"
-  - "packages/infrastructure/src/adapter/Blender/**"
 adr: docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md
 summary: >
-  Assets are our own work: a generator's output is a reference only, nothing comes from another game. The image model
-  renders one image at a time under the memory guard. A figure is modeled by eye through blender-mcp, each part
-  accepted as a PNG before the next; a score is a check, never a target; results are looked at first.
+  Image models draw every part from our own templates, a local video model makes every motion, nothing comes from
+  another game. One local render at a time under the memory guard. A gesture is defined before its first render;
+  where layers meet, the meeting is drawn. Every result is looked at through the office's own draw functions first.
 ---
 
 # Assets — how they are made
 
-## A generator's image or model never ships
-It is a reference only; what ships is built by hand. `[Agent adversarial-review]`
-
 ## Nothing from another game enters the repo
 No file, no traced shape, no name. `[Gate history guard denylist]`
 
-## The image model renders one image at a time under the memory guard
+## A local model renders one job at a time under the memory guard
 A lock refuses a second render; the guard refuses a start under pressure and stops a run at critical pressure.
 `[Gate verify-full: renderer spec]`
 
-## A figure is modeled with the viewport
-blender-mcp answers before the first change, and every change is looked at in the viewport.
-`[Skill blender-character]`
+## Motion comes only from the local video model
+A cycle is cut from a free clip, a gesture on the spot is a loop anchored on the same still; no part is stretched,
+rotated or moved by code. `[Skill animate-figure]`
 
-## Every part is accepted as one PNG before the next starts
-`[Skill blender-character]`
+## A gesture is defined in its card before its first render
+What moves, what stays still, the timing and the measured check. `[Skill animate-figure]`
+
+## Where two layers meet, the meeting is drawn
+One drawing per class of the other layer; after the second rule that failed to clip a meeting, the input changes.
+`[Skill figure-part]`
+
+## A new drawing is compared whole with its approved neighbor
+Pairs such as eyes and brows zoomed side by side; drift is redrawn, not patched. `[Skill figure-part]`
+
+## A result is checked through the office's own draw functions
+Zoomed, on light, medium and dark looks, and in every combination where two layers meet.
+`[Skill figure-part · Skill animate-figure]`
 
 ## A score checks a result; nothing is tuned towards it
 `[Prose: whether a value was tuned shows only in the session]`
