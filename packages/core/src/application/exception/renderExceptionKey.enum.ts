@@ -8,5 +8,7 @@ export enum RenderExceptionKey {
 	MemoryPressure = 'render.memory_pressure',
 	Aborted = 'render.aborted',
 	Interrupted = 'render.interrupted',
+	StorageFailed = 'render.storage_failed',
+	MemoryUnreadable = 'render.memory_unreadable',
 	Failed = 'render.failed',
 }

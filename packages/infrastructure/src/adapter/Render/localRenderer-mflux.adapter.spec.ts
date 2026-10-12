@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type RenderJob, RenderException, RenderExceptionKey } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
-import { LocalRendererMfluxAdapter } from './localRenderer-mflux.adapter.ts';
+import { LocalRendererMfluxAdapter, type MfluxRenderConfig } from './localRenderer-mflux.adapter.ts';
 
 const job: RenderJob = { promptFile: 'figure.txt', inputImage: 'figure.png', seed: 11, width: 1024, height: 768 };
 
@@ -33,6 +33,7 @@ function adapter(
 	readings: readonly { pressure: number; swapMb: number }[],
 	sleepSeconds = '0.2',
 	exitCode = 0,
+	override: (dir: string) => Partial<MfluxRenderConfig> = () => ({}),
 ): { renderer: LocalRendererMfluxAdapter; dir: string; interrupts: EventEmitter } {
 	const dir = mkdtempSync(join(tmpdir(), 'mflux-'));
 	const interrupts = new EventEmitter();
@@ -46,6 +47,7 @@ function adapter(
 			readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 },
 		clock: { now: (): Date => new Date('2026-10-12T09:30:00.000Z') },
 		interrupts,
+		...override(dir),
 	});
 	return { renderer, dir, interrupts };
 }
@@ -120,6 +122,23 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(renderer.status().running).toBe('figure-s11 1/8');
 		await running;
 		expect(renderer.status().running).toBeNull();
+	});
+
+	it('answers the storage key when the renders folder cannot be made', async () => {
+		const { renderer } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (dir) => {
+			writeFileSync(join(dir, 'blocked'), 'a file, not a folder');
+			return { rendersDir: join(dir, 'blocked', 'renders') };
+		});
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
+	});
+
+	it('answers the unreadable memory key before a start without its guard', async () => {
+		const { renderer } = adapter([], '0.2', 0, () => ({
+			readMemory: (): { pressure: number; swapMb: number } => {
+				throw new TypeError('sysctl is missing');
+			},
+		}));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.MemoryUnreadable);
 	});
 
 	it('refuses a second render while one runs', async () => {

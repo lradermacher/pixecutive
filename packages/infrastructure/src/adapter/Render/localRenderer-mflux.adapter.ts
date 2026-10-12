@@ -50,6 +50,18 @@ const statusRows = 5;
 const interruptSignals = ['SIGINT', 'SIGTERM', 'SIGHUP'];
 const interrupted = 'ABORT: interrupted';
 
+/**
+ * Runs one step on the renders folder; whatever the file system answers leaves the adapter with the storage key.
+ * @throws {RenderException} the storage key with the step and the file system's message.
+ */
+function onDisk<T>(what: string, step: () => T): T {
+	try {
+		return step();
+	} catch (failure) {
+		throw new RenderException(RenderExceptionKey.StorageFailed, `${what}: ${(failure as Error).message}`);
+	}
+}
+
 /** Whether the process that wrote a lock still runs; a lock of a dead process is stale. */
 function isAlive(pid: number): boolean {
 	try {
@@ -75,27 +87,33 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 	 */
 	async render(job: RenderJob): Promise<RenderResult> {
 		const { rendersDir } = this.config;
-		mkdirSync(rendersDir, { recursive: true });
+		onDisk('create the renders folder', () => mkdirSync(rendersDir, { recursive: true }));
 		const lock = join(rendersDir, 'current.lock');
 		const running = this.running(lock);
 		if (running !== null) throw new RenderException(RenderExceptionKey.Busy, `a render is running (${running})`);
-		const start = this.config.readMemory();
+		const start = this.memory();
 		const entry = judgeMemory(false, start.pressure, 0);
 		if (entry.action !== MemoryAction.Go) throw new RenderException(RenderExceptionKey.MemoryPressure, entry.reason);
 		const base = basename(job.promptFile, '.txt');
 		const name = `${base}-s${String(job.seed)}`;
 		const image = join(rendersDir, `${name}.png`);
-		writeFileSync(lock, `${String(process.pid)}\t${name}`);
+		onDisk('write the lock', () => {
+			writeFileSync(lock, `${String(process.pid)}\t${name}`);
+		});
 		try {
 			const outcome = await this.run(start, this.argv(job, image), (progress) => {
-				writeFileSync(lock, `${String(process.pid)}\t${name} ${progress}`);
+				onDisk('write the step into the lock', () => {
+					writeFileSync(lock, `${String(process.pid)}\t${name} ${progress}`);
+				});
 			});
 			const finished = outcome.result === 'done' && existsSync(image);
 			const result = finished ? 'done' : outcome.result === 'done' ? 'FAILED: no image' : outcome.result;
-			appendFileSync(
-				join(rendersDir, 'renders.tsv'),
-				`${renderLogRow({ ...outcome, at: this.config.clock.now(), name: base, seed: job.seed, model, steps, size: `${String(job.width)}x${String(job.height)}`, result })}\n`,
-			);
+			onDisk('append the log row', () => {
+				appendFileSync(
+					join(rendersDir, 'renders.tsv'),
+					`${renderLogRow({ ...outcome, at: this.config.clock.now(), name: base, seed: job.seed, model, steps, size: `${String(job.width)}x${String(job.height)}`, result })}\n`,
+				);
+			});
 			if (finished) return { name, image };
 			const key =
 				result === interrupted
@@ -105,27 +123,50 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 						: RenderExceptionKey.Failed;
 			throw new RenderException(key, result);
 		} finally {
-			rmSync(lock, { force: true });
+			onDisk('remove the lock', () => {
+				rmSync(lock, { force: true });
+			});
 		}
 	}
 
 	status(): RenderStatus {
 		const log = join(this.config.rendersDir, 'renders.tsv');
-		const memory = this.config.readMemory();
+		const memory = this.memory();
 		return {
 			running: this.running(join(this.config.rendersDir, 'current.lock')),
 			pressure: memory.pressure,
 			swapMb: memory.swapMb,
-			lastRows: existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n').slice(-statusRows) : [],
+			lastRows: existsSync(log)
+				? onDisk('read the log', () => readFileSync(log, 'utf8'))
+						.trim()
+						.split('\n')
+						.slice(-statusRows)
+				: [],
 		};
+	}
+
+	/**
+	 * The machine's memory as the guard needs it.
+	 * @throws {RenderException} the unreadable memory key, because a render without its guard must not start.
+	 */
+	private memory(): MemoryReading {
+		try {
+			return this.config.readMemory();
+		} catch (failure) {
+			throw new RenderException(RenderExceptionKey.MemoryUnreadable, (failure as Error).message);
+		}
 	}
 
 	/** The running render named by `lock`, or null; a lock left by a process that is gone is removed. */
 	private running(lock: string): string | null {
 		if (!existsSync(lock)) return null;
-		const [pid = '', label = ''] = readFileSync(lock, 'utf8').trim().split('\t');
+		const [pid = '', label = ''] = onDisk('read the lock', () => readFileSync(lock, 'utf8'))
+			.trim()
+			.split('\t');
 		if (isAlive(Number(pid))) return label;
-		rmSync(lock, { force: true });
+		onDisk('clear a stale lock', () => {
+			rmSync(lock, { force: true });
+		});
 		return null;
 	}
 
@@ -176,7 +217,14 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			};
 			for (const signal of interruptSignals) this.config.interrupts.on(signal, interrupt);
 			const watch = setInterval(() => {
-				const now = this.config.readMemory();
+				let now: MemoryReading;
+				try {
+					now = this.config.readMemory();
+				} catch {
+					result = 'ABORT: the memory cannot be read';
+					child.kill('SIGTERM');
+					return;
+				}
 				peakPressure = Math.max(peakPressure, now.pressure);
 				swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
 				const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);

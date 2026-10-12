@@ -19,4 +19,6 @@ export const renderExitCode: Readonly<Record<RenderExceptionKey, ExitAnswer>> = 
 	[RenderExceptionKey.Aborted]: { code: 7, message: 'The memory guard stopped the render' },
 	[RenderExceptionKey.Failed]: { code: 8, message: 'The model failed' },
 	[RenderExceptionKey.Interrupted]: { code: 9, message: 'The render was interrupted' },
+	[RenderExceptionKey.StorageFailed]: { code: 10, message: 'The renders folder cannot be written or read' },
+	[RenderExceptionKey.MemoryUnreadable]: { code: 11, message: 'The memory cannot be read, so the guard cannot run' },
 });
