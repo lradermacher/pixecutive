@@ -57,9 +57,8 @@ const pieceLength = 4096;
  * writes, so the output is decoded as one stream and the piece after the last line break waits for the rest. The
  * reason is the last error line, else the last line that is no warning, else the last warning; the line that ends a
  * traceback counts as an error line whatever it names. It follows the shape Python gives its output: an indented line
- * continues the one above it, an exception group is read inside its frame,
- * and the error of a traceback Python cannot raise any further, when an object is freed or the process shuts down,
- * does not count.
+ * continues the one above it, an exception group is read inside its frame, and the error of a traceback Python cannot
+ * raise any further, when an object is freed or the process shuts down, does not count.
  */
 export class MfluxComplaint {
 	private readonly decoder = new StringDecoder('utf8');
@@ -91,9 +90,9 @@ export class MfluxComplaint {
 
 	private hear(raw: string): void {
 		// Inside a traceback the indentation is Python's own: a statement over several lines keeps its deep indentation
-		// there, and tqdm cleared its bars before the traceback began.
+		// there. Padding is tqdm's only where tqdm also moved the cursor, as a bar another thread clears does.
 		const bare = raw.replace(terminalControl, '');
-		const cleared = this.raising ? bare : bare.replace(padding, '');
+		const cleared = this.raising && bare === raw ? bare : bare.replace(padding, '');
 		// Inside an exception group every line stands behind `| `; without the frame it reads like any other line.
 		const line = groupFrame.test(cleared) ? cleared.replace(groupFrame, '') : cleared;
 		if (traceMarks.test(line)) return;
