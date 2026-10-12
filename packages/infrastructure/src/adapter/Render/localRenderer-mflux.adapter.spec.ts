@@ -70,7 +70,7 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect([row[0], row[4], row[10]]).toEqual(['2026-10-12 09:30', '1024x768', 'done']);
 	});
 
-	it('hands mflux the job, the LoRA and the output path', async () => {
+	it('hands mflux the job, the LoRA and the side file it writes into', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		await renderer.render(job);
 		const args = readFileSync(join(dir, 'args.txt'), 'utf8').split('\n');
@@ -78,7 +78,7 @@ describe('LocalRendererMfluxAdapter', () => {
 			'--seed',
 			'11',
 			'--output',
-			join(dir, 'figure-s11.png'),
+			join(dir, 'figure-s11.rendering.png'),
 		]);
 		expect(args[args.indexOf('--lora-paths') + 1]).toBe('/hub/lightning.safetensors');
 	});
@@ -156,7 +156,7 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.MemoryUnreadable);
 	});
 
-	it('never takes an image of an earlier run as the result', async () => {
+	it('never takes an image of an earlier run as the result, and keeps it when the new run fails', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (folder) => {
 			const silent = join(folder, 'silent-mflux');
 			writeFileSync(silent, '#!/bin/sh\nexit 0\n');
@@ -166,6 +166,17 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 		writeFileSync(join(dir, 'figure-s11.png'), 'an earlier image');
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: no image');
+		expect(readFileSync(join(dir, 'figure-s11.png'), 'utf8')).toBe('an earlier image');
+	});
+
+	it('replaces an earlier image only with a finished one', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		writeFileSync(join(dir, 'figure-s11.png'), 'an earlier image');
+		await renderer.render(job);
+		expect([
+			readFileSync(join(dir, 'figure-s11.png'), 'utf8'),
+			existsSync(join(dir, 'figure-s11.rendering.png')),
+		]).toEqual(['x', false]);
 	});
 });
 

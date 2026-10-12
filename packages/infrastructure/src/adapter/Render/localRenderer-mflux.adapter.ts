@@ -1,7 +1,7 @@
 // localRenderer-mflux.adapter.ts — renders one image with mflux on this Mac, one job at a time, under a memory guard.
 import { spawn } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
-import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import {
 	type IClock,
@@ -99,20 +99,21 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const base = basename(job.promptFile, '.txt');
 		const name = `${base}-s${String(job.seed)}`;
 		const image = join(rendersDir, `${name}.png`);
-		// An image left by an earlier run of the same name must not count as this run's result.
-		onDisk('remove an earlier image of the same name', () => {
-			rmSync(image, { force: true });
+		// mflux writes beside the result, so an earlier image is replaced only by a finished run and never counts as one.
+		const rendering = join(rendersDir, `${name}.rendering.png`);
+		onDisk('remove an unfinished image of an earlier run', () => {
+			rmSync(rendering, { force: true });
 		});
 		onDisk('write the lock', () => {
 			writeFileSync(lock, `${String(process.pid)}\t${name}`);
 		});
 		try {
-			const outcome = await this.run(start, this.argv(job, image), (progress) => {
+			const outcome = await this.run(start, this.argv(job, rendering), (progress) => {
 				onDisk('write the step into the lock', () => {
 					writeFileSync(lock, `${String(process.pid)}\t${name} ${progress}`);
 				});
 			});
-			const finished = outcome.result === 'done' && existsSync(image);
+			const finished = outcome.result === 'done' && existsSync(rendering);
 			const result = finished ? 'done' : outcome.result === 'done' ? 'FAILED: no image' : outcome.result;
 			onDisk('append the log row', () => {
 				appendFileSync(
@@ -120,7 +121,12 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 					`${renderLogRow({ ...outcome, at: this.config.clock.now(), name: base, seed: job.seed, model, steps, size: `${String(job.width)}x${String(job.height)}`, result })}\n`,
 				);
 			});
-			if (finished) return { name, image };
+			if (finished) {
+				onDisk('move the image into place', () => {
+					renameSync(rendering, image);
+				});
+				return { name, image };
+			}
 			const key =
 				result === interrupted
 					? RenderExceptionKey.Interrupted
