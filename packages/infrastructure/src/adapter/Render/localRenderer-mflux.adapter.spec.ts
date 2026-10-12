@@ -140,26 +140,13 @@ describe('LocalRendererMfluxAdapter when something fails', () => {
 });
 
 describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
-	it('logs the last complaint of mflux with its exit code', async () => {
+	it('logs the last error line of mflux on one line, past a warning after it', async () => {
 		const { renderer, dir } = adapter(
 			[{ pressure: 1, swapMb: 100 }],
 			'0.2',
 			0,
 			model(
-				"#!/bin/sh\nprintf ' 1/8 [00:01<00:07, 1.0s/it]\\n' >&2\necho 'FileNotFoundError: prompt.txt' >&2\nexit 1\n",
-			),
-		);
-		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
-		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toContain('FAILED: exit 1: FileNotFoundError: prompt.txt');
-	});
-
-	it('logs the last error line of mflux on one line, past a warning and a progress line after it', async () => {
-		const { renderer, dir } = adapter(
-			[{ pressure: 1, swapMb: 100 }],
-			'0.2',
-			0,
-			model(
-				"#!/bin/sh\n{ echo 'RuntimeError: first'; printf 'ValueError: width\\tmust be even\\n'; echo 'UserWarning: resource_tracker'; printf ' 2/8 [00:02<00:06, 1.0s/it]\\n'; } >&2\nexit 1\n",
+				"#!/bin/sh\n{ printf ' 2/8 [00:02<00:06, 1.0s/it]\\n'; echo 'RuntimeError: first'; printf 'ValueError: width\\tmust be even\\n'; echo 'UserWarning: resource_tracker'; } >&2\nexit 1\n",
 			),
 		);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
@@ -175,6 +162,28 @@ describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 		],
 		['a line on the standard output only', "echo 'ValueError: printed, not complained'", 'exit 1'],
 	])('keeps the right reason with %s', async (_, lines, reason) => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${lines}\nexit 1\n`));
+		await renderer.render(job).catch(() => null);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(`FAILED: ${reason}`);
+	});
+
+	it.each([
+		[
+			'a line that arrives in two pieces',
+			"{ printf 'ValueError: width must '; sleep 0.3; echo 'be even'; } >&2",
+			'exit 1: ValueError: width must be even',
+		],
+		[
+			'an error before a later step, then a plain last line',
+			"{ echo 'Error while loading a cached file, falling back'; printf ' 3/8 [00:03<00:05, 1.0s/it]\\n'; echo 'Loading weights'; } >&2",
+			'exit 1: Loading weights',
+		],
+		[
+			'a word that only starts like an error',
+			"{ echo 'Errors were ignored'; echo 'plain last line'; } >&2",
+			'exit 1: plain last line',
+		],
+	])('takes the reason right from %s', async (_, lines, reason) => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${lines}\nexit 1\n`));
 		await renderer.render(job).catch(() => null);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(`FAILED: ${reason}`);

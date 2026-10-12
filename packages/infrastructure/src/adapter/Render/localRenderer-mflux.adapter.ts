@@ -232,6 +232,20 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		// mflux says why it failed on its error output: its last error line, else its last line that is no progress line.
 		let lastError = '';
 		let lastLine = '';
+		// A line can arrive in two pieces; the piece after the last line break waits for the rest.
+		let pending = '';
+		const hear = (line: string): void => {
+			// An error mflux reported before a later step did not stop it, so a new step clears it.
+			if (progressLine.test(line)) {
+				lastError = '';
+				return;
+			}
+			// One line of the log's last column: whitespace such as a tab would split the row, so it becomes a space.
+			const one = line.replace(/\s+/g, ' ').trim().slice(0, 300);
+			if (one === '') return;
+			lastLine = one;
+			if (errorLine.test(one)) lastError = one;
+		};
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
 		let end = RunEnd.Done;
@@ -275,14 +289,9 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			};
 			if (child.pid !== undefined) tell('');
 			const watchComplaints = (chunk: Buffer): void => {
-				// One line of the log's last column: whitespace such as a tab would split the row, so it becomes a space.
-				const lines = chunk
-					.toString()
-					.split(/[\r\n]+/)
-					.map((line) => line.replace(/\s+/g, ' ').trim().slice(0, 300))
-					.filter((line) => line !== '' && !progressLine.test(line));
-				lastLine = lines.at(-1) ?? lastLine;
-				lastError = lines.filter((line) => errorLine.test(line)).at(-1) ?? lastError;
+				const parts = `${pending}${chunk.toString()}`.split(/[\r\n]+/);
+				pending = parts.pop() ?? '';
+				for (const part of parts) hear(part);
 			};
 			const watchOutput = (chunk: Buffer): void => {
 				const text = chunk.toString().replaceAll('\r', '\n');
@@ -326,6 +335,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('close', (code) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
+				hear(pending);
 				const complaint = lastError === '' ? lastLine : lastError;
 				if (code !== 0)
 					stop(RunEnd.Failed, complaint === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${complaint}`);

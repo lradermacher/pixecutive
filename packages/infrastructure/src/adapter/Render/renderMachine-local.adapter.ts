@@ -57,7 +57,12 @@ export class RenderMachineLocalAdapter implements IRenderMachine {
 	}
 
 	isFile(path: string): boolean {
-		// A folder or a missing path is no file; asking never fails, so the start can name every wrong path at once.
-		return statSync(path, { throwIfNoEntry: false })?.isFile() ?? false;
+		// A folder, a missing path or one that cannot be read is no file to render with; asking never fails, so the start
+		// can name every wrong path at once.
+		try {
+			return statSync(path).isFile();
+		} catch {
+			return false;
+		}
 	}
 }

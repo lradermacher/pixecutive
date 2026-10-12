@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 43; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 46; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33), run 3 on 45b9916 (4 findings and 4 notes, fixed in steps 35-37), run 4 on b31fb5f (14 findings, fixed in steps 39-41), run 5 on 03d7325 (6, fixed in step 43), run 6 on 7dbc7c5 (green; its 5 points fixed in steps 45-46)
 
 ## Inventory
 
@@ -124,6 +124,9 @@ for every removal), kept in the session scratchpad `flow/audit/`.
   maintainer asked for it) found 14 more; all are fixed in steps 39 to 41, commit bodies stay as written.
 - 2026-10-12: review run 5 over 03d7325 found 3 findings and 3 notes in those fixes; all are fixed in step 43, each
   new case checked red without its fix.
+- 2026-10-12: review run 6 was green; its should-fix and notes went to PIX-69, and the core's lint hole for random
+  IDs had gone to PIX-67. The maintainer: a feature ships without known errors, so both are fixed in this card as
+  steps 45 and 46, and the two cards are closed.
 
 ## Open questions
 
@@ -177,4 +180,8 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 40 | Docs: ADR 0018 point 2 edited in place instead of superseded, ADR 0019 Confirmation, ADR 0022 points 1 and 6, ADR 0023 point 3 and Mechanics, core and assets rules, the PIX-56 plan's cache claim | `check-docs`, `check-carriers`, `check-rules` | committed with step 41 |
 | 41 | Findings outside this card as Backlog cards | the cards' keys | PIX-67, PIX-68; 03d7325 |
 | 42 | Review run 5 over 03d7325, with the maintainer's yes | review record | run 5 on 03d7325: red, 3 findings and 3 notes, fixed in step 43 |
-| 43 | The weights must be a file; mflux's complaint only from its error output, on one line, its error line first; the cache paths expanded as the hub does; the missing input key in the JSDoc; a static `node:child_process` probe case; a case red without each fix | `pnpm test`, mutations, `bash scripts/probe-architecture.sh` | this commit |
+| 43 | The weights must be a file; mflux's complaint only from its error output, on one line, its error line first; the cache paths expanded as the hub does; the missing input key in the JSDoc; a static `node:child_process` probe case; a case red without each fix | `pnpm test`, mutations, `bash scripts/probe-architecture.sh` | 7dbc7c5 |
+| 44 | Review run 6 over 7dbc7c5, with the maintainer's yes | review record | run 6 on 7dbc7c5: green, 1 should-fix and 4 notes; the maintainer: nothing known ships, so all are fixed in steps 45-46 |
+| 45 | Render: `isFile` never throws; a complaint split across chunks is joined; an error before a later step no longer counts; the error word keeps its boundary; `HF_HOME` expanded before the cache path as the hub does (was PIX-69) | `pnpm test`, mutations | open |
+| 46 | Lint: random IDs and `performance.now()` rejected in the core, probe cases red first (was PIX-67) | `bash scripts/probe-lint.sh` | open |
+| 47 | Review run 7 over steps 45-46 | review record | open |

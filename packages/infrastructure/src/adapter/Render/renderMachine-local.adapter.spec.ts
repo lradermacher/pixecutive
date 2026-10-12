@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RenderException } from '@pixecutive/core';
@@ -74,6 +74,17 @@ describe('RenderMachineLocalAdapter', () => {
 			expect(() => machine.repoRoot()).toThrow(RenderException);
 		} finally {
 			cwd.mockRestore();
+		}
+	});
+
+	it('answers no file for a path in a folder it cannot read, without failing', () => {
+		const locked = mkdtempSync(join(tmpdir(), 'locked-'));
+		writeFileSync(join(locked, 'weights.safetensors'), '');
+		chmodSync(locked, 0o000);
+		try {
+			expect(new RenderMachineLocalAdapter('/opt/someone').isFile(join(locked, 'weights.safetensors'))).toBe(false);
+		} finally {
+			chmodSync(locked, 0o700);
 		}
 	});
 

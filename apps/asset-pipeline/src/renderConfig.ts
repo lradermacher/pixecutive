@@ -30,7 +30,9 @@ function expandPath(path: string, env: Readonly<Record<string, string | undefine
  */
 function huggingFaceCache(env: Readonly<Record<string, string | undefined>>): string | undefined {
 	const xdg = env['XDG_CACHE_HOME'];
-	const home = env['HF_HOME'] ?? (xdg === undefined ? undefined : join(xdg, 'huggingface'));
+	const named = env['HF_HOME'] ?? (xdg === undefined ? undefined : join(xdg, 'huggingface'));
+	// The hub expands its home folder first and the cache path built from it again, so a variable may name another.
+	const home = named === undefined ? undefined : expandPath(named, env);
 	const cache =
 		env['HF_HUB_CACHE'] ?? env['HUGGINGFACE_HUB_CACHE'] ?? (home === undefined ? undefined : join(home, 'hub'));
 	return cache === undefined ? undefined : expandPath(cache, env);

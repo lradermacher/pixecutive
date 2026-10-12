@@ -71,7 +71,8 @@ and renders that only sketch go through the same guard.
 
 - Model paths: the weights are looked up in the Hugging Face cache the way the hub reads it (`HF_HUB_CACHE`,
   `HUGGINGFACE_HUB_CACHE`, `HF_HOME`, `XDG_CACHE_HOME`, then `~/.cache/huggingface/hub`, with `~` and `$NAME`
-  expanded, measured in the installed `huggingface_hub`), and `PIX_LORA` overrides it; so it is not local config. I decide this, because it follows from
+  expanded in the same two passes, measured in the installed `huggingface_hub`; unlike the hub, `~user` and an unset
+  `HOME` are not looked up in the user database, so such a path stops the start and `PIX_LORA` names the weights), and `PIX_LORA` overrides it; so it is not local config. I decide this, because it follows from
   the measured install.
 
 ## Order
