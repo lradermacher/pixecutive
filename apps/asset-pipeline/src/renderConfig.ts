@@ -20,10 +20,20 @@ function lightningLora(): string | undefined {
 		: join(snapshots, snapshot, 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors');
 }
 
+/** The configured files that are not on this machine, each named by its field. */
+function missingFiles(config: RenderConfig): string[] {
+	return [
+		['mflux', config.mflux],
+		['lora', config.lora],
+	]
+		.filter(([, path]) => !existsSync(path ?? ''))
+		.map(([field, path]) => `${field ?? ''}: ${path ?? ''} does not exist`);
+}
+
 /**
  * Parses the configuration once at the start; `env` and `repoRoot` are passed in so tests set them. None of the
- * values is a secret, so each has a default, and a value that cannot be found stops the start.
- * @throws {RenderException} with the invalid configuration key and the schema's message.
+ * values is a secret, so each has a default; a value of the wrong form or a file that does not exist stops the start.
+ * @throws {RenderException} with the invalid configuration key, the schema's message or the missing files.
  */
 export function renderConfig(env: Readonly<Record<string, string | undefined>>, repoRoot: string): RenderConfig {
 	const parsed = renderConfigSchema.safeParse({
@@ -35,5 +45,7 @@ export function renderConfig(env: Readonly<Record<string, string | undefined>>, 
 		const fields = parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ');
 		throw new RenderException(RenderExceptionKey.InvalidConfig, fields);
 	}
+	const missing = missingFiles(parsed.data);
+	if (missing.length > 0) throw new RenderException(RenderExceptionKey.InvalidConfig, missing.join('; '));
 	return parsed.data;
 }

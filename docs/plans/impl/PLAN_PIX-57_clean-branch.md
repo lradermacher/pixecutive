@@ -135,7 +135,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 9 | Plans of PIX-7, PIX-56, PIX-58 rewritten; plan of PIX-64 removed; `ci.yml:1`, unit-readme template, routing row | `check-docs`, `generate-adr-state --check` | 07f5463 |
 | 10 | Full gate, every box with its evidence, independent review | `node scripts/verify-full.ts`, `ticket.ts boxes`, review record | review run 1 on 326986d: red, 14 findings, all kept (sheet `pix57-review-1-diffs`) |
 | 11 | Review finding 1: the lock carries the PID, a dead process's lock is cleared, interrupts end the render with a log row and `render.interrupted` | adapter spec; a real Ctrl-C on the built app | 55ef956 |
-| 12 | Review finding 2: file system and memory failures answer `render.storage_failed` and `render.memory_unreadable` | adapter spec | open |
+| 12 | Review finding 2: file system and memory failures answer `render.storage_failed` and `render.memory_unreadable` | adapter spec | d2b970c |
 | 13 | Review finding 3: the app checks at start that mflux and the LoRA exist | config spec | open |
 | 14 | Review finding 4: one case per exit key in `exitAnswer.spec.ts` | `pnpm test` | open |
 | 15 | Review finding 5: `RenderImageCommand` as the use case input | `pnpm typecheck`, `pnpm test` | open |

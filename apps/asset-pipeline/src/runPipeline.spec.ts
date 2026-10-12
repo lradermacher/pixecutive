@@ -5,7 +5,20 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { runPipeline } from './runPipeline.ts';
 
-const lora = '/hub/lightning.safetensors';
+/** A LoRA file that exists, so the configuration starts. */
+function loraFile(): string {
+	const path = join(mkdtempSync(join(tmpdir(), 'lora-')), 'lightning.safetensors');
+	writeFileSync(path, '');
+	return path;
+}
+
+/** An mflux that writes the image named after `--output`. */
+function fakeMflux(): string {
+	const mflux = join(mkdtempSync(join(tmpdir(), 'mflux-')), 'mflux');
+	writeFileSync(mflux, '#!/bin/sh\nwhile [ $# -gt 0 ]; do [ "$1" = "--output" ] && printf x > "$2"; shift; done\n');
+	chmodSync(mflux, 0o755);
+	return mflux;
+}
 
 /** Runs one command with a throwaway renders folder and collects what it writes. */
 async function run(
@@ -18,7 +31,7 @@ async function run(
 	const rendersDir = mkdtempSync(join(tmpdir(), 'pipeline-'));
 	const code = await runPipeline(
 		argv,
-		{ PIX_RENDERS_DIR: rendersDir, PIX_LORA: lora, ...env },
+		{ PIX_RENDERS_DIR: rendersDir, PIX_MFLUX: fakeMflux(), PIX_LORA: loraFile(), ...env },
 		{ write: (text) => (out += text) },
 		{ write: (text) => (err += text) },
 		() => ({ pressure: 1, swapMb: 0 }),
@@ -33,11 +46,7 @@ describe('runPipeline', () => {
 	});
 
 	it('renders through the wired adapter', async () => {
-		const dir = mkdtempSync(join(tmpdir(), 'mflux-'));
-		const mflux = join(dir, 'mflux');
-		writeFileSync(mflux, '#!/bin/sh\nwhile [ $# -gt 0 ]; do [ "$1" = "--output" ] && printf x > "$2"; shift; done\n');
-		chmodSync(mflux, 0o755);
-		const result = await run(['render', 'figure.txt', 'figure.png', '11'], { PIX_MFLUX: mflux });
+		const result = await run(['render', 'figure.txt', 'figure.png', '11']);
 		expect([result.code, result.out.split('\n')[0]]).toEqual([0, 'done figure-s11']);
 	});
 
