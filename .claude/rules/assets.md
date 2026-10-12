@@ -5,7 +5,7 @@ paths:
   - "packages/infrastructure/src/adapter/Render/**"
   - "packages/infrastructure/src/adapter/Vision/**"
   - "packages/infrastructure/src/adapter/Blender/**"
-adr: docs/ADR/0022-assets-are-our-own-work-made-by-eye.md
+adr: docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md
 summary: >
   Assets are our own work: a generator's output is a reference only, nothing comes from another game. The image model
   renders one image at a time under the memory guard. A figure is modeled by eye through blender-mcp, each part

@@ -8,7 +8,7 @@ kind: technology
 supersedes: [18] # point 2 only, for the one package zod; the rest of ADR 0018 stands
 superseded-by: null
 analysis: —
-implementation: docs/plans/impl/PLAN_PIX-57_asset-development.md
+implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 ---
 
 # ADR 0021 — Zod is the core's one library, and the core follows one naming pattern
@@ -24,22 +24,23 @@ implementation: docs/plans/impl/PLAN_PIX-57_asset-development.md
 | **Supersedes**      | [0018](0018-import-zones-with-eslint-plugin-boundaries.md) (point 2 only, for the one package zod; the rest of ADR 0018 stands) |
 | **Superseded by**   | —                                                                                                                               |
 | **Analysis**        | —                                                                                                                               |
-| **Implementation**  | [PLAN_PIX-57_asset-development.md](../plans/impl/PLAN_PIX-57_asset-development.md)                                              |
-| **Cards**           | —                                                                                                                               |
+| **Implementation**  | [PLAN_PIX-57_clean-branch.md](../plans/impl/PLAN_PIX-57_clean-branch.md)                                                        |
+| **Cards**           | PIX-57                                                                                                                          |
 
 <!-- STATE:END -->
 
-> **In short.** In the context of the asset data the pipeline loads, facing hand-written validators beside the
+> **In short.** In the context of data that enters the core from outside, facing hand-written validators beside the
 > domain types, we decided for Zod schemas in the domain and one file naming pattern across the hexagon and against
 > keeping the core free of every package, to validate data with the same schema that gives the domain its type,
 > accepting one library in the core.
 
 ## Context and problem
 
-PIX-57 loads a design line, a reference template, error types and character specs from JSON. ADR 0018 point 2 lets
-the core import no package, so step 1 of PIX-57 validated them with hand-written parsers beside separate types. The
-maintainer compared the structure with the hexagon of their other backend: there the domain holds Zod schemas whose
-inferred types are the domain types, in `domain/<Aggregate>/` with camelCase files and a type suffix.
+The core validates data that enters from outside: an app's configuration at start, asset data, later the requests the
+apps receive. ADR 0018 point 2 lets the core import no package, so the first data the asset pipeline loaded was
+validated by hand-written parsers beside separate types; ten files of them, whose types and checks could drift apart
+and whose errors named less than a schema does. Placing those files also showed that the hexagon had no one pattern
+for file names, so two sessions placed the same kind of file differently.
 
 ## Decision drivers
 
@@ -70,13 +71,14 @@ Chosen: **A**, sheet hexagon-pattern of 2026-10-04, F1.
 ### Consequences
 
 - Good, because a schema and its type cannot disagree.
-- Good, because the pattern matches the maintainer's other backend.
+- Good, because a file's name tells its role, and every session places it the same way.
 - Bad, because a library update of Zod touches the core.
 
 ### Confirmation
 
-`scripts/probe-lint.sh` turns green on a core import of `zod` and red on a core import of any other package. The
-schemas of `domain/Asset/` are tested in their specs.
+`scripts/probe-lint.sh` turns green on a core import of `zod` and red on a core import of any other package;
+`scripts/probe-architecture.sh` does the same for the architecture guard. Every schema in the core is tested in its
+spec.
 
 ## Rejected
 
