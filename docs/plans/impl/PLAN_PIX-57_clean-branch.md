@@ -8,16 +8,16 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 
 ## Acceptance
 
-- [ ] `docs/ADR/README.md` says that an ADR is edited in place until its pull request is merged and superseded from then on
-- [ ] ADR 0022 states the proven asset flow and keeps what still holds; ADR 0019 names the generation tools behind adapters instead of Blender; ADR 0021 gives its reasons in this project's own terms
-- [ ] One new ADR explains the hexagon's craft layer with a neutral worked example of a feature end to end: one term for domain folders, file and type naming, edge translation of exceptions including adapters, configuration by schema, test conventions
-- [ ] Every break of the hexagon rules that the audit found in this branch's code is fixed, including the architecture guard that rejects zod in the core
-- [ ] The files that serve only the dropped asset path are removed per the approved per-file list, and everything that named them is updated
-- [ ] The memory guard, render log and status are served through a general guarded render port with tests
-- [ ] `assets.md` carries the approved rules, `core.md` the approved lines of the craft layer, and `CLAUDE.md` names the assets rule
-- [ ] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated
-- [ ] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay
-- [ ] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed
+- [x] `docs/ADR/README.md` says that an ADR is edited in place until its pull request is merged and superseded from then on — `docs/ADR/README.md` "Until its pull request is merged, an ADR is edited in place" (ea07edb)
+- [x] ADR 0022 states the proven asset flow and keeps what still holds; ADR 0019 names the generation tools behind adapters instead of Blender; ADR 0021 gives its reasons in this project's own terms — ADR 0022 points 1-10 with the licenses read at their source, ADR 0019 point 2, ADR 0021 Context without the other backend (ea07edb)
+- [x] One new ADR explains the hexagon's craft layer with a neutral worked example of a feature end to end: one term for domain folders, file and type naming, edge translation of exceptions including adapters, configuration by schema, test conventions — ADR 0023 points 1-6, its naming table and the render feature under Mechanics (ea07edb, f4fe4c2)
+- [x] Every break of the hexagon rules that the audit found in this branch's code is fixed, including the architecture guard that rejects zod in the core — guard accepts zod and rejects misnamed adapters (c837edd); `globalThis.Date` lint (b97fcf0); adapter and clock names, config schema, exit code table, ports with named types, status through the port, plain errors banned in adapters (f4fe4c2); READMEs (4e218f8, 07f5463); core rule mechanisms aligned with ADR 0011 (this commit)
+- [x] The files that serve only the dropped asset path are removed per the approved per-file list, and everything that named them is updated — the 49 files of sheet `pix57-clean-branch` F3 with their exports, data rows, word and `globals` (4e218f8)
+- [x] The memory guard, render log and status are served through a general guarded render port with tests — `ILocalRenderer`, `RenderImageService`, `LocalRendererMfluxAdapter` and their specs (f4fe4c2); running step in the status (07f5463)
+- [x] `assets.md` carries the approved rules, `core.md` the approved lines of the craft layer, and `CLAUDE.md` names the assets rule — fdae022
+- [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
+- [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
+- [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
 - [ ] Every gate and verify-full is green, and an independent review checked the diff
 
 ## Inventory
@@ -130,5 +130,5 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 6 | Guarded render port, service, adapter, clock rename, config schema, CLI handlers and exit codes, READMEs; the lint ban on plain errors widened to the infrastructure package, probe first red, then green | `pnpm test`, `pnpm lint`, the architecture guard on every new file | f4fe4c2 |
 | 7 | Skills `animate-figure` and `figure-part`; conformance rows; register regenerated | `check-skills`, `check-generated` | built in step 1 |
 | 8 | Asset layout out of `ops.md` and `check-images`; probe cases adjusted | `bash scripts/probe-pre-commit.sh` | 12cbe49 |
-| 9 | Plans of PIX-7, PIX-56, PIX-58 rewritten; plan of PIX-64 removed; `ci.yml:1`, unit-readme template, routing row | `check-docs`, `generate-adr-state --check` | open |
+| 9 | Plans of PIX-7, PIX-56, PIX-58 rewritten; plan of PIX-64 removed; `ci.yml:1`, unit-readme template, routing row | `check-docs`, `generate-adr-state --check` | 07f5463 |
 | 10 | Full gate, every box with its evidence, independent review | `node scripts/verify-full.ts`, `ticket.ts boxes`, review record | open |

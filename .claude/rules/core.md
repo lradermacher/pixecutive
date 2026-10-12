@@ -21,7 +21,7 @@ summary: >
 ## A port is a domain-typed interface; an adapter maps at the edge
 `port/outgoing/<name>.interface.ts` exports `I<Name>`; adapters map with `toDomain`, and no persistence record leaves
 the infrastructure package. A token file exists only where a container binds the port.
-`[Lint import zones]`
+`[Lint import zones · Agent adversarial-review]`
 
 ## Time comes through a clock port, IDs from adapters
 The core never calls `new Date()` or generates tokens itself. `[Lint no-restricted-syntax Date]`
@@ -37,7 +37,7 @@ A failed process, a refused request or a missing file never leaves the infrastru
 ## Configuration enters at the app, secrets fail closed
 The core reads no environment; apps parse configuration with a core schema at start. A default exists only for a value
 that is not a secret; a failed parse stops the start.
-`[Lint import zones]`
+`[Lint import zones · Agent adversarial-review]`
 
 ## Subscription logins are never read by Pixecutive
 Only the provider's official CLI touches them; Pixecutive starts the CLI and reads its output.
