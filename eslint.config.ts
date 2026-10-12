@@ -36,6 +36,13 @@ const coreOnly = [
 	},
 ];
 
+/** A plain error built anywhere in an adapter: thrown, rejected or handed on, it would leave without a key. */
+const plainError = {
+	selector:
+		'NewExpression[callee.name=/^(Aggregate|Eval|Range|Reference|Syntax|Type|URI)?Error$/], CallExpression[callee.name=/^(Aggregate|Eval|Range|Reference|Syntax|Type|URI)?Error$/]',
+	message: 'An adapter answers with a core exception with a key (core rule).',
+};
+
 /** The parts of the hexagon (ADR 0011, 0019, 0020) as folders; the first folder a file lies in decides its part, so the
  * core's own files fall to `core-entry` only when no layer folder holds them. */
 // The package is CommonJS but types itself as an ES module: at runtime the default import is the plugin, while the
@@ -166,6 +173,13 @@ export default defineConfig(
 	{
 		files: ['packages/core/**/*.{ts,tsx,mts,cts}'],
 		rules: { 'no-restricted-syntax': ['error', stringUnion, ...coreOnly] },
+	},
+	{
+		// An adapter answers every outside failure with a keyed core exception (ADR 0023 point 3); a spec may build
+		// plain errors to fake a failing outside world.
+		files: ['packages/infrastructure/src/**/*.{ts,tsx,mts,cts}'],
+		ignores: ['**/*.spec.{ts,tsx,mts,cts}'],
+		rules: { 'no-restricted-syntax': ['error', stringUnion, plainError] },
 	},
 	prettier,
 );

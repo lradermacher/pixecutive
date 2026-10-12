@@ -49,6 +49,13 @@ probe "new globalThis.Date() in the core" red "plant 'export function f(): numbe
 probe "globalThis.Date.now() in the core" red "plant 'export function f(): number { return globalThis.Date.now(); }' && $lint $core"
 probe "Math.random() in the core" red "plant 'export function f(): number { return Math.random(); }' && $lint $core"
 probe "throw new Error in the core" red "plant 'export function f(): never { throw new Error(\"x\"); }' && $lint $core"
+infra='packages/infrastructure/src/adapter/Probe/probe-fake.adapter.ts'
+probe "throw new Error in an adapter" red \
+	"mkdir -p \$(dirname $infra) && printf '%s\\n' 'export function f(): never { throw new Error(\"x\"); }' > $infra && $lint $infra"
+probe "a rejection with a plain Error in an adapter" red \
+	"mkdir -p \$(dirname $infra) && printf '%s\\n' 'export const f = (): Promise<never> => Promise.reject(new Error(\"x\"));' > $infra && $lint $infra"
+probe "a plain Error in an adapter spec stays allowed" green \
+	"mkdir -p \$(dirname $infra) && printf '%s\\n' 'export const f = (): Error => new TypeError(\"x\");' > \${infra%.ts}.spec.ts && $lint \${infra%.ts}.spec.ts"
 probe "Date.now() in an app is allowed" green \
 	"printf '%s\n' 'export function f(): number { return Date.now(); }' > apps/company-server/src/probe.ts && $lint apps/company-server/src/probe.ts"
 

@@ -107,8 +107,8 @@ drift above arose.
 
 `scripts/probe-architecture.sh` plants an adapter file outside the pattern and turns the guard red;
 `scripts/probe-lint.sh` plants a `throw new Error` in the infrastructure package and turns lint red. The render
-feature below is the reference implementation: its handler spec covers every key of its table, and `pnpm typecheck`
-fails when a key is removed from the table.
+feature below is the reference implementation: the spec of its exit code table answers every key with its own code,
+and `pnpm typecheck` fails when a key is removed from the table.
 
 ## Mechanics
 
@@ -117,12 +117,12 @@ its file goes and why there.
 
 | Step | File | Why there |
 | --- | --- | --- |
-| 1 | `packages/core/src/domain/Render/renderJob.interface.ts`, `renderConfig.schema.ts` | Decides without touching the outside: domain. |
-| 2 | `packages/core/src/application/exception/render.exception.ts`, `renderExceptionKey.enum.ts` (`render.busy`, `render.memory_pressure`) | The failures the use case can name. |
+| 1 | `packages/core/src/domain/Render/renderJob.schema.ts`, `renderResult.interface.ts`, `renderStatus.interface.ts`, `renderConfig.schema.ts` | Decides without touching the outside: domain. |
+| 2 | `packages/core/src/application/exception/render.exception.ts`, `renderExceptionKey.enum.ts` (`render.busy`, `render.memory_pressure` and four more) | The failures the use case can name. |
 | 3 | `packages/core/src/port/outgoing/localRenderer.interface.ts` | What the use case needs from outside, in domain types. |
 | 4 | `packages/core/src/application/service/renderImage.service.ts` with its spec and an `InMemoryLocalRenderer` | The use case: render one image and log it. |
 | 5 | `packages/infrastructure/src/adapter/Render/localRenderer-mflux.adapter.ts` with its spec | Touches a process and files: adapter; translates every failure into a key. |
-| 6 | `apps/asset-pipeline/src/renderConfig.ts`, `src/cli/renderImage.handler.ts`, `src/cli/renderExitCode.ts`, `src/main.ts` | Parses the configuration, wires the port to the adapter, translates keys. |
+| 6 | `apps/asset-pipeline/src/renderConfig.ts`, `src/cli/renderImage.handler.ts`, `src/cli/showRenderStatus.handler.ts`, `src/cli/renderExitCode.ts`, `src/runPipeline.ts` | Parses the configuration, wires the port to the adapter, translates keys. |
 | 7 | `packages/protocol` | Only when the result crosses the wire; this one does not. |
 
 ## Rejected

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { SystemClockAdapter } from './systemClock.adapter.ts';
+import { ClockSystemAdapter } from './clock-system.adapter.ts';
 
-describe('SystemClockAdapter', () => {
+describe('ClockSystemAdapter', () => {
 	it('answers the current time', () => {
 		const before = Date.now();
-		const now = new SystemClockAdapter().now().getTime();
+		const now = new ClockSystemAdapter().now().getTime();
 		expect(now).toBeGreaterThanOrEqual(before);
 		expect(now).toBeLessThanOrEqual(Date.now());
 	});
