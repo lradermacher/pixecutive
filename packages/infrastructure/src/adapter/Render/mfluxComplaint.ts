@@ -1,11 +1,14 @@
-// mfluxComplaint.ts — why mflux failed, read from its error output: its last error line, else its last other line.
+// mfluxComplaint.ts — why mflux failed, read from its error output: its last error, else its last plain line, else a warning.
 import { StringDecoder } from 'node:string_decoder';
 
-/** A progress bar's count, such as ` 3/8 [00:41<01:23, 20.8s/it]`: the step it reached and the steps of the bar. */
-const progressBar = /([0-9]+)\/([0-9]+) \[[^\]]*\]/;
+/**
+ * A tqdm bar's count, such as ` 3/8 [00:41<01:23, 20.8s/it]`: the step it reached and the steps of the bar. The
+ * elapsed and remaining time after the bracket tell it apart from a message such as `shape 1/2 [batch]`.
+ */
+const progressBar = /([0-9]+)\/([0-9]+) \[[0-9:?]+<[0-9:?]+[^\]]*\]/;
 
-/** A line that names an error, such as `ValueError: width must be even`. */
-const errorLine = /\b\w*(Error|Exception)\b/;
+/** A line that names an error, such as `ValueError: width must be even` or `uncaught exception of type std::runtime_error`. */
+const errorLine = /\b\w*(error|exception)\b/i;
 
 /** A warning, such as the `UserWarning` Python prints at shutdown; it says why only when nothing else does. */
 const warningLine = /\b\w*Warning\b/;
@@ -46,7 +49,8 @@ export class MfluxComplaint {
 	private hear(line: string): void {
 		const bar = progressBar.exec(line);
 		if (bar === null) {
-			this.note(line);
+			// An indented line continues the one above it, as the source line under a Python warning or in a traceback.
+			if (!/^\s/.test(line)) this.note(line);
 			return;
 		}
 		this.step(Number(bar[1]), Number(bar[2]));
@@ -56,11 +60,11 @@ export class MfluxComplaint {
 
 	/**
 	 * An error mflux reported before a later step did not stop it, so a step past every earlier one of the same bar
-	 * clears it. A bar of another length starts its own count; the bar tqdm draws again when the process ends repeats an
-	 * old step and clears nothing.
+	 * clears it. A bar of another length, or one that falls back to an earlier step, is a new bar with its own count;
+	 * the bar tqdm draws again when the process ends repeats the same step and clears nothing.
 	 */
 	private step(reached: number, steps: number): void {
-		if (steps !== this.barSteps) {
+		if (steps !== this.barSteps || reached < this.highestStep) {
 			this.barSteps = steps;
 			this.highestStep = -1;
 		}
@@ -73,8 +77,9 @@ export class MfluxComplaint {
 		// One line of the log's last column: whitespace such as a tab would split the row, so it becomes a space.
 		const one = line.replace(/\s+/g, ' ').trim().slice(0, complaintLength);
 		if (one === '') return;
-		if (errorLine.test(one)) this.lastError = one;
-		else if (warningLine.test(one)) this.lastWarning = one;
+		// A warning stays a warning even when it names an error, so the warning test comes first.
+		if (warningLine.test(one)) this.lastWarning = one;
+		else if (errorLine.test(one)) this.lastError = one;
 		else this.lastLine = one;
 	}
 }

@@ -57,6 +57,11 @@ describe('renderConfig', () => {
 		],
 		['a name that only the object prototype knows', { HF_HUB_CACHE: '/cache/$constructor' }, '/cache/$constructor'],
 		['an empty XDG_CACHE_HOME, as the hub joins it', { XDG_CACHE_HOME: '' }, 'huggingface/hub'],
+		[
+			'a trailing slash in XDG_CACHE_HOME, joined without a second one',
+			{ XDG_CACHE_HOME: '/x/' },
+			'/x/huggingface/hub',
+		],
 		['a .. inside the variable HF_HOME names', { HF_HOME: '$X', X: '/a/b/..' }, '/a/b/../hub'],
 	])('looks for the weights in the cache that %s names', (_, env, cache) => {
 		const weights = `${cache}/lightning.safetensors`;

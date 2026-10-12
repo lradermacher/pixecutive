@@ -25,9 +25,9 @@ function expandPath(path: string, env: Readonly<Record<string, string | undefine
 	});
 }
 
-/** Joins two parts as Python's os.path.join does for the cache: without resolving `..`, an empty first part left out. */
+/** Joins two parts as Python's os.path.join does: without resolving `..`, and without a second slash. */
 function joinAsPython(first: string, second: string): string {
-	return first === '' ? second : `${first}/${second}`;
+	return first === '' || first.endsWith('/') ? `${first}${second}` : `${first}/${second}`;
 }
 
 /**

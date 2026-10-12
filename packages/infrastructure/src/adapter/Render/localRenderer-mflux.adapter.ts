@@ -224,7 +224,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const startedAt = Date.now();
 		let firstStepAt: number | null = null;
 		let lastStep = '';
-		// mflux says why it failed on its error output: its last error line, else its last line that is no progress line.
+		// mflux says why it failed on its error output: its last error, else its last plain line, else its last warning.
 		const complaint = new MfluxComplaint();
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
@@ -309,11 +309,13 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 					child.kill('SIGTERM');
 				}
 			}, this.config.intervalMs);
-			child.on('close', (code) => {
+			child.on('close', (code, signal) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
 				const said = complaint.finish();
-				if (code !== 0) stop(RunEnd.Failed, said === '' ? `exit ${String(code)}` : `exit ${String(code)}: ${said}`);
+				// A model killed by a signal has no exit code; the signal says what ended it.
+				const ended = code === null ? `signal ${signal ?? 'unknown'}` : `exit ${String(code)}`;
+				if (code !== 0) stop(RunEnd.Failed, said === '' ? ended : `${ended}: ${said}`);
 				resolve(outcome());
 			});
 		});

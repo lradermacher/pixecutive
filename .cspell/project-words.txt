@@ -2,6 +2,7 @@
 # read-by: cspell.json, scripts/check-english.ts
 # adr: docs/ADR/0014-english-everywhere.md
 # generated: no
+ABRT
 ack
 ADR
 AKIA
@@ -26,6 +27,7 @@ huggingface
 inprogress
 JQL
 Kerbosch
+libc
 lightx
 localdomain
 lradermacher

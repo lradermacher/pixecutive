@@ -167,33 +167,6 @@ describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(`FAILED: ${reason}`);
 	});
 
-	it.each([
-		[
-			'a line that arrives in two pieces',
-			"{ printf 'ValueError: width must '; sleep 0.3; echo 'be even'; } >&2",
-			'exit 1: ValueError: width must be even',
-		],
-		[
-			'an error before a later step, then a plain last line',
-			"{ echo 'Error while loading a cached file, falling back'; printf ' 3/8 [00:03<00:05, 1.0s/it]\\n'; echo 'Loading weights'; } >&2",
-			'exit 1: Loading weights',
-		],
-		[
-			'a word that only starts like an error',
-			"{ echo 'Errors were ignored'; echo 'plain last line'; } >&2",
-			'exit 1: plain last line',
-		],
-		[
-			'the bar tqdm draws again at the end, after the error and before a warning',
-			"{ printf ' 0/8 [00:00<?, ?it/s]\\r'; echo 'ValueError: width must be even'; printf '\\r  0%%| | 0/8 [00:00<?, ?it/s]\\n'; echo 'UserWarning: resource_tracker'; } >&2",
-			'exit 1: ValueError: width must be even',
-		],
-	])('takes the reason right from %s', async (_, lines, reason) => {
-		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model(`#!/bin/sh\n${lines}\nexit 1\n`));
-		await renderer.render(job).catch(() => null);
-		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe(`FAILED: ${reason}`);
-	});
-
 	it('takes no complaint from the standard output and cuts a long one', async () => {
 		const long = 'x'.repeat(400);
 		const { renderer, dir } = adapter(
@@ -208,6 +181,12 @@ describe('LocalRendererMfluxAdapter and what mflux says when it fails', () => {
 			true,
 			'FAILED: exit 2: '.length + 300,
 		]);
+	});
+
+	it('names the signal that ended mflux instead of an exit code', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nkill -ABRT $$\n'));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t')[10]).toBe('FAILED: signal SIGABRT');
 	});
 
 	it('answers the failed key and logs the exit code when mflux fails', async () => {

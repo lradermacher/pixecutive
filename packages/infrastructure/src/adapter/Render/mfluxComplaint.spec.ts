@@ -76,6 +76,49 @@ describe('MfluxComplaint', () => {
 		expect(complaintOf('UserWarning: resource_tracker\n')).toBe('UserWarning: resource_tracker');
 	});
 
+	it('answers an abort before the two lines of a Python warning printed at shutdown', () => {
+		const stream = [
+			'libc++abi: terminating due to uncaught exception of type std::runtime_error: [METAL] out of memory',
+			'/opt/py/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore',
+			"  warnings.warn('resource_tracker: There appear to be %d '",
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe(
+			'libc++abi: terminating due to uncaught exception of type std::runtime_error: [METAL] out of memory',
+		);
+	});
+
+	it('answers a plain line before a two-line warning, even one that names an error', () => {
+		expect(
+			complaintOf('Killed while saving\nnet.py:9: UserWarning: ConnectionError, retried\n  warnings.warn(text)\n'),
+		).toBe('Killed while saving');
+	});
+
+	it('answers the error of a traceback, not its source lines', () => {
+		const traceback =
+			'Traceback (most recent call last):\n  File "run.py", line 3, in <module>\n    run()\nValueError: bad\n';
+		expect(complaintOf(traceback)).toBe('ValueError: bad');
+	});
+
+	it('starts a new count when a bar of the same length begins again', () => {
+		const stream = ' 8/8 [00:08<00:00]\nError while loading a key\n 0/8 [00:00<?, ?it/s]\n 2/8 [00:02<00:06]\nsaving\n';
+		expect(complaintOf(stream)).toBe('saving');
+	});
+
+	it('takes an error written in lower case for one', () => {
+		expect(complaintOf('uncaught exception of type std::runtime_error\nshutting down\n')).toBe(
+			'uncaught exception of type std::runtime_error',
+		);
+	});
+
+	it('starts a new count for a bar of another length at the same step', () => {
+		expect(complaintOf(' 3/8 [00:03<00:05]\nError while loading a key\n 3/10 [00:03<00:07]\nsaving\n')).toBe('saving');
+	});
+
+	it('does not take a message with a count in brackets for a bar', () => {
+		expect(complaintOf('ValueError: shape 1/2 [batch] wrong\n')).toBe('ValueError: shape 1/2 [batch] wrong');
+	});
+
 	it('shows a character cut off at the very end instead of dropping it', () => {
 		const line = Buffer.from('OSError: 90 °C');
 		expect(complaintOf(line.subarray(0, 13))).toBe('OSError: 90 \uFFFD');
