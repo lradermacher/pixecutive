@@ -39,6 +39,13 @@ describe('renderImageHandler', () => {
 		expect([jobs[0]?.width, jobs[0]?.height]).toEqual([768, 512]);
 	});
 
+	it('rejects a size without its height with the invalid job key', async () => {
+		const failure: unknown = await renderImageHandler(['figure.txt', 'figure.png', '11', '768'], service([])).catch(
+			(error: unknown) => error,
+		);
+		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.InvalidJob);
+	});
+
 	it('rejects missing arguments with the invalid job key', async () => {
 		const failure: unknown = await renderImageHandler(['figure.txt'], service([])).catch((error: unknown) => error);
 		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.InvalidJob);

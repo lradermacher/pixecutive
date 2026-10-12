@@ -137,7 +137,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 11 | Review finding 1: the lock carries the PID, a dead process's lock is cleared, interrupts end the render with a log row and `render.interrupted` | adapter spec; a real Ctrl-C on the built app | 55ef956 |
 | 12 | Review finding 2: file system and memory failures answer `render.storage_failed` and `render.memory_unreadable` | adapter spec | d2b970c |
 | 13 | Review finding 3: the app checks at start that mflux and the LoRA exist | config spec | 95bb96e |
-| 14 | Review finding 4: one case per exit key in `exitAnswer.spec.ts` | `pnpm test` | open |
+| 14 | Review finding 4: one case per exit key in `exitAnswer.spec.ts` | `pnpm test` | 4e13823 |
 | 15 | Review finding 5: `RenderImageCommand` as the use case input | `pnpm typecheck`, `pnpm test` | open |
 | 16 | Review finding 6: ADR 0023 supersedes ADR 0011's value object row; ADR 0021 says `<technology>` | `check-docs`, `check-carriers`, `generate-adr-state --check` | open |
 | 17 | Review finding 7: ADR 0022 Confirmation names what carries each point | `check-docs` | open |

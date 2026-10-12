@@ -9,5 +9,6 @@ export type { RenderStatus } from './domain/Render/renderStatus.interface.ts';
 export { RenderException } from './application/exception/render.exception.ts';
 export { RenderExceptionKey } from './application/exception/renderExceptionKey.enum.ts';
 export { RenderImageService } from './application/service/renderImage.service.ts';
+export type { RenderImageCommand } from './application/service/renderImageCommand.ts';
 export type { IClock } from './port/outgoing/clock.interface.ts';
 export type { ILocalRenderer } from './port/outgoing/localRenderer.interface.ts';

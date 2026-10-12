@@ -6,6 +6,7 @@ import type { ILocalRenderer } from '../../port/outgoing/localRenderer.interface
 import { RenderException } from '../exception/render.exception.ts';
 import { RenderExceptionKey } from '../exception/renderExceptionKey.enum.ts';
 import { RenderImageService } from './renderImage.service.ts';
+import type { RenderImageCommand } from './renderImageCommand.ts';
 
 /** Keeps every job it was handed and answers with an image named after the job's seed. */
 class InMemoryLocalRenderer implements ILocalRenderer {
@@ -21,20 +22,29 @@ class InMemoryLocalRenderer implements ILocalRenderer {
 	}
 }
 
-const job = { promptFile: 'figure.txt', inputImage: 'figure.png', seed: 11, width: 1024, height: 768 };
+const command: RenderImageCommand = {
+	promptFile: 'figure.txt',
+	inputImage: 'figure.png',
+	seed: 11,
+	width: 1024,
+	height: 768,
+};
 
 describe('RenderImageService', () => {
-	it('hands a valid job to the renderer and answers its result', async () => {
+	it('parses a valid command into a job for the renderer and answers its result', async () => {
 		const renderer = new InMemoryLocalRenderer();
-		expect(await new RenderImageService(renderer).render(job)).toEqual({ name: 'figure-s11', image: 'figure-s11.png' });
-		expect(renderer.jobs).toEqual([job]);
+		expect(await new RenderImageService(renderer).render(command)).toEqual({
+			name: 'figure-s11',
+			image: 'figure-s11.png',
+		});
+		expect(renderer.jobs).toEqual([command]);
 	});
 
 	it.each([
-		['a size off the 16 pixel grid', { ...job, width: 1000 }],
-		['a negative seed', { ...job, seed: -1 }],
-		['a prompt that is no text file', { ...job, promptFile: 'figure.png' }],
-		['an input that is no PNG', { ...job, inputImage: 'figure.jpg' }],
+		['a size off the 16 pixel grid', { ...command, width: 1000 }],
+		['a negative seed', { ...command, seed: -1 }],
+		['a prompt that is no text file', { ...command, promptFile: 'figure.png' }],
+		['an input that is no PNG', { ...command, inputImage: 'figure.jpg' }],
 	])('refuses %s with the invalid job key and never starts the model', async (_, invalid) => {
 		const renderer = new InMemoryLocalRenderer();
 		const failure: unknown = await new RenderImageService(renderer).render(invalid).catch((error: unknown) => error);
