@@ -86,7 +86,7 @@ before PIX-66.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the room page, zoomed | scratchpad room page version 54; repeated after PIX-66 |
+| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the room page, zoomed | open |
 | 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |

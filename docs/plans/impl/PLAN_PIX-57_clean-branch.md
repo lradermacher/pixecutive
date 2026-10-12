@@ -1,6 +1,6 @@
 # PLAN PIX-57 — Clean the branch for the proven asset flow and write the hexagon down
 
-Card: PIX-57 (setup), a series with PIX-7, PIX-56 and PIX-58 on `feat/pix-7-skeleton-toolchain`, one pull request.
+Card: PIX-57 (setup), a series with PIX-7 and PIX-56 on `feat/pix-7-skeleton-toolchain`, one pull request.
 Goal: before the merge the branch holds only what the project uses and needs, nothing outdated reaches `main`, the
 proven asset flow of PIX-65 has its carriers, and the hexagon is explained in this repo so that nobody needs another
 project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); this plan approved on sheet
@@ -175,6 +175,10 @@ for every removal), kept in the session scratchpad `flow/audit/`.
   library under mflux prints one and carries on was not measured.
 - 2026-10-12: the maintainer accepted both limits (sheet pix57-run23, F2). Review run 23 was green with two notes on
   this record's wording, corrected in step 80.
+- 2026-10-13, decided by the maintainer: PIX-58 leaves the series and waits for PIX-66, so its gestures are made
+  through the repo's asset commands; the series ends with this card, and the branch also carries two plan-only commits
+  of PIX-58 (7dd07d1, 1591b8d). Review run 24 found one note, whose two limits the maintainer confirmed on sheet
+  pix57-ready, F1.
 
 ## Open questions
 
@@ -266,4 +270,6 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 78 | The record of run 21 states why each limit stays, how Python 3.14 got tqdm, and that mflux prints no traceback (it has five logged errors, not one) | the diff | 0781663 |
 | 79 | Review run 23 over step 78 | review record | run 23 on 0781663: green, 2 notes on wording; corrected in step 80 |
 | 80 | The record says mflux imports no traceback module, names what was not measured, and records the maintainer's acceptance of both limits | the diff | this commit |
-| 81 | Review run 24 over step 80 | review record | open |
+| 81 | Review run 24 over step 80 | review record | 237159e, 1 finding, its limits confirmed on sheet pix57-ready F1 |
+| 82 | Review run 25 over the two PIX-58 plan commits | review record | 1591b8d, green, 1 should and 3 notes |
+| 83 | This plan's head names the series without PIX-58 and records the move (run 25, finding 1) | the diff | this commit |
