@@ -214,6 +214,28 @@ describe('MfluxComplaint and the end of a traceback', () => {
 		expect(complaintOf(stream)).toBe('ValueError: weights missing');
 	});
 
+	it('keeps the indentation of a colored traceback, whose color codes move no cursor', () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			'  File "/opt/py/run.py", line 4, in render',
+			'    return load("/models/flux-weights",',
+			`${' '.repeat(25)}\u001b[35m2\u001b[0m)`,
+			'\u001b[35mWeightsMissing\u001b[0m: /models/flux-weights',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('WeightsMissing: /models/flux-weights');
+	});
+
+	it("keeps Python's indentation behind the padding of a bar another thread cleared inside a traceback", () => {
+		const stream = [
+			'Traceback (most recent call last):',
+			`${' '.repeat(44)}\u001b[A  File "/opt/py/run.py", line 4, in render`,
+			'KeyboardInterrupt',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('KeyboardInterrupt');
+	});
+
 	it('keeps the line that ends a traceback an error, not a plain line, once a later bar clears it', () => {
 		expect(complaintOf('loading\nTraceback (most recent call last):\nKeyboardInterrupt\n 1/8 [00:01<00:07]\n')).toBe(
 			'Traceback (most recent call last):',

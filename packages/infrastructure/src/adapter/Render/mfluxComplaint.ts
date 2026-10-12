@@ -34,6 +34,10 @@ const traceMarks = /^\s*[~^]+\s*$/;
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
 const terminalControl = /\x1b\[[0-9;]*[A-Za-z]/g;
 
+/** The padding tqdm writes to clear a bar, followed by its cursor moves up to the bar above. */
+// eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
+const clearedBar = /^ {16,}(?:\x1b\[[0-9;]*A)+/;
+
 /** The frame of an exception group, `| ` before each line; its `+---` borders are indented and skipped like any. */
 const groupFrame = /^\s*\| ?/;
 
@@ -90,9 +94,10 @@ export class MfluxComplaint {
 
 	private hear(raw: string): void {
 		// Inside a traceback the indentation is Python's own: a statement over several lines keeps its deep indentation
-		// there. Padding is tqdm's only where tqdm also moved the cursor, as a bar another thread clears does.
-		const bare = raw.replace(terminalControl, '');
-		const cleared = this.raising && bare === raw ? bare : bare.replace(padding, '');
+		// there. Only the padding a bar another thread clears writes before its cursor move up is tqdm's; a color code
+		// moves no cursor.
+		const bare = (this.raising ? raw.replace(clearedBar, '') : raw).replace(terminalControl, '');
+		const cleared = this.raising ? bare : bare.replace(padding, '');
 		// Inside an exception group every line stands behind `| `; without the frame it reads like any other line.
 		const line = groupFrame.test(cleared) ? cleared.replace(groupFrame, '') : cleared;
 		if (traceMarks.test(line)) return;
