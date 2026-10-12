@@ -142,16 +142,27 @@ describe('MfluxComplaint and the shapes of Python output', () => {
 		).toBe('Saving image failed: disk full');
 	});
 
-	it('folds whitespace before it bounds a line that has not ended yet', () => {
-		expect(complaintOf(`ValueError:${' '.repeat(400)}disk full`, '\n')).toBe('ValueError: disk full');
-	});
-
-	it('reads a message written over the padding and cursor move of a cleared nested bar', () => {
-		expect(complaintOf(`\u001b[A${' '.repeat(60)}ValueError: no space left\n\u001b[A\n`)).toBe(
-			'ValueError: no space left',
+	it('reads a message written over the padding and cursor move of a cleared nested bar, however it is cut', () => {
+		// tqdm clears a nested bar with a carriage return, padding as wide as the bar and a cursor move, in a write of its
+		// own; the message follows in the next write.
+		const stream = `\r${' '.repeat(44)}\u001b[A` + 'ValueError: no space left on device\n';
+		const answers = new Set(
+			[1, 5, 10, 30, 45, 46, 63, 64, 70, stream.length].map((size) => {
+				const chunks = Array.from({ length: Math.ceil(stream.length / size) }, (_, at) =>
+					stream.slice(at * size, (at + 1) * size),
+				);
+				return complaintOf(...chunks);
+			}),
 		);
+		expect([...answers]).toEqual(['ValueError: no space left on device']);
 	});
 
+	it('reads a message behind padding as wide as a terminal while its line has not ended', () => {
+		expect(complaintOf(`\r${' '.repeat(4000)}`, 'ValueError: disk full', '\n')).toBe('ValueError: disk full');
+	});
+});
+
+describe('MfluxComplaint and the end of a Python run', () => {
 	it('does not take the error of a traceback Python ignores at shutdown', () => {
 		const stream = [
 			'RuntimeError: [METAL] Command buffer execution failed',
@@ -162,6 +173,50 @@ describe('MfluxComplaint and the shapes of Python output', () => {
 			'',
 		].join('\n');
 		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
+	});
+
+	it('takes up a real error again once an ignored traceback has ended, whatever it ended with', () => {
+		const stream = [
+			'Exception ignored in: <function Model.__del__ at 0x1>',
+			'Traceback (most recent call last):',
+			'  File "model.py", line 9, in __del__',
+			'KeyboardInterrupt: ',
+			'Exception ignored in: <function Pool.__del__ at 0x2>',
+			'SystemExit: 3',
+			'ValueError: real later error',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('ValueError: real later error');
+	});
+
+	it('knows the wording of an ignored traceback in newer Python', () => {
+		const stream = [
+			'RuntimeError: [METAL] Command buffer execution failed',
+			'Exception ignored while calling deallocator <function Model.__del__ at 0x1>:',
+			'Traceback (most recent call last):',
+			'  File "model.py", line 9, in __del__',
+			'ValueError: freed twice',
+			'',
+		].join('\n');
+		expect(complaintOf(stream)).toBe('RuntimeError: [METAL] Command buffer execution failed');
+	});
+
+	it('takes an error whose message speaks of a warning for an error', () => {
+		expect(
+			complaintOf('RuntimeError: the warning threshold of the memory guard was exceeded\nUserWarning: at shutdown\n'),
+		).toBe('RuntimeError: the warning threshold of the memory guard was exceeded');
+	});
+
+	it('takes a plain line that speaks of a warning for a plain line', () => {
+		expect(complaintOf('Killed near the warning threshold\nUserWarning: at shutdown\n')).toBe(
+			'Killed near the warning threshold',
+		);
+	});
+
+	it('takes a warning label behind an error for part of the error', () => {
+		expect(complaintOf("ValueError: unknown action 'warning: x'\nUserWarning: at shutdown\n")).toBe(
+			"ValueError: unknown action 'warning: x'",
+		);
 	});
 
 	it('shows a character cut off at the very end instead of dropping it', () => {

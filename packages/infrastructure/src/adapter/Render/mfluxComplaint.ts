@@ -5,11 +5,17 @@ import { mfluxProgress } from './mfluxProgress.ts';
 /** A line that names an error, such as `ValueError: width must be even` or `uncaught exception of type std::runtime_error`. */
 const errorLine = /\b\w*(error|exception)\b/i;
 
-/** A warning, such as a `UserWarning` or a logging line `WARNING:root:…`; it says why only when nothing else does. */
-const warningLine = /\b\w*warning\b/i;
+/**
+ * The label of a warning, such as `UserWarning:` or the logging prefix `WARNING:`; it says why only when nothing else
+ * does. Only the label counts: an error whose message speaks of a warning stays an error.
+ */
+const warningLabel = /\b\w*warning:/i;
 
 /** The line Python prints before a traceback it ignores at shutdown; the error under it is not why mflux failed. */
-const ignoredException = /^Exception ignored in\b/;
+const ignoredException = /^Exception ignored\b/;
+
+/** The head of a traceback; inside an ignored one it belongs to the traceback, not to its end. */
+const tracebackHead = /^Traceback \(most recent call last\):/;
 
 /** A control sequence of the terminal, such as the cursor move tqdm writes when it clears a nested bar. */
 // eslint-disable-next-line no-control-regex -- the escape character is what this pattern exists to find
@@ -28,6 +34,12 @@ const padding = /^ {16,}/;
 const complaintLength = 300;
 
 /**
+ * The longest piece of a line kept while it has not ended. It holds a complaint behind the padding of any bar tqdm
+ * clears, which is as wide as the terminal, and keeps a line that never ends from filling the memory.
+ */
+const pieceLength = 4096;
+
+/**
  * Listens to mflux's error output chunk by chunk. A line can arrive in pieces and a character can be cut between two
  * writes, so the output is decoded as one stream and the piece after the last line break waits for the rest. The
  * reason is the last error line, else the last line that is no warning, else the last warning; it follows the shape
@@ -42,14 +54,14 @@ export class MfluxComplaint {
 	private lastWarning = '';
 	private barSteps = -1;
 	private highestStep = -1;
-	private ignoringNextError = false;
+	private insideIgnored = false;
 
 	/** Takes the next chunk of the error output. */
 	listen(chunk: Buffer): void {
 		const parts = `${this.pending}${this.decoder.write(chunk)}`.split(/[\r\n]+/);
-		// Only the start of a line counts: its runs of whitespace are folded first, as the complaint folds them, and then
-		// a line that never ends is kept to one leading space and the length of a complaint.
-		this.pending = (parts.pop() ?? '').replace(/\s+/g, ' ').slice(0, complaintLength + 1);
+		// Only the start of a line counts. It is kept as written, because the padding and the indentation it starts with
+		// decide how the line is read once it has ended.
+		this.pending = (parts.pop() ?? '').slice(0, pieceLength);
 		for (const part of parts) this.hear(part);
 	}
 
@@ -96,20 +108,24 @@ export class MfluxComplaint {
 		const one = line.replace(/\s+/g, ' ').trim().slice(0, complaintLength);
 		if (one === '') return;
 		if (ignoredException.test(one)) {
-			this.ignoringNextError = true;
+			this.insideIgnored = true;
 			return;
 		}
-		// A warning stays a warning even when it names an error, so the warning test comes first.
-		if (warningLine.test(one)) this.lastWarning = one;
-		else if (errorLine.test(one)) this.noteError(one);
+		if (this.insideIgnored) {
+			// An ignored traceback ends with its first line that is neither its head nor indented, whatever it names.
+			if (!tracebackHead.test(one)) this.insideIgnored = false;
+			return;
+		}
+		if (isWarning(one)) this.lastWarning = one;
+		else if (errorLine.test(one)) this.lastError = one;
 		else this.lastLine = one;
 	}
+}
 
-	private noteError(line: string): void {
-		if (this.ignoringNextError) {
-			this.ignoringNextError = false;
-			return;
-		}
-		this.lastError = line;
-	}
+/** A warning whose label comes before any error it names, as in `UserWarning: ConnectionError, retried`. */
+function isWarning(line: string): boolean {
+	const label = warningLabel.exec(line);
+	if (label === null) return false;
+	const error = errorLine.exec(line);
+	return error === null || label.index < error.index;
 }
