@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Implements the outgoing ports of the core against the outside world: database, files, processes, provider CLIs, Blender and remote services. It maps every outside record to a domain type at its edge.
+Implements the outgoing ports of the core against the outside world: database, files, processes, provider CLIs, local models and remote services. It maps every outside record to a domain type at its edge.
 
 ## Owner
 

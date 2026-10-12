@@ -45,5 +45,3 @@ generated: no
 ^(\.claude/hooks/architecture-guard\.ts|scripts/lib/architecture/|scripts/lib/hooks/|scripts/probe-architecture\.sh)	bash scripts/probe-architecture.sh
 ^(packages|apps)/	node scripts/check-tests.ts --staged
 ^(scripts/check-tests\.ts|scripts/probe-tests\.sh)$	bash scripts/probe-tests.sh
-^(packages/infrastructure/src/adapter/Blender/|scripts/probe-cutout\.sh)	bash scripts/probe-cutout.sh
-^(packages/infrastructure/src/adapter/Blender/silhouette\.py|scripts/probe-silhouette\.sh)	bash scripts/probe-silhouette.sh

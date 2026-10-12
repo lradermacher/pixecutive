@@ -46,7 +46,6 @@ mts
 NNN
 nohup
 numpy
-Ollama
 oneline
 OOM
 pathlib

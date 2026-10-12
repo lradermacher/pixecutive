@@ -1,8 +1,8 @@
-# apps/asset-pipeline — the command that turns Blender files into office assets
+# apps/asset-pipeline — the command line that makes office assets
 
 ## Purpose
 
-Builds the office assets from their Blender sources with one command: it wires the core's asset use case to the Blender adapter and writes the sheets and the manifest the browser reads.
+Makes the office assets with one command per step: it wires the core's asset use cases to the generation adapters, runs one local render at a time under the memory guard and writes the layers and the manifest the office reads.
 
 ## Owner
 
@@ -10,10 +10,10 @@ Builds the office assets from their Blender sources with one command: it wires t
 
 ## Never here
 
-⛔ What an asset is (footprint, anchor, layers, color slots): the core.
-⛔ Calling Blender: the Blender adapter in `packages/infrastructure`.
+⛔ What an asset is (parts, layer order, color slots, variants): the core.
+⛔ Calling a model, a service or an image step: its adapter in `packages/infrastructure`.
 ⛔ The manifest's shape: `packages/protocol`.
 
 ## Entry point
 
-`src/index.ts` — the composition root of the asset pipeline.
+`src/main.ts` — the command line and the composition root of the asset pipeline.
