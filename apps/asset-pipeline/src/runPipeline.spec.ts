@@ -53,7 +53,7 @@ describe('runPipeline', () => {
 	it('answers the table code and message of a render failure', async () => {
 		const result = await run(['render', 'figure.txt', 'figure.png', 'eleven']);
 		expect(result.code).toBe(4);
-		expect(result.err).toContain('The render job is invalid (render.invalid_job)');
+		expect(result.err.split('\n')[0]).toMatch(/^The render job is invalid \(render\.invalid_job\): .+/);
 	});
 
 	it('stops at the start with the configuration code when the weights are missing', async () => {

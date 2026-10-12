@@ -2,9 +2,9 @@
 // and translates every render failure through the exit code table.
 import { execFileSync } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
-import { RenderException, RenderImageService } from '@pixecutive/core';
+import { RenderImageService } from '@pixecutive/core';
 import { ClockSystemAdapter, LocalRendererMfluxAdapter, readMemory } from '@pixecutive/infrastructure';
-import { renderExitCode } from './cli/renderExitCode.ts';
+import { exitAnswer } from './cli/exitAnswer.ts';
 import { renderImageHandler } from './cli/renderImage.handler.ts';
 import { showRenderStatusHandler } from './cli/showRenderStatus.handler.ts';
 import { renderConfig } from './renderConfig.ts';
@@ -52,12 +52,8 @@ export async function runPipeline(
 		err.write(`${usage}\n`);
 		return 2;
 	} catch (failure) {
-		if (!(failure instanceof RenderException)) {
-			err.write(`${String(failure)}\n`);
-			return 1;
-		}
-		const { code, message } = renderExitCode[failure.key];
-		err.write(`${message} (${failure.key}): ${failure.detail}\n`);
+		const { code, message } = exitAnswer(failure);
+		err.write(`${message}\n`);
 		return code;
 	}
 }
