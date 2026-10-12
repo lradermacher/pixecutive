@@ -18,7 +18,7 @@ project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); 
 - [x] The skills `animate-figure` and `figure-part` exist from the skill template, `blender-character` is gone, and the skills register is regenerated — skills (ea07edb), `blender-character` removed and `SKILLS.md` regenerated (4e218f8)
 - [x] The fixed asset layout is removed from `ops.md` and the image check; size and PNG checks stay — 12cbe49, probe-pre-commit 57 cases
 - [x] The plans of PIX-7, PIX-56 and PIX-58 match their cards, and the plan of PIX-64 is removed — cards updated first, plans in 07f5463; `PLAN_PIX-64` removed in 4e218f8
-- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of step 32; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-32)
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full green on the commit of steps 32 and 33; review run 1 on 326986d (14 findings, fixed in steps 11-24) and run 2 on 3e11007 (4 findings and 8 notes, fixed in steps 26-33)
 
 ## Inventory
 
@@ -157,7 +157,7 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 28 | Run 2, R3: the lock is atomic, carries the IDs of Node and mflux, and an empty one is stale | adapter spec; built app with an empty lock | 822e8d5 |
 | 29 | Run 2, R4: a second interrupt ends a model that ignores the first | adapter spec | fe7a4e9 |
 | 30 | Run 2, R5: the LoRA search covers every snapshot and keys a broken cache | machine adapter spec | 283b99e |
-| 31 | Run 2, R6: git's complaint reaches the user once | machine adapter spec | open |
-| 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | open |
-| 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | open |
+| 31 | Run 2, R6: git's complaint reaches the user once | machine adapter spec | 550bd7c |
+| 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | this commit |
+| 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | this commit |
 | 34 | Review run 3, only with the maintainer's yes | review record | open |

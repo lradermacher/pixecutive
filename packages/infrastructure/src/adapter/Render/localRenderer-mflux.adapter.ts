@@ -16,6 +16,7 @@ import { judgeMemory } from './judgeMemory.ts';
 import { MemoryAction } from './memoryAction.enum.ts';
 import type { MemoryReading } from './memoryReading.interface.ts';
 import { renderLogRow } from './renderLogRow.ts';
+import { RunEnd } from './runEnd.enum.ts';
 
 /** Where mflux and its weights live, and how the guard reads the memory; the app builds it from its configuration. */
 export interface MfluxRenderConfig {
@@ -36,7 +37,9 @@ interface RunOutcome {
 	readonly secondsPerStep: number | null;
 	readonly peakPressure: number;
 	readonly swapPeakMb: number;
-	readonly result: string;
+	readonly end: RunEnd;
+	/** What was measured when the run did not finish; empty when it did. */
+	readonly reason: string;
 }
 
 /** The edit model and its eight-step Lightning LoRA, the settings every approved render of the figures used. */
@@ -47,10 +50,23 @@ const steps = 8;
 const statusRows = 5;
 
 /** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
-const interruptSignals = ['SIGINT', 'SIGTERM', 'SIGHUP'];
-const interrupted = 'ABORT: interrupted';
-/** The result of a run stopped because the renders folder could not be written while mflux ran. */
-const storagePrefix = 'STORAGE: ';
+const interruptSignals: readonly NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP'];
+
+/** The word the log's result column opens with for each end of a run that did not finish. */
+const logWord: Readonly<Record<Exclude<RunEnd, RunEnd.Done>, string>> = Object.freeze({
+	[RunEnd.Aborted]: 'ABORT',
+	[RunEnd.Interrupted]: 'ABORT',
+	[RunEnd.StorageFailed]: 'STORAGE',
+	[RunEnd.Failed]: 'FAILED',
+});
+
+/** The render key for each end of a run that did not finish; a new end fails the type check until it has one. */
+const endKey: Readonly<Record<Exclude<RunEnd, RunEnd.Done>, RenderExceptionKey>> = Object.freeze({
+	[RunEnd.Aborted]: RenderExceptionKey.Aborted,
+	[RunEnd.Interrupted]: RenderExceptionKey.Interrupted,
+	[RunEnd.StorageFailed]: RenderExceptionKey.StorageFailed,
+	[RunEnd.Failed]: RenderExceptionKey.Failed,
+});
 
 /**
  * Runs one step on the renders folder; whatever the file system answers leaves the adapter with the storage key.
@@ -92,7 +108,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 
 	/**
 	 * Renders `job` into the renders folder and logs the run.
-	 * @throws {RenderException} busy, memory pressure before the start, aborted by the guard, interrupted, or failed in mflux.
+	 * @throws {RenderException} busy, memory pressure before the start, memory unreadable, aborted by the guard,
+	 * interrupted, storage failed, or failed in mflux.
 	 */
 	async render(job: RenderJob): Promise<RenderResult> {
 		const { rendersDir } = this.config;
@@ -118,29 +135,33 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 					writeFileSync(lock, lockLine([process.pid, mfluxPid], `${name} ${progress}`));
 				});
 			});
-			const finished = outcome.result === 'done' && existsSync(rendering);
-			const result = finished ? 'done' : outcome.result === 'done' ? 'FAILED: no image' : outcome.result;
-			onDisk('append the log row', () => {
-				appendFileSync(
-					join(rendersDir, 'renders.tsv'),
-					`${renderLogRow({ ...outcome, at: this.config.clock.now(), name: base, seed: job.seed, model, steps, size: `${String(job.width)}x${String(job.height)}`, result })}\n`,
-				);
+			// A run that ended well but wrote nothing failed all the same.
+			const wrote = outcome.end === RunEnd.Done && existsSync(rendering);
+			const end = outcome.end === RunEnd.Done && !wrote ? RunEnd.Failed : outcome.end;
+			const reason = end === outcome.end ? outcome.reason : 'no image';
+			const result = end === RunEnd.Done ? RunEnd.Done : `${logWord[end]}: ${reason}`;
+			const row = renderLogRow({
+				at: this.config.clock.now(),
+				name: base,
+				seed: job.seed,
+				model,
+				steps,
+				size: `${String(job.width)}x${String(job.height)}`,
+				firstStepSeconds: outcome.firstStepSeconds,
+				totalSeconds: outcome.totalSeconds,
+				secondsPerStep: outcome.secondsPerStep,
+				peakPressure: outcome.peakPressure,
+				swapPeakMb: outcome.swapPeakMb,
+				result,
 			});
-			if (finished) {
-				onDisk('move the image into place', () => {
-					renameSync(rendering, image);
-				});
-				return { name, image };
-			}
-			const key =
-				result === interrupted
-					? RenderExceptionKey.Interrupted
-					: result.startsWith(storagePrefix)
-						? RenderExceptionKey.StorageFailed
-						: result.startsWith('ABORT')
-							? RenderExceptionKey.Aborted
-							: RenderExceptionKey.Failed;
-			throw new RenderException(key, result);
+			onDisk('append the log row', () => {
+				appendFileSync(join(rendersDir, 'renders.tsv'), `${row}\n`);
+			});
+			if (end !== RunEnd.Done) throw new RenderException(endKey[end], result);
+			onDisk('move the image into place', () => {
+				renameSync(rendering, image);
+			});
+			return { name, image };
 		} finally {
 			onDisk('remove the lock', () => {
 				rmSync(lock, { force: true });
@@ -229,7 +250,14 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		let lastStep = '';
 		let peakPressure = start.pressure;
 		let swapPeakMb = 0;
-		let result = 'done';
+		let end = RunEnd.Done;
+		let reason = '';
+		/** Records why the run stops; the first end wins, so a later failure of the stopped model does not hide it. */
+		const stop = (why: RunEnd, what: string): void => {
+			if (end !== RunEnd.Done) return;
+			end = why;
+			reason = what;
+		};
 		return new Promise((resolve) => {
 			const child = spawn(binary, rest, { stdio: ['ignore', 'pipe', 'pipe'] });
 			const watchOutput = (chunk: Buffer): void => {
@@ -245,7 +273,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				try {
 					onStep(`${step[1] ?? ''}/${step[2] ?? ''}`, child.pid ?? 0);
 				} catch (failure) {
-					result = `${storagePrefix}${(failure as Error).message}`;
+					stop(RunEnd.StorageFailed, (failure as Error).message);
 					child.kill('SIGTERM');
 				}
 				if (firstStepAt === null && Number(step[1]) >= 1) firstStepAt = Date.now();
@@ -253,12 +281,12 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.stdout.on('data', watchOutput);
 			child.stderr.on('data', watchOutput);
 			child.on('error', (failure) => {
-				result = `FAILED: ${failure.message}`;
+				stop(RunEnd.Failed, failure.message);
 			});
 			// The first interrupt asks mflux to stop; a second one ends a model that ignores the first.
 			const interrupt = (): void => {
-				const again = result === interrupted;
-				result = interrupted;
+				const again = end === RunEnd.Interrupted;
+				stop(RunEnd.Interrupted, 'interrupted');
 				child.kill(again ? 'SIGKILL' : 'SIGTERM');
 			};
 			for (const signal of interruptSignals) this.config.interrupts.on(signal, interrupt);
@@ -267,7 +295,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				try {
 					now = this.config.readMemory();
 				} catch {
-					result = 'ABORT: the memory cannot be read';
+					stop(RunEnd.Aborted, 'the memory cannot be read');
 					child.kill('SIGTERM');
 					return;
 				}
@@ -275,14 +303,14 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 				swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
 				const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);
 				if (verdict.action === MemoryAction.Abort) {
-					result = `ABORT: ${verdict.reason}`;
+					stop(RunEnd.Aborted, verdict.reason);
 					child.kill('SIGTERM');
 				}
 			}, this.config.intervalMs);
 			child.on('close', (code) => {
 				clearInterval(watch);
 				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
-				if (result === 'done' && code !== 0) result = `FAILED: exit ${String(code)}`;
+				if (code !== 0) stop(RunEnd.Failed, `exit ${String(code)}`);
 				const perStep = /([0-9.]+)s\/it/.exec(lastStep)?.[1];
 				resolve({
 					firstStepSeconds: firstStepAt === null ? null : Math.round((firstStepAt - startedAt) / 1000),
@@ -290,7 +318,8 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 					secondsPerStep: perStep === undefined ? null : Number(perStep),
 					peakPressure,
 					swapPeakMb,
-					result,
+					end,
+					reason,
 				});
 			});
 		});

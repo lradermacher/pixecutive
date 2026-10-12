@@ -119,11 +119,11 @@ its file goes and why there.
 | Step | File | Why there |
 | --- | --- | --- |
 | 1 | `packages/core/src/domain/Render/renderJob.schema.ts`, `renderResult.interface.ts`, `renderStatus.interface.ts`, `renderConfig.schema.ts` | Decides without touching the outside: domain. |
-| 2 | `packages/core/src/application/exception/render.exception.ts`, `renderExceptionKey.enum.ts` (`render.busy`, `render.memory_pressure` and four more) | The failures the use case can name. |
-| 3 | `packages/core/src/port/outgoing/localRenderer.interface.ts` | What the use case needs from outside, in domain types. |
+| 2 | `packages/core/src/application/exception/render.exception.ts`, `renderExceptionKey.enum.ts` (`render.busy`, `render.memory_pressure` and seven more) | The failures the use case can name. |
+| 3 | `packages/core/src/port/outgoing/localRenderer.interface.ts`, `renderMachine.interface.ts` | What the use case and the start need from outside, in domain types. |
 | 4 | `packages/core/src/application/service/renderImageCommand.ts`, `renderImage.service.ts` with its spec and an `InMemoryLocalRenderer` | The use case: its input as a command, parsed into a render job before the renderer starts. |
-| 5 | `packages/infrastructure/src/adapter/Render/localRenderer-mflux.adapter.ts` with its spec | Touches a process and files: adapter; translates every failure into a key. |
-| 6 | `apps/asset-pipeline/src/renderConfig.ts`, `src/cli/renderImage.handler.ts`, `src/cli/showRenderStatus.handler.ts`, `src/cli/renderExitCode.ts`, `src/runPipeline.ts` | Parses the configuration, wires the port to the adapter, translates keys. |
+| 5 | `packages/infrastructure/src/adapter/Render/localRenderer-mflux.adapter.ts`, `renderMachine-local.adapter.ts`, each with its spec | Touches processes and files: adapter; translates every failure into a key. |
+| 6 | `apps/asset-pipeline/src/renderConfig.ts`, `src/cli/renderImage.handler.ts`, `src/cli/showRenderStatus.handler.ts`, `src/cli/renderExitCode.ts`, `src/cli/exitAnswer.ts`, `src/runPipeline.ts` | Parses the configuration, wires the port to the adapter, translates keys. |
 | 7 | `packages/protocol` | Only when the result crosses the wire; this one does not. |
 
 ## Rejected

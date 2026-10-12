@@ -9,9 +9,11 @@ import {
 	RenderMachineLocalAdapter,
 } from '@pixecutive/infrastructure';
 import { exitAnswer } from './cli/exitAnswer.ts';
+import { PipelineCommand } from './cli/pipelineCommand.enum.ts';
 import { renderImageHandler } from './cli/renderImage.handler.ts';
 import { showRenderStatusHandler } from './cli/showRenderStatus.handler.ts';
 import { renderConfig } from './renderConfig.ts';
+import { z } from 'zod';
 
 /** Where the command line writes; tests pass collectors. */
 export interface PipelineOutput {
@@ -52,10 +54,13 @@ export async function runPipeline(
 				interrupts,
 			}),
 		);
-		if (command === 'status') return answer(out, showRenderStatusHandler(service));
-		if (command === 'render') return answer(out, await renderImageHandler(args, service));
-		err.write(`${usage}\n`);
-		return 2;
+		const known = z.enum(PipelineCommand).safeParse(command);
+		if (!known.success) {
+			err.write(`${usage}\n`);
+			return 2;
+		}
+		if (known.data === PipelineCommand.Status) return answer(out, showRenderStatusHandler(service));
+		return answer(out, await renderImageHandler(args, service));
 	} catch (failure) {
 		const { code, message } = exitAnswer(failure);
 		err.write(`${message}\n`);

@@ -111,6 +111,14 @@ describe('LocalRendererMfluxAdapter', () => {
 });
 
 describe('LocalRendererMfluxAdapter when something fails', () => {
+	it('answers the failed key and logs why when mflux cannot be started', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (folder) => ({
+			mflux: join(folder, 'no-such-mflux'),
+		}));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
+		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toMatch(/\tFAILED: spawn .*ENOENT/);
+	});
+
 	it('answers the failed key and logs the exit code when mflux fails', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0', 3);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
