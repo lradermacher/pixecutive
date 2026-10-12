@@ -122,6 +122,8 @@ probe "a PNG straight in the asset folder passes" green \
 	"mkdir -p apps/office-ui/assets && printf 'x' > apps/office-ui/assets/desk.png && git add apps/office-ui && $commit"
 probe "a manifest beside the frames passes" green \
 	"mkdir -p apps/office-ui/assets/figure/m && printf '{}' > apps/office-ui/assets/figure/m/manifest.json && git add apps/office-ui && $commit"
+probe "a PNG with an upper-case extension passes" green \
+	"mkdir -p apps/office-ui/assets/figure/m/walk && printf 'x' > apps/office-ui/assets/figure/m/walk/Walk.PNG && git add apps/office-ui && $commit"
 probe "a JPEG asset is rejected" red \
 	"mkdir -p apps/office-ui/assets/furniture/desk/textures && printf 'x' > apps/office-ui/assets/furniture/desk/textures/oak.jpg && git add apps/office-ui && $commit"
 probe "an asset above 256 KB is rejected" red \

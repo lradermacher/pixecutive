@@ -16,7 +16,7 @@ export function checkImages(files: ReadonlyArray<{ path: string; bytes: number }
 		if (!inAssets && !media.test(path)) continue;
 		if (!inAssets) {
 			findings.push(`${path} — images and videos enter the repo only as PNG assets under ${assetRoot}`);
-		} else if (media.test(path) && !path.endsWith('.png')) {
+		} else if (media.test(path) && !/\.png$/i.test(path)) {
 			findings.push(`${path} — a product asset image is a PNG`);
 		} else if (bytes > maxAssetBytes) {
 			findings.push(`${path} — ${Math.ceil(bytes / 1024)} KB, a product asset has at most ${maxAssetBytes / 1024} KB`);
