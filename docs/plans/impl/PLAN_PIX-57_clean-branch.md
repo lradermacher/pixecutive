@@ -164,6 +164,6 @@ for every removal), kept in the session scratchpad `flow/audit/`.
 | 32 | Run 2, R7: ADR 0023 and the adapter's JSDoc say what the code does | `check-docs`, `generate-adr-state --check` | this commit |
 | 33 | The end of a run and the command line's commands are enums, not strings (basis rule) | `pnpm lint`, `pnpm test` | this commit |
 | 34 | Review run 3, only with the maintainer's yes | review record | run 3 on 45b9916 (the maintainer's yes): red, 4 findings and 4 notes, fixed in steps 35-37 |
-| 35 | The render lock as its own unit (atomic take, rewrite through a side file, mflux named from its start); a second interrupt ends the model whatever stopped the run; a start failure thrown at once, an unmovable image and a leftover side file end as keys | lock, disk and adapter specs, each case red without its fix (mutation) | open |
-| 36 | The machine adapter reads its working folder inside the keyed try | machine adapter spec | open |
+| 35 | The render lock as its own unit (atomic take, rewrite through a side file, mflux named from its start); a second interrupt ends the model whatever stopped the run; a start failure thrown at once, an unmovable image and a leftover side file end as keys | lock, disk and adapter specs, each case red without its fix (mutation) | 93261e6 |
+| 36 | The machine adapter reads its working folder inside the keyed try | machine adapter spec | 93261e6 (committed with step 35) |
 | 37 | The command line checks the command before it reads the configuration | composition root spec | open |
