@@ -255,9 +255,11 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			child.on('error', (failure) => {
 				result = `FAILED: ${failure.message}`;
 			});
+			// The first interrupt asks mflux to stop; a second one ends a model that ignores the first.
 			const interrupt = (): void => {
+				const again = result === interrupted;
 				result = interrupted;
-				child.kill('SIGTERM');
+				child.kill(again ? 'SIGKILL' : 'SIGTERM');
 			};
 			for (const signal of interruptSignals) this.config.interrupts.on(signal, interrupt);
 			const watch = setInterval(() => {

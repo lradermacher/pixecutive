@@ -219,6 +219,21 @@ describe('LocalRendererMfluxAdapter and its lock', () => {
 		expect(existsSync(join(dir, 'current.lock'))).toBe(false);
 	});
 
+	it('ends a model that ignores the first interrupt at the second', async () => {
+		const { renderer, interrupts } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, (folder) => {
+			const stubborn = join(folder, 'stubborn-mflux');
+			writeFileSync(stubborn, "#!/bin/sh\ntrap '' TERM INT\nexec sleep 20\n");
+			chmodSync(stubborn, 0o755);
+			return { mflux: stubborn };
+		});
+		const startedAt = Date.now();
+		const running = failureKey(renderer.render(job));
+		setTimeout(() => interrupts.emit('SIGINT'), 300);
+		setTimeout(() => interrupts.emit('SIGINT'), 600);
+		expect(await running).toBe(RenderExceptionKey.Interrupted);
+		expect(Date.now() - startedAt).toBeLessThan(5000);
+	});
+
 	it('shows the running render, the memory and the last log rows', async () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		await renderer.render(job);
