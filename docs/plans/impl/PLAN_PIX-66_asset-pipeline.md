@@ -173,3 +173,4 @@ frames numbered with two digits from 00.
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | a80fb53 |
 | 14 | Full gate and independent review | verify-full; review record | open |
 | 15 | Review run 1: the 14 findings, and OpenCV's headless build for a CI machine without a display library | the touched specs; the shipped figures rebuilt byte for byte | 1de8723, cc6e39b, 7754341, 973f193, 11ec57d, 49866f5, 1bcae7a, e2f54a2, a7c7ddb |
+| 16 | Review run 2: the 6 findings | the touched specs; the shipped figures exported again without a byte's difference | 98834e4, 6ea3250, 309e0ae |
