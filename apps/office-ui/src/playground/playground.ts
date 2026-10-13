@@ -1,10 +1,11 @@
 // playground.ts — the playground's state: which motion, facing, zoom and playback are chosen, the clock of 24 ticks
 // per second, and the tiles that follow from them. Drawing is the page's.
-import type { FigureManifest } from '@pixecutive/protocol';
+import { FacePart, type FigureManifest } from '@pixecutive/protocol';
 import { Facing } from './facing.enum.ts';
 import { frameAt } from './frameAt.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
 import { Playback } from './playback.enum.ts';
+import { speakingMouth } from './speakingMouth.ts';
 
 /** One figure in one motion as the stage shows it now. */
 export interface Tile {
@@ -12,6 +13,7 @@ export interface Tile {
 	readonly name: string;
 	readonly motion: ManifestMotion;
 	readonly frame: number;
+	readonly mouth: FacePart;
 	readonly label: string;
 }
 
@@ -28,6 +30,8 @@ export class Playground {
 	zoom = 2;
 	playback: Playback = Playback.BackAndForth;
 	paused = false;
+	/** Whether the figures speak: the mouth then follows the speaking rhythm on every motion. */
+	speaking = false;
 	tick = 0;
 	private elapsedMs = 0;
 
@@ -48,7 +52,7 @@ export class Playground {
 				const frame = this.frameOf(motion, this.tick);
 				const hold = motion.frames[frame]?.hold ?? 1;
 				const label = `${figure.toUpperCase()} · ${name} · ${this.facing} · frame ${String(frame)} / ${String(motion.frames.length)} · hold ${String(hold)}`;
-				return [{ figure, name, motion, frame, label }];
+				return [{ figure, name, motion, frame, mouth: this.mouthAt(this.tick), label }];
 			}),
 		);
 	}
@@ -60,16 +64,23 @@ export class Playground {
 		this.tick = Math.floor(this.elapsedMs / tickMs);
 	}
 
-	/** Pauses and moves the clock to the next tick at which a shown tile changes its frame. */
+	/** Pauses and moves the clock to the next tick at which a shown tile changes its frame or its mouth. */
 	step(): void {
 		this.paused = true;
 		const shown = this.tiles();
 		const longest = Math.max(1, ...shown.map((tile) => tile.motion.frames.reduce((sum, f) => sum + f.hold, 0) * 2));
 		let next = this.tick + 1;
-		while (next < this.tick + longest && shown.every((tile) => this.frameOf(tile.motion, next) === tile.frame))
-			next += 1;
+		const same = (tick: number): boolean =>
+			this.mouthAt(tick) === this.mouthAt(this.tick) &&
+			shown.every((tile) => this.frameOf(tile.motion, tick) === tile.frame);
+		while (next < this.tick + longest && same(next)) next += 1;
 		this.tick = next;
 		this.elapsedMs = next * tickMs;
+	}
+
+	/** The mouth at `tick`: the speaking rhythm while speaking, else closed. */
+	private mouthAt(tick: number): FacePart {
+		return this.speaking ? speakingMouth(tick) : FacePart.Mouth;
 	}
 
 	/** A motion on the spot follows the chosen playback; a walk, which moves on, always loops. */

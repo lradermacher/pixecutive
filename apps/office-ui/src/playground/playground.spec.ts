@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { FacePart } from '@pixecutive/protocol';
 import { fixtureManifest } from './fixtureManifest.ts';
 import { Playback } from './playback.enum.ts';
 import { Playground } from './playground.ts';
@@ -60,5 +61,28 @@ describe('Playground', () => {
 		playground.paused = false;
 		playground.advance(tickMs);
 		expect(playground.tick).toBe(2);
+	});
+
+	it('closes every mouth until the figures speak, then follows the speaking rhythm on every motion', () => {
+		const playground = new Playground(fixtureManifest);
+		playground.advance(tickMs + 1);
+		const closed = playground.tiles().map((tile) => tile.mouth);
+		playground.speaking = true;
+		expect([closed, playground.tiles().map((tile) => tile.mouth)]).toEqual([
+			[FacePart.Mouth, FacePart.Mouth],
+			[FacePart.MouthOpen, FacePart.MouthOpen],
+		]);
+	});
+
+	it('steps to the next mouth change while speaking, even when no frame changes', () => {
+		const playground = new Playground(fixtureManifest);
+		playground.motion = 'walk';
+		playground.speaking = true;
+		playground.step();
+		expect([playground.tick, playground.tiles()[0]?.mouth, playground.tiles()[0]?.frame]).toEqual([
+			1,
+			FacePart.MouthOpen,
+			0,
+		]);
 	});
 });

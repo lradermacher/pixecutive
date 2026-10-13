@@ -188,4 +188,14 @@ describe('startPlayground', () => {
 			'choice chosen',
 		]);
 	});
+
+	it('draws the speaking mouth once the figures speak', async () => {
+		const { win, body, created, frame } = fakeWindow(copy());
+		await startPlayground(win);
+		button(body, 'speaking')?.click();
+		frame(0);
+		frame(50);
+		const sprite = created.filter((node) => node.tag === 'canvas' && node.className === '' && node.width === 89).at(-1);
+		expect(sprite?.context.calls.at(-1)).toBe('draw smooth img assets/figures/m/face/idle/mouth-open.png 49 24 10 11');
+	});
 });

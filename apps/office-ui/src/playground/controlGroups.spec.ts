@@ -19,21 +19,22 @@ function option(
 }
 
 describe('controlGroups', () => {
-	it('offers all and every motion of the manifest, both facings, both playbacks, the zooms and the clock', () => {
+	it('offers all and every motion of the manifest, both facings, the mouth, both playbacks, the zooms and the clock', () => {
 		expect(controlGroups(new Playground(fixtureManifest)).map((g) => [g.title, g.options.map((o) => o.text)])).toEqual([
 			['Motion', ['all', 'idle', 'walk']],
 			['Facing', ['front-left', 'front-right (mirrored)']],
+			['Mouth', ['closed', 'speaking']],
 			['On the spot', ['loop', 'back and forth']],
 			['Zoom', ['1×', '2×', '4×']],
 			['Clock', ['play', 'step']],
 		]);
 	});
 
-	it('marks the playground start as chosen: all, front-left, back and forth, 2×, play', () => {
+	it('marks the playground start as chosen: all, front-left, closed, back and forth, 2×, play', () => {
 		const chosen = controlGroups(new Playground(fixtureManifest)).map(
 			(g) => g.options.filter((o) => o.chosen()).map((o) => o.text)[0],
 		);
-		expect(chosen).toEqual(['all', 'front-left', 'back and forth', '2×', 'play']);
+		expect(chosen).toEqual(['all', 'front-left', 'closed', 'back and forth', '2×', 'play']);
 	});
 
 	it('sets the playground when an option is chosen', () => {
@@ -41,13 +42,15 @@ describe('controlGroups', () => {
 		for (const [title, text] of [
 			['Motion', 'walk'],
 			['Facing', 'front-right (mirrored)'],
+			['Mouth', 'speaking'],
 			['On the spot', 'loop'],
 			['Zoom', '4×'],
 		] as const)
 			option(playground, title, text).choose();
-		expect([playground.motion, playground.facing, playground.playback, playground.zoom]).toEqual([
+		expect([playground.motion, playground.facing, playground.speaking, playground.playback, playground.zoom]).toEqual([
 			'walk',
 			Facing.FrontRight,
+			true,
 			Playback.Loop,
 			4,
 		]);

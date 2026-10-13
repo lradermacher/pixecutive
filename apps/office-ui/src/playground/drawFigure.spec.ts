@@ -1,3 +1,4 @@
+import { FacePart } from '@pixecutive/protocol';
 import { describe, expect, it } from 'vitest';
 import { drawFigure, type SpriteCanvas } from './drawFigure.ts';
 import { fixtureManifest } from './fixtureManifest.ts';
@@ -64,5 +65,11 @@ describe('drawFigure', () => {
 				0,
 			);
 		expect(canvas.calls.at(-1)).toBe('m/face/idle/mouth.png 49.25 51.25 17.25 8.5');
+	});
+
+	it('draws the mouth in the state asked for', () => {
+		const canvas = new RecordingCanvas();
+		if (idle) drawFigure(canvas, (file) => file, 'idle', idle, 0, FacePart.MouthHalf);
+		expect(canvas.calls.at(-1)).toBe('m/face/idle/mouth-half.png 49 24 10 9');
 	});
 });

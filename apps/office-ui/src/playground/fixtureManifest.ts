@@ -1,5 +1,5 @@
 // fixtureManifest.ts — a small manifest for the playground's specs: figure m with an idle of three frames and a walk
-// of two, each face part 10 by 8 pixels at y 60 from the head origin.
+// of two, each face part 10 by 8 pixels at y 60 from the head origin; only the idle has the speaking mouths.
 import type { FigureManifest } from '@pixecutive/protocol';
 
 /** Shared by every spec; a spec that changes a manifest changes a copy. */
@@ -30,6 +30,8 @@ export const fixtureManifest: FigureManifest = {
 						blank: { file: 'm/face/idle/blank.png', x: 82, y: 60, width: 10, height: 8 },
 						eyes: { file: 'm/face/idle/eyes.png', x: 88, y: 60, width: 10, height: 8 },
 						'eyes-closed': { file: 'm/face/idle/eyes-closed.png', x: 87, y: 60, width: 10, height: 8 },
+						'mouth-half': { file: 'm/face/idle/mouth-half.png', x: 97, y: 60, width: 10, height: 9 },
+						'mouth-open': { file: 'm/face/idle/mouth-open.png', x: 97, y: 59, width: 10, height: 11 },
 					},
 				},
 				walk: {

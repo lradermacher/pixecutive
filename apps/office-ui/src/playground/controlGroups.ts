@@ -17,7 +17,7 @@ export interface ControlGroup {
 	readonly options: readonly ControlOption[];
 }
 
-/** Motion (all, then each motion of the manifest), facing, playback on the spot, zoom and clock. */
+/** Motion (all, then each motion of the manifest), facing, mouth, playback on the spot, zoom and clock. */
 export function controlGroups(playground: Playground): ControlGroup[] {
 	const motion = (name: string | null): ControlOption => ({
 		text: name ?? 'all',
@@ -35,6 +35,16 @@ export function controlGroups(playground: Playground): ControlGroup[] {
 				chosen: (): boolean => playground.facing === facing,
 				choose: (): void => {
 					playground.facing = facing;
+				},
+			})),
+		},
+		{
+			title: 'Mouth',
+			options: [false, true].map((speaking) => ({
+				text: speaking ? 'speaking' : 'closed',
+				chosen: (): boolean => playground.speaking === speaking,
+				choose: (): void => {
+					playground.speaking = speaking;
 				},
 			})),
 		},

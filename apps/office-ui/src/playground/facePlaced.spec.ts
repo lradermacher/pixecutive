@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { FacePart } from '@pixecutive/protocol';
 import { facePlaced } from './facePlaced.ts';
 import { fixtureManifest } from './fixtureManifest.ts';
 
@@ -24,5 +25,13 @@ describe('facePlaced', () => {
 		expect(walk && facePlaced('walk', walk, 1)).toEqual([
 			{ file: 'm/face/walk/eyes.png', x: 47, y: 23, width: 10, height: 8 },
 		]);
+	});
+
+	it('puts the mouth in the state asked for, and the closed mouth where the motion has no such state', () => {
+		const [idle, walk] = [motions['idle'], motions['walk']];
+		expect([
+			idle && facePlaced('idle', idle, 1, FacePart.MouthOpen).at(-1),
+			walk && facePlaced('walk', walk, 1, FacePart.MouthOpen).map((part) => part.file),
+		]).toEqual([{ file: 'm/face/idle/mouth-open.png', x: 49, y: 24, width: 10, height: 11 }, ['m/face/walk/eyes.png']]);
 	});
 });
