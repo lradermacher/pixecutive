@@ -14,7 +14,7 @@ const box = { left: 60, top: 40, right: 110, bottom: 70 };
 
 /**
  * A still of a dark figure with a skin-colored hand on the light blue background, a state where the hand has a
- * finger more, and three sprites of the still at half size moved right by 0, 3 and 6 pixels; from the second sprite
+ * finger more, and three sprites of the still at half size moved right by 0, 4 and 8 pixels; from the second sprite
  * on, a copy of the hand lies above the figure, where a search over the whole sprite would take it. Drawn by Python
  * into a temp folder, so no image enters the repo.
  */
@@ -35,7 +35,7 @@ async function scene(): Promise<{ still: string; state: string; frames: string[]
 			'small = cv2.resize(s, (60, 60), interpolation=cv2.INTER_AREA)',
 			'alpha = (np.abs(small.astype(int) - (186, 212, 226)).sum(2) > 60).astype(np.uint8) * 255',
 			'hand = np.dstack([small, alpha])[20:35, 30:55]',
-			'for k, dx in enumerate((0, 3, 6)):',
+			'for k, dx in enumerate((0, 4, 8)):',
 			'    a = np.zeros((70, 80, 4), np.uint8); a[2:62, 2 + dx:62 + dx, :3] = small; a[2:62, 2 + dx:62 + dx, 3] = alpha',
 			'    if k: a[0:15, 50:75] = hand',
 			'    Image.fromarray(a).save(f"{d}/{k:02d}.png")',
@@ -103,8 +103,27 @@ describe('HandPainterOpencvAdapter', () => {
 				reach: 6,
 			});
 			// the extra finger lies at still x 90..100, y 52..56: at half size x 45..50, y 26..28, plus the sprite's
-			// own offset of 2 and its move; in sprite 2 (moved by 6) it reaches x 58, which no unmoved finger does
-			expect([await alphaAt(frames[2] ?? '', 57, 29), await alphaAt(frames[1] ?? '', 54, 29)]).toEqual([255, 255]);
+			// own offset of 2 and its move; in sprite 2 (moved by 8, farther than the reach from sprite 0) it reaches x 60,
+			// which only a search around the last sprite's hands finds
+			expect([await alphaAt(frames[2] ?? '', 59, 29), await alphaAt(frames[1] ?? '', 55, 29)]).toEqual([255, 255]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'loses the hands when they move farther than the reach, so the reach is what the step searches',
+		async () => {
+			const { still, state, frames } = await scene();
+			await new HandPainterOpencvAdapter({ python, script }).paint({
+				frames,
+				still,
+				scale: 0.5,
+				box,
+				states: [state],
+				sequence: [null, 0, 0],
+				reach: 1,
+			});
+			expect(await alphaAt(frames[2] ?? '', 59, 29)).not.toBe(255);
 		},
 		PYTHON_START_MS,
 	);

@@ -9,7 +9,10 @@ export const handStatesSchema = z.object({
 	box: stillBoxSchema,
 	states: z.array(z.string().endsWith('.png')).min(1),
 	ticks: z.int().min(1).default(4),
-	/** Sprite pixels from the last sprite's hands within which the hands are searched, so a like shape elsewhere is not taken. */
+	/**
+	 * Sprite pixels from the last sprite's hands within which the hands are searched, so a like shape elsewhere is
+	 * not taken.
+	 */
 	reach: z.int().min(1).default(6),
 });
 

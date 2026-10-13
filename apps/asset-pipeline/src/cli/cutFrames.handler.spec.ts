@@ -34,8 +34,10 @@ const still = (change: number): FrameMeasure => ({
 /** Answers six still frames and keeps the clip it measured. */
 class InMemoryFrameMeasurer implements IFrameMeasurer {
 	readonly clips: string[] = [];
+	constructor(private readonly log: string[] = []) {}
 	measure(clip: string, values: FrameCutConfig): Promise<FrameMeasure[]> {
 		this.clips.push(clip);
+		this.log.push('measure');
 		return Promise.resolve(Array.from({ length: 6 }, () => still(values.poseChange)));
 	}
 }
@@ -56,8 +58,10 @@ class InMemoryFrameCutter implements IFrameCutter {
 class InMemoryMotionWork implements IMotionWork {
 	readonly cuts: [FigureName, Motion, CutFrames][] = [];
 	readonly drops: string[] = [];
+	constructor(private readonly log: string[] = []) {}
 	dropCut(figure: FigureName, motion: Motion): Promise<void> {
 		this.drops.push(`${figure} ${motion}`);
+		this.log.push('drop');
 		return Promise.resolve();
 	}
 	saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void> {
@@ -163,5 +167,17 @@ describe('cutFramesHandler', () => {
 			new PaintHandsService(new InMemoryHandPainter(true)),
 		).catch((error: unknown) => error);
 		expect([failure instanceof TypeError, work.drops, work.cuts]).toEqual([true, ['f idle'], []]);
+	});
+
+	it('forgets the old cut before the cutter touches the sprites', async () => {
+		const log: string[] = [];
+		await cutFramesHandler(
+			['f', 'idle'],
+			setup,
+			new CutFramesService(new InMemoryFrameMeasurer(log), new InMemoryFrameCutter()),
+			new InMemoryMotionWork(log),
+			new PaintHandsService(new InMemoryHandPainter()),
+		);
+		expect(log).toEqual(['drop', 'measure']);
 	});
 });

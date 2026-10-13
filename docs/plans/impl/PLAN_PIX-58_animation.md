@@ -79,8 +79,12 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
   and track, so the frames command now forgets them first (448c5ee); the mouth fallback and the hand painter's
   following and bounded search were not tested (aa4642a, 6a89158); the hand reach is a value, the ear reach must
   exceed the ear limit (6a89158); the unused talk motion went (dbc075f); animate-figure names type as a loop, a
-  pose's own height and drawn states (b806b48). M's waving fingertips show 1 to 2 off-skin pixels in five frames,
-  which the maintainer accepted with the wave.
+  pose's own height and drawn states (b806b48). M's waving fingertips show 1 to 2 off-skin pixels in five frames;
+  found after the wave was accepted, so it goes to the maintainer (sheet `pix58-close`).
+- 2026-10-13, review run 2 (record b53145a, 7 findings): the hand painter's spec now tells following from the last
+  sprite from searching around the first (moves 0, 4, 8), a spec shows the reach reaches the step, and the frames
+  handler's order (forget, then cut) is pinned. A frames run that fails also forgets the work of the run before; that
+  is local work only and is meant: a failed cut leaves nothing to build on.
 
 - 2026-10-13, type (sheets `pix58-type-still`, `pix58-fingers` F1 = a, `pix58-finger-states` F1 = a): moving fingers
   melt in the video model (measured), so type has drawn finger states. Astra drew, on the approved typing still,
@@ -163,6 +167,8 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
   holds for the layers that exist, or waits for PIX-70 (sheet `pix58-close`).
 - **The maintainer decides:** ADR 0022 point 2 and the assets rule say motion comes only from the video model; mouth
   and fingers now come as drawn states swapped per frame (sheet `pix58-close`).
+- **The maintainer decides:** whether the 1 to 2 off-skin pixels at M's waving fingertips in five frames are accepted
+  with the wave (sheet `pix58-close`).
 
 - **Decided by the maintainer:** the approval of this plan, given in chat on 2026-10-13 (approved, go ahead), before
   the first render of this card.
