@@ -4,7 +4,6 @@ import type { EventEmitter } from 'node:events';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import {
-	type IClock,
 	type ILocalRenderer,
 	type RenderJob,
 	type RenderResult,
@@ -29,7 +28,6 @@ export interface MfluxRenderConfig {
 	readonly lora: string;
 	readonly intervalMs: number;
 	readonly readMemory: () => MemoryReading;
-	readonly clock: IClock;
 	/** Where Ctrl-C and a closed terminal arrive; the process itself in production, a plain emitter in tests. */
 	readonly interrupts: EventEmitter;
 }
@@ -120,7 +118,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 			const { end, reason } = this.place(outcome, rendering, image);
 			const result = end === RunEnd.Done ? logWord[end] : `${logWord[end]}: ${reason}`;
 			const row = renderLogRow({
-				at: this.config.clock.now(),
+				at: new Date(),
 				name: base,
 				seed: job.seed,
 				model,

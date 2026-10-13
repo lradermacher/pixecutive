@@ -55,7 +55,6 @@ function adapter(
 		intervalMs: 50,
 		readMemory: (): { pressure: number; swapMb: number } =>
 			readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 },
-		clock: { now: (): Date => new Date('2026-10-12T09:30:00.000Z') },
 		interrupts,
 		...override(dir),
 	});
@@ -77,7 +76,8 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await renderer.render(job)).toEqual({ name: 'figure-s11', image: join(dir, 'figure-s11.png') });
 		const row = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t');
 		expect(row).toHaveLength(11);
-		expect([row[0], row[4], row[10]]).toEqual(['2026-10-12 09:30 UTC', '1024x768', 'done']);
+		expect(row[0]).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$/);
+		expect([row[4], row[10]]).toEqual(['1024x768', 'done']);
 	});
 
 	it('hands mflux the job, the LoRA and the side file it writes into', async () => {

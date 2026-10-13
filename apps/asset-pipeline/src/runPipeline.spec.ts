@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RenderMachineLocalAdapter } from '@pixecutive/infrastructure';
@@ -70,6 +70,14 @@ describe('runPipeline', () => {
 	it('renders through the wired adapter', async () => {
 		const result = await run(['render', prompt, image, '11']);
 		expect([result.code, result.out.split('\n')[0]]).toEqual([0, 'done figure-s11']);
+	});
+
+	it('logs the render with the time it ended, read by the adapter itself', async () => {
+		const renders = mkdtempSync(join(tmpdir(), 'pipeline-'));
+		const before = new Date().toISOString().slice(0, 10);
+		await run(['render', prompt, image, '11'], { PIX_RENDERS_DIR: renders });
+		const row = readFileSync(join(renders, 'renders.tsv'), 'utf8').trim().split('\t');
+		expect(row[0]?.slice(0, 10)).toBe(before);
 	});
 
 	it('answers the table code and message of a render failure', async () => {

@@ -2,12 +2,7 @@
 // and translates every render failure through the exit code table.
 import type { EventEmitter } from 'node:events';
 import { type IRenderMachine, RenderImageService } from '@pixecutive/core';
-import {
-	ClockSystemAdapter,
-	LocalRendererMfluxAdapter,
-	readMemory,
-	RenderMachineLocalAdapter,
-} from '@pixecutive/infrastructure';
+import { LocalRendererMfluxAdapter, readMemory, RenderMachineLocalAdapter } from '@pixecutive/infrastructure';
 import { exitAnswer } from './cli/exitAnswer.ts';
 import { PipelineCommand } from './cli/pipelineCommand.enum.ts';
 import { renderImageHandler } from './cli/renderImage.handler.ts';
@@ -57,7 +52,6 @@ export async function runPipeline(
 				lora: config.weights,
 				intervalMs: guardIntervalMs,
 				readMemory: memoryNow,
-				clock: new ClockSystemAdapter(),
 				interrupts,
 			}),
 		);
