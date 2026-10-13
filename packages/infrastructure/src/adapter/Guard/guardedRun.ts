@@ -81,20 +81,29 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 	return new Promise((resolve) => {
 		let child: ChildProcess;
 		try {
-			child = spawn(binary, rest, { stdio: ['ignore', 'pipe', 'pipe'] });
+			// Its own process group, so stopping the model reaches every process it started, which still holds memory.
+			child = spawn(binary, rest, { stdio: ['ignore', 'pipe', 'pipe'], detached: true });
 		} catch (failure) {
 			// Some start failures are thrown at once instead of arriving as an error event; both end the same way.
 			stop(RunEnd.Failed, (failure as Error).message);
 			resolve(outcome());
 			return;
 		}
+		/** Sends `signal` to the model's process group; a group already gone leaves only the model itself to ask. */
+		const kill = (signal: NodeJS.Signals): void => {
+			try {
+				if (child.pid !== undefined) process.kill(-child.pid, signal);
+			} catch {
+				child.kill(signal);
+			}
+		};
 		// An exception inside a listener would reach no promise: a failed mark stops the model and ends the run.
 		const tell = (progress: string): void => {
 			try {
 				hooks.mark(child.pid ?? 0, progress);
 			} catch (failure) {
 				stop(RunEnd.StorageFailed, hooks.describe(failure));
-				child.kill('SIGTERM');
+				kill('SIGTERM');
 			}
 		};
 		if (child.pid !== undefined) tell('');
@@ -118,7 +127,7 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 		const interrupt = (): void => {
 			interrupts += 1;
 			stop(RunEnd.Interrupted, 'interrupted');
-			child.kill(interrupts > 1 ? 'SIGKILL' : 'SIGTERM');
+			kill(interrupts > 1 ? 'SIGKILL' : 'SIGTERM');
 		};
 		for (const signal of interruptSignals) setup.interrupts.on(signal, interrupt);
 		const watch = setInterval(() => {
@@ -127,7 +136,7 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 				now = setup.readMemory();
 			} catch {
 				stop(RunEnd.Aborted, 'the memory cannot be read');
-				child.kill('SIGTERM');
+				kill('SIGTERM');
 				return;
 			}
 			peakPressure = Math.max(peakPressure, now.pressure);
@@ -135,7 +144,7 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 			const verdict = judgeMemory(true, now.pressure, now.swapMb - setup.start.swapMb);
 			if (verdict.action === MemoryAction.Abort) {
 				stop(RunEnd.Aborted, verdict.reason);
-				child.kill('SIGTERM');
+				kill('SIGTERM');
 			}
 		}, setup.intervalMs);
 		child.on('close', (code, signal) => {

@@ -357,12 +357,12 @@ describe('LocalRendererMfluxAdapter and its lock', () => {
 	});
 });
 
-/** An mflux written as `script`, for the cases that need a model behaving in one particular way. */
-function model(script: string): (folder: string) => Partial<MfluxRenderConfig> {
+/** An mflux written as `script` with the file `mode`, for the cases that need a model behaving in one particular way. */
+function model(script: string, mode = 0o755): (folder: string) => Partial<MfluxRenderConfig> {
 	return (folder) => {
 		const path = join(folder, 'model-mflux');
 		writeFileSync(path, script);
-		chmodSync(path, 0o755);
+		chmodSync(path, mode);
 		return { mflux: path };
 	};
 }
@@ -399,7 +399,8 @@ describe('LocalRendererMfluxAdapter when it is stopped or cannot finish', () => 
 	});
 
 	it('answers the failed key and logs why when the model file cannot be run at all', async () => {
-		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('no shebang, no binary\n'));
+		// A file without the execute bit fails to spawn everywhere; one without a shebang would run through /bin/sh on Linux.
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }], '0.2', 0, model('#!/bin/sh\nexit 0\n', 0o644));
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Failed);
 		expect(readFileSync(join(dir, 'renders.tsv'), 'utf8')).toMatch(/\tFAILED: spawn/);
 	});

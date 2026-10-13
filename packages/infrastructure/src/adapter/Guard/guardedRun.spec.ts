@@ -1,4 +1,4 @@
-import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -71,17 +71,40 @@ describe('guardedRun', () => {
 		expect([outcome.end, outcome.reason]).toEqual([RunEnd.Failed, 'exit 3: no weights']);
 	});
 
+	// `sleep 5; echo after` makes every shell fork the sleep, as a model that starts its own processes does.
 	it('stops the model at critical memory pressure and keeps the guard as the reason', async () => {
-		const outcome = await run([model('sleep 5')], hooks(), [{ pressure: 4, swapMb: 0 }]);
+		const outcome = await run([model('sleep 5; echo after')], hooks(), [{ pressure: 4, swapMb: 0 }]);
 		expect([outcome.end, outcome.reason, outcome.peakPressure]).toEqual([RunEnd.Aborted, 'memory pressure level 4', 4]);
 	});
 
 	it('stops the model at an interrupt', async () => {
 		const interrupts = new EventEmitter();
 		setTimeout(() => interrupts.emit('SIGINT'), 50);
-		const outcome = await run([model('sleep 5')], hooks(), undefined, interrupts);
+		const outcome = await run([model('sleep 5; echo after')], hooks(), undefined, interrupts);
 		expect([outcome.end, outcome.reason]).toEqual([RunEnd.Interrupted, 'interrupted']);
 		expect(interrupts.listenerCount('SIGINT')).toBe(0);
+	});
+
+	it('stops every process the model started, not only the model', async () => {
+		const pidFile = join(mkdtempSync(join(tmpdir(), 'guarded-')), 'child.pid');
+		const interrupts = new EventEmitter();
+		// The interrupt comes once the child runs, so the guard has a child to stop.
+		const started = setInterval(() => {
+			if (existsSync(pidFile) && readFileSync(pidFile, 'utf8').trim() !== '') {
+				clearInterval(started);
+				interrupts.emit('SIGINT');
+			}
+		}, 10);
+		const outcome = await run([model(`sleep 5 & echo $! > ${pidFile}; wait`)], hooks(), undefined, interrupts);
+		const alive = (pid: number): boolean => {
+			try {
+				process.kill(pid, 0);
+				return true;
+			} catch {
+				return false;
+			}
+		};
+		expect([outcome.end, alive(Number(readFileSync(pidFile, 'utf8')))]).toEqual([RunEnd.Interrupted, false]);
 	});
 
 	it('stops the model when a mark fails and names the failure', async () => {
