@@ -9,4 +9,6 @@ export enum FacePart {
 	EyesClosed = 'eyes-closed',
 	Nose = 'nose',
 	Mouth = 'mouth',
+	MouthHalf = 'mouth-half',
+	MouthOpen = 'mouth-open',
 }

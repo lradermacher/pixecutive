@@ -170,6 +170,25 @@ describe('AssetStoreFilesAdapter shipping a motion', () => {
 		expect(manifest.figures['m']?.motions['walk']?.face['mouth']?.x).toBe(1);
 	});
 
+	it('names the speaking mouth states by their wire names', async () => {
+		const { adapter, root, staging } = store();
+		for (const file of ['m/body/idle/00.png', 'm/face/idle/mouth-half.png', 'm/face/idle/mouth-open.png'])
+			place(staging, file);
+		await adapter.putMotion(FigureName.M, Motion.Idle, {
+			...asset(['m/body/idle/00.png']),
+			face: [FacePart.MouthHalf, FacePart.MouthOpen].map((part) => ({
+				part,
+				file: `m/face/idle/${part}.png`,
+				x: 1,
+				y: 2,
+				width: 3,
+				height: 4,
+			})),
+		});
+		const manifest = figureManifestSchema.parse(JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8')));
+		expect(Object.keys(manifest.figures['m']?.motions['idle']?.face ?? {})).toEqual(['mouth-half', 'mouth-open']);
+	});
+
 	it('keeps a shipped folder nothing new was staged for', async () => {
 		const { adapter, root, staging } = store();
 		place(root, 'm/face/idle/mouth.png', 'shipped');

@@ -8,7 +8,9 @@
       "eyes-half": { "image": "m/part_eyes_half.png" },
       "eyes-closed": { "image": "m/part_eyes_closed.png" },
       "nose": { "image": "m/part_nose.png" },
-      "mouth": { "image": "m/part_mouth.png" }
+      "mouth": { "image": "m/part_mouth.png" },
+      "mouth-half": { "image": "m/part_mouth_half.png" },
+      "mouth-open": { "image": "m/part_mouth_open.png" }
     },
     "motions": {
       "idle": {
@@ -53,7 +55,9 @@
       "eyes-half": { "image": "f/part_eyes_half.png" },
       "eyes-closed": { "image": "f/part_eyes_closed.png" },
       "nose": { "image": "f/part_nose.png" },
-      "mouth": { "image": "f/part_mouth.png" }
+      "mouth": { "image": "f/part_mouth.png" },
+      "mouth-half": { "image": "f/part_mouth_half.png" },
+      "mouth-open": { "image": "f/part_mouth_open.png" }
     },
     "motions": {
       "idle": {

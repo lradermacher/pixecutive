@@ -31,6 +31,8 @@ const wirePart: Readonly<Record<FacePart, WireFacePart>> = Object.freeze({
 	[FacePart.EyesClosed]: WireFacePart.EyesClosed,
 	[FacePart.Nose]: WireFacePart.Nose,
 	[FacePart.Mouth]: WireFacePart.Mouth,
+	[FacePart.MouthHalf]: WireFacePart.MouthHalf,
+	[FacePart.MouthOpen]: WireFacePart.MouthOpen,
 });
 
 /** Where the figures' assets go and the Python step that cleans and scales them. */
