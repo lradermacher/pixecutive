@@ -64,8 +64,10 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 ## Out of scope
 
 - Back views: their own card, because they double the drawing work.
-- The further gestures (joy, scared, angry, sad, idea, thinking, jump, phone, point, drink, eat, stand up): each
-  after these four, with its definition in the card first.
+- The further gestures (jump, phone, point, drink, eat, stand up): each after these four, with its definition in the
+  card first.
+- Facial expressions (joy, scared, angry, sad, idea, thinking as faces): face part states that sit on any motion,
+  their own card PIX-74.
 - Real-time blending between gestures.
 
 ## Changed on the way
@@ -134,7 +136,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
 | 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | redefined on sheet `pix58-hands` F1 = a; the clip candidates rejected |
-| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M accepted on sheet `pix58-wave` F3; F next with the arm away from the head |
+| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M c3f1eeb (sheet `pix58-wave` F3), F 23b1a06 (sheet `pix58-f-body` F1) |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | open |
