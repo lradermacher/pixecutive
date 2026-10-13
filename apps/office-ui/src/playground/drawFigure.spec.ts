@@ -51,4 +51,18 @@ describe('drawFigure', () => {
 		if (idle) drawFigure(canvas, (file) => (file.includes('/face/') ? undefined : file), 'idle', idle, 0);
 		expect(canvas.calls.filter((call) => call.startsWith('m/'))).toEqual(['m/body/idle/00.png 0 0 89 201']);
 	});
+
+	it('hands the fractional boxes of the manifest to the canvas unrounded, for it to scale smoothly', () => {
+		const canvas = new RecordingCanvas();
+		const mouth = { file: 'm/face/idle/mouth.png', x: 97.5, y: 87.75, width: 17.25, height: 8.5 };
+		if (idle)
+			drawFigure(
+				canvas,
+				(file) => file,
+				'idle',
+				{ ...idle, head: { ...idle.head, origin: [[-48.25, -36.5]] }, face: { mouth } },
+				0,
+			);
+		expect(canvas.calls.at(-1)).toBe('m/face/idle/mouth.png 49.25 51.25 17.25 8.5');
+	});
 });

@@ -1,5 +1,5 @@
 // facePlaced.ts — where the face parts of a motion are drawn in one frame, in sprite pixels: the frame's head origin
-// plus the part's offset, in the order the room page drew them, with the eyes open.
+// plus the part's offset, back to front, with the eyes open.
 import { FacePart } from '@pixecutive/protocol';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
 
@@ -12,7 +12,10 @@ export interface PlacedPart {
 	readonly height: number;
 }
 
-/** Back to front; the room page drew the blank head under the face only in idle, every other motion keeps its own. */
+/**
+ * Back to front. The idle sprites keep the face of the still they were cut from, so the blank head covers it before
+ * the parts go on; the walk sprites come from a still with a blank face and need none.
+ */
 const layers: readonly FacePart[] = [FacePart.Blank, FacePart.Brows, FacePart.Eyes, FacePart.Nose, FacePart.Mouth];
 const blankHeadMotion = 'idle';
 

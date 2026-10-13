@@ -1,5 +1,5 @@
 // drawFigure.ts — assembles one figure at sprite size: the body frame, then the face parts on its head origin, scaled
-// smoothly as the room page did; the page zooms the result without smoothing.
+// smoothly, since their boxes have fractional sizes that nearest pixels would bend; the page zooms the result crisp.
 import { facePlaced } from './facePlaced.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
 

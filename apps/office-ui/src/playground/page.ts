@@ -38,7 +38,9 @@ function element<K extends keyof HTMLElementTagNameMap>(
 async function loadManifest(win: Window): Promise<ManifestReading> {
 	let json: unknown;
 	try {
-		json = await (await win.fetch(`${assets}manifest.json`)).json();
+		const answer = await win.fetch(`${assets}manifest.json`);
+		if (!answer.ok) return { reason: `${assets}manifest.json answered ${String(answer.status)}` };
+		json = await answer.json();
 	} catch (failure) {
 		return { reason: `${assets}manifest.json cannot be loaded: ${(failure as Error).message}` };
 	}
@@ -55,10 +57,12 @@ export async function startPlayground(win: Window): Promise<void> {
 	}
 	const playground = new Playground(reading.manifest);
 	const images = new Map<string, HTMLImageElement>();
+	const missing = new Set<string>();
 	const image = (file: string): HTMLImageElement | undefined => {
 		let loaded = images.get(file);
 		if (!loaded) {
 			loaded = doc.createElement('img');
+			loaded.addEventListener('error', () => missing.add(file));
 			loaded.src = `${assets}${file}`;
 			images.set(file, loaded);
 		}
@@ -68,6 +72,7 @@ export async function startPlayground(win: Window): Promise<void> {
 	const choices: Choice[] = [];
 	const controls = element(doc, 'div', 'controls');
 	const stage = element(doc, 'div', 'stage');
+	const warning = element(doc, 'p', 'warning');
 	let shown: Shown[] = [];
 
 	const layout = (): void => {
@@ -104,6 +109,7 @@ export async function startPlayground(win: Window): Promise<void> {
 			place.caption.textContent = tile.label;
 		});
 		for (const { button, chosen } of choices) button.classList.toggle('chosen', chosen());
+		warning.textContent = missing.size > 0 ? `Not served, left out: ${[...missing].join(', ')}` : '';
 	};
 
 	for (const { title, options } of controlGroups(playground)) {
@@ -128,7 +134,7 @@ export async function startPlayground(win: Window): Promise<void> {
 		'note',
 		'Every motion plays at 24 ticks per second with its holds; the face parts sit on the head origin of each frame. A manifest the protocol schema refuses shows its reason instead of the stage.',
 	);
-	doc.body.append(controls, stage, note);
+	doc.body.append(controls, warning, stage, note);
 	layout();
 	let last: number | null = null;
 	const frame = (ms: number): void => {

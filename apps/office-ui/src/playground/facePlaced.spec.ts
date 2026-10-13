@@ -19,7 +19,7 @@ describe('facePlaced', () => {
 		expect(idle && [0, 2].map((frame) => facePlaced('idle', idle, frame)[0]?.x)).toEqual([34, 35]);
 	});
 
-	it('draws no blank head outside idle, as the room page did', () => {
+	it('draws no blank head over the walk, whose sprites have a blank face', () => {
 		const walk = motions['walk'];
 		expect(walk && facePlaced('walk', walk, 1)).toEqual([
 			{ file: 'm/face/walk/eyes.png', x: 47, y: 23, width: 10, height: 8 },

@@ -46,6 +46,7 @@ class FakeElement {
 	addEventListener(_type: string, listener: () => void): void {
 		this.listeners.push(listener);
 	}
+	/** Runs every listener: a click on a button, a failed load on an image. */
 	click(): void {
 		for (const listener of this.listeners) listener();
 	}
@@ -75,10 +76,12 @@ function fakeWindow(manifest: unknown): {
 	};
 	const win = {
 		document: { body, createElement: create },
-		fetch: (path: string): Promise<{ json: () => Promise<unknown> }> =>
+		fetch: (path: string): Promise<{ ok: boolean; status: number; json: () => Promise<unknown> }> =>
 			manifest instanceof Error
 				? Promise.reject(manifest)
 				: Promise.resolve({
+						ok: manifest !== undefined,
+						status: manifest === undefined ? 404 : 200,
 						json: (): Promise<unknown> => Promise.resolve(path.endsWith('manifest.json') ? manifest : null),
 					}),
 		requestAnimationFrame: (callback: (ms: number) => void): void => {
@@ -111,6 +114,23 @@ describe('startPlayground', () => {
 		await startPlayground(win);
 		expect(body.children[0]?.textContent).toBe(
 			'No stage: assets/figures/manifest.json cannot be loaded: Failed to fetch',
+		);
+	});
+
+	it('names the status when the manifest is not served', async () => {
+		const { win, body } = fakeWindow(undefined);
+		await startPlayground(win);
+		expect(body.children[0]?.textContent).toBe('No stage: assets/figures/manifest.json answered 404');
+	});
+
+	it('names an image the server does not have, instead of leaving it out silently', async () => {
+		const { win, body, created, frame } = fakeWindow(copy());
+		await startPlayground(win);
+		frame(0);
+		created.find((node) => node.src.endsWith('walk/00.png'))?.click();
+		frame(10);
+		expect(body.all().find((node) => node.className === 'warning')?.textContent).toBe(
+			'Not served, left out: m/body/walk/00.png',
 		);
 	});
 
