@@ -89,6 +89,16 @@ describe('CutFramesService', () => {
 		]);
 	});
 
+	it('cuts a cycle without bounds over the whole clip when the spread has no three maxima', async () => {
+		const clip = [still(200, 0), still(200, 9), still(200, 9)];
+		const { plan } = await new CutFramesService(new InMemoryFrameMeasurer(clip), new InMemoryFrameCutter()).cut({
+			clip: 'walk',
+			mode: ClipMode.Cycle,
+			values,
+		});
+		expect(plan.sprites.map((s) => s.source)).toEqual([0, 1]);
+	});
+
 	it('never starts the cutter when the range reaches beyond the clip', async () => {
 		const cutter = new InMemoryFrameCutter();
 		const failure: unknown = await new CutFramesService(new InMemoryFrameMeasurer([still(200, 0)]), cutter)

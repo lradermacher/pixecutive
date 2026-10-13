@@ -2,7 +2,7 @@
 // a time, under the memory guard every local model shares.
 import type { EventEmitter } from 'node:events';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import {
 	type ClipConfig,
 	type ClipJob,
@@ -10,7 +10,9 @@ import {
 	type ClipResult,
 	FigureException,
 	FigureExceptionKey,
+	type FigureName,
 	type IVideoRenderer,
+	type Motion,
 } from '@pixecutive/core';
 import { guardedRun } from '../Guard/guardedRun.ts';
 import { judgeMemory } from '../Guard/judgeMemory.ts';
@@ -71,13 +73,19 @@ function onDisk<T>(what: string, step: () => T): T {
 export class VideoRendererLtxAdapter implements IVideoRenderer {
 	constructor(private readonly config: LtxClipConfig) {}
 
+	/** Where the clip of a figure's motion lies in a renders folder; the frames command reads it from there. */
+	static clipOf(rendersDir: string, figure: FigureName, motion: Motion): string {
+		return join(rendersDir, 'clips', `${figure}-${motion}.mp4`);
+	}
+
 	/**
 	 * Renders `job` into `clips/<figure>-<motion>.mp4` of the renders folder.
 	 * @throws {FigureException} invalid job for a missing input, busy, memory pressure before the start, memory
 	 * unreadable, aborted by the guard, interrupted, storage failed, or clip failed in the model.
 	 */
 	async render(job: ClipJob): Promise<ClipResult> {
-		const clips = join(this.config.rendersDir, 'clips');
+		const clip = VideoRendererLtxAdapter.clipOf(this.config.rendersDir, job.figure, job.motion);
+		const clips = dirname(clip);
 		onDisk('create the clips folder', () => mkdirSync(clips, { recursive: true }));
 		for (const [what, path] of [
 			['still', job.still],
@@ -92,7 +100,6 @@ export class VideoRendererLtxAdapter implements IVideoRenderer {
 		const entry = judgeMemory(false, start.pressure, 0);
 		if (entry.action !== MemoryAction.Go) throw new FigureException(FigureExceptionKey.MemoryPressure, entry.reason);
 		const name = `${job.figure}-${job.motion}`;
-		const clip = join(clips, `${name}.mp4`);
 		const rendering = join(clips, `${name}.rendering.mp4`);
 		const prompt =
 			onDisk('read the prompt', () => readFileSync(job.promptFile, 'utf8').trim()) + this.config.promptSuffix;

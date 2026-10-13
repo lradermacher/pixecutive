@@ -5,6 +5,7 @@ import {
 	FrameCutterOpencvAdapter,
 	FrameMeasurerOpencvAdapter,
 	HeadTrackerOpencvAdapter,
+	MotionWorkFilesAdapter,
 	packageName,
 	VideoRendererLtxAdapter,
 } from './index.ts';
@@ -35,5 +36,9 @@ describe('@pixecutive/infrastructure', () => {
 
 	it('exposes the asset store through its entry', () => {
 		expect(typeof AssetStoreFilesAdapter.prototype.putMotion).toBe('function');
+	});
+
+	it('exposes the motion work through its entry', () => {
+		expect(typeof MotionWorkFilesAdapter.prototype.loadCut).toBe('function');
 	});
 });

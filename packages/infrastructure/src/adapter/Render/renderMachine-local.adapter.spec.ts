@@ -9,6 +9,14 @@ const snapshots = ['.cache', 'huggingface', 'hub', 'models--lightx2v--Qwen-Image
 const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
 describe('RenderMachineLocalAdapter', () => {
+	it('finds the video model in its snapshot folder of the cache, and none without one', () => {
+		const home = mkdtempSync(join(tmpdir(), 'home-'));
+		expect(new RenderMachineLocalAdapter(home).cachedVideoModel()).toBeUndefined();
+		const folder = join(home, '.cache', 'huggingface', 'hub', 'models--dgrauet--ltx-2.3-mlx-q8', 'snapshots', '6671a7');
+		mkdirSync(folder, { recursive: true });
+		expect(new RenderMachineLocalAdapter(home).cachedVideoModel()).toBe(folder);
+	});
+
 	it('finds the LoRA in the snapshot folder of the cache', () => {
 		const home = mkdtempSync(join(tmpdir(), 'home-'));
 		const folder = join(home, ...snapshots, 'a1b2');

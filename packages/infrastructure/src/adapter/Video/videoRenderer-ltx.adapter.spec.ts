@@ -89,6 +89,10 @@ describe('VideoRendererLtxAdapter', () => {
 		expect(args.join(' ')).toContain(`--image ${still} 0 1.0 --image ${still} 48 0.8 -f 49 --frame-rate 24`);
 	});
 
+	it('names the clip of a figure motion where the frames command reads it', () => {
+		expect(VideoRendererLtxAdapter.clipOf('/r', FigureName.F, Motion.Walk)).toBe('/r/clips/f-walk.mp4');
+	});
+
 	it('anchors only the first frame of a cycle', async () => {
 		const { renderer, dir } = adapter();
 		await renderer.render({ ...job, mode: ClipMode.Cycle, motion: Motion.Walk, frames: 73 });

@@ -9,6 +9,9 @@ import { type IRenderMachine, RenderException, RenderExceptionKey } from '@pixec
 const loraSnapshots = ['models--lightx2v--Qwen-Image-Edit-2511-Lightning', 'snapshots'];
 const loraFile = 'Qwen-Image-Edit-2511-Lightning-8steps-V1.0-bf16.safetensors';
 
+/** The LTX-2.3 video model's 8-bit MLX weights in a Hugging Face cache; their snapshot folder is named by a hash. */
+const videoSnapshots = ['models--dgrauet--ltx-2.3-mlx-q8', 'snapshots'];
+
 /**
  * Reads the machine for the render configuration; `home` is the user's home folder and `cwd` the folder git runs in,
  * the app's own folder unless a test names another. The weights are the Lightning LoRA, the command is mflux.
@@ -54,6 +57,24 @@ export class RenderMachineLocalAdapter implements IRenderMachine {
 			throw new RenderException(RenderExceptionKey.InvalidConfig, `the LoRA cache: ${(failure as Error).message}`);
 		}
 		return folders.map((folder) => join(snapshots, folder, loraFile)).find((path) => existsSync(path));
+	}
+
+	/**
+	 * The video model's snapshot folder, in `cache` or in the usual Hugging Face cache of the home folder.
+	 * @throws {RenderException} the invalid configuration key when the cache folder cannot be read.
+	 */
+	cachedVideoModel(cache: string = join(this.home, '.cache', 'huggingface', 'hub')): string | undefined {
+		const snapshots = join(cache, ...videoSnapshots);
+		if (!existsSync(snapshots)) return undefined;
+		try {
+			const [first] = readdirSync(snapshots).sort();
+			return first === undefined ? undefined : join(snapshots, first);
+		} catch (failure) {
+			throw new RenderException(
+				RenderExceptionKey.InvalidConfig,
+				`the video model cache: ${(failure as Error).message}`,
+			);
+		}
 	}
 
 	isFile(path: string): boolean {

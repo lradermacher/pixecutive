@@ -9,5 +9,7 @@ export interface IRenderMachine {
 	usualModelCommand(): string;
 	/** The weights in `cache` when given, otherwise in the machine's usual cache; none when neither holds them. */
 	cachedWeights(cache?: string): string | undefined;
+	/** The local video model's weights folder in `cache` when given, otherwise in the usual cache; none without it. */
+	cachedVideoModel(cache?: string): string | undefined;
 	isFile(path: string): boolean;
 }

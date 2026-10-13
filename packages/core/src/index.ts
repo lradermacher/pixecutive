@@ -26,7 +26,8 @@ export { PlanFramesService, type FrameRange } from './application/service/planFr
 export type { ClipResult } from './domain/Figure/clipResult.interface.ts';
 export { cutResultSchema, type CutResult } from './domain/Figure/cutResult.schema.ts';
 export { headTrackJobSchema, type HeadTrackJob } from './domain/Figure/headTrackJob.schema.ts';
-export { CutFramesService, type CutFrames } from './application/service/cutFrames.service.ts';
+export { CutFramesService } from './application/service/cutFrames.service.ts';
+export type { CutFrames } from './domain/Figure/cutFrames.interface.ts';
 export type { CutFramesCommand } from './application/service/cutFramesCommand.ts';
 export { RenderClipService } from './application/service/renderClip.service.ts';
 export type { RenderClipCommand } from './application/service/renderClipCommand.ts';
@@ -44,3 +45,5 @@ export type { FacePlacement, MotionAsset } from './domain/Figure/motionAsset.int
 export { ExportMotionService } from './application/service/exportMotion.service.ts';
 export type { ExportMotionCommand } from './application/service/exportMotionCommand.ts';
 export type { IAssetStore } from './port/outgoing/assetStore.interface.ts';
+export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figureSpec.schema.ts';
+export type { IMotionWork } from './port/outgoing/motionWork.interface.ts';

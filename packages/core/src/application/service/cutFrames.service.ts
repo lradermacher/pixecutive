@@ -1,18 +1,11 @@
 // cutFrames.service.ts — the use case "cut a clip into sprites": the measurer reports every frame, the core plans
 // which become sprites, the cutter applies the plan.
 import { ClipMode } from '../../domain/Figure/clipMode.enum.ts';
-import type { CutResult } from '../../domain/Figure/cutResult.schema.ts';
-import type { FramePlan } from '../../domain/Figure/framePlan.schema.ts';
+import type { CutFrames } from '../../domain/Figure/cutFrames.interface.ts';
 import type { IFrameCutter } from '../../port/outgoing/frameCutter.interface.ts';
 import type { IFrameMeasurer } from '../../port/outgoing/frameMeasurer.interface.ts';
 import type { CutFramesCommand } from './cutFramesCommand.ts';
 import { PlanFramesService } from './planFrames.service.ts';
-
-/** The sprites a clip was cut into, with the plan that chose them (holds, shifts, drift). */
-export interface CutFrames {
-	readonly plan: FramePlan;
-	readonly result: CutResult;
-}
 
 /**
  * Cuts one clip into sprites.

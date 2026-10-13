@@ -20,6 +20,10 @@ class InMemoryRenderMachine implements IRenderMachine {
 		return cache === undefined ? '/hub/lightning.safetensors' : `${cache}/lightning.safetensors`;
 	}
 
+	cachedVideoModel(cache?: string): string | undefined {
+		return cache === undefined ? '/hub/ltx' : `${cache}/ltx`;
+	}
+
 	isFile(path: string): boolean {
 		return this.files.includes(path);
 	}

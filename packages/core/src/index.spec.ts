@@ -6,6 +6,7 @@ import {
 	cutResultSchema,
 	exportConfigSchema,
 	FacePart,
+	figuresSpecSchema,
 	FigureName,
 	frameCutConfigSchema,
 	headTrackConfigSchema,
@@ -65,5 +66,9 @@ describe('@pixecutive/core', () => {
 
 	it('exposes the export through its entry', () => {
 		expect([FacePart.EyesClosed, exportConfigSchema.parse({}).face.blankDilate]).toEqual(['eyes-closed', 7]);
+	});
+
+	it('exposes the figure specs through its entry', () => {
+		expect(figuresSpecSchema.safeParse({}).success).toBe(true);
 	});
 });
