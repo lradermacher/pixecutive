@@ -33,8 +33,8 @@ implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 > motion, facing a Blender rebuild and part rigs that did not reach the approved look, generated output of different
 > licenses and changes that broke the look when nobody looked, we decided that image models draw every asset from our
 > own templates and style, a local video model makes every motion (what it melts, drawn states), and every result is
-> checked by eye before it is shown, and against modelling or rigging by hand, to reach the approved HD office pixel style, accepting a license
-> check per tool and drawings that need redrawing when they drift.
+> checked by eye before it is shown, and against modelling or rigging by hand, to reach the approved HD office pixel
+> style, accepting a license check per tool and drawings that need redrawing when they drift.
 
 ## Context and problem
 

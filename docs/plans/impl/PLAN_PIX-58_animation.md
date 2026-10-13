@@ -36,7 +36,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Standards the build follows
 
-- Rules: assets (motion only from the video model, a gesture defined before its first render, results checked
+- Rules: assets (motion from the video model, drawn states where it melts, a gesture defined before its first render, results checked
   through the office's own draw functions), workflow (one PNG before a visual is built), basis.
 - One local render at a time under the memory guard, its progress streamed into the chat.
 

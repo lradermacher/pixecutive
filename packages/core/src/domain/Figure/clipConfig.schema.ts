@@ -2,7 +2,8 @@
 // the app's start. The values are the ones the shipped base figures' clips were rendered with.
 import { z } from 'zod';
 
-const path = z.string().min(1);
+/** A path or command; blanks alone name nothing. */
+const path = z.string().trim().min(1);
 
 /** The renders folder, uv and the video model's checkout and weights, and the settings every clip shares. */
 export const clipConfigSchema = z.object({

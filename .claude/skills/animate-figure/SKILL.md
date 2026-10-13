@@ -12,7 +12,7 @@ gates: []
 
 At the end a motion of one figure plays in the office player: a cycle that repeats without a jump, or a loop that
 closes on its own still. It does what its definition in the card says, measured, and the maintainer accepted it
-there. Why motion comes only from the video model is decided in
+there. Why motion comes from the video model, and drawn states only where it melts, is decided in
 [ADR 0022](../../../docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md).
 
 ## Steps

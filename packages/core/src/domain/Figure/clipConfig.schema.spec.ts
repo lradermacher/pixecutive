@@ -18,6 +18,7 @@ describe('clipConfigSchema', () => {
 	it.each([
 		['no renders folder', { ...machine, rendersDir: '' }],
 		['no model checkout', { ...machine, ltxProject: undefined }],
+		['a model of blanks only', { ...machine, model: ' ' }],
 		['a size off the 32 pixel grid', { ...machine, size: 770 }],
 		['a frame rate of zero', { ...machine, frameRate: 0 }],
 	])('refuses %s', (_, invalid) => {
