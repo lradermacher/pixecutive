@@ -72,6 +72,14 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Changed on the way
 
+- 2026-10-13, type (sheets `pix58-type-still`, `pix58-fingers` F1 = a, `pix58-finger-states` F1 = a): moving fingers
+  melt in the video model (measured), so type has drawn finger states. Astra drew, on the approved typing still,
+  fingers lifted and fingertips pressed; the core decides the state per sprite (the sprite's own hands, then the
+  states in turn, four sprites each), and the frame step finds the hands in each sprite and paints there only what
+  the states change (fc6a8a0). The body loop keeps the forearms at desk height (the first try let M's hands sink into
+  his lap). Painted into the sprites rather than laid over them, because a layer over the body's own relaxed hands
+  would leave their fingers visible; the playground needs no change.
+
 - 2026-10-13, sit (sheets `pix58-seated` F1 = a, F2 = a "definitely furniture"; `pix58-m-legs` F1 = a): the chair is
   office furniture. Two masks left the chair's outline, so the input changed: Astra removed the chair from the seated
   stills (figure within 7/255). M's chair had been too high, so his feet hung and one tipped down (the maintainer saw
