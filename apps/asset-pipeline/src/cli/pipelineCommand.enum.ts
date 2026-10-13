@@ -4,4 +4,8 @@
 export enum PipelineCommand {
 	Render = 'render',
 	Status = 'status',
+	Clip = 'clip',
+	Frames = 'frames',
+	Track = 'track',
+	Export = 'export',
 }

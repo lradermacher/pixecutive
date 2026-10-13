@@ -108,6 +108,14 @@ describe('runPipeline', () => {
 		expect([result.code, result.out.split('\n')[1]]).toEqual([0, join(root, 'renders', 'figure-s11.png')]);
 	});
 
+	it('answers a motion chain failure with its own code from the figure table', async () => {
+		const result = await run(['track', 'f', 'idle'], { PIX_LTX_MODEL: '/hub/ltx' });
+		expect([result.code, result.err.split('\n')[0]]).toEqual([
+			13,
+			'The figure job is invalid (figure.invalid_job): no cut of f idle: run `pnpm assets frames f idle` first',
+		]);
+	});
+
 	it('answers the usage for an unknown command before it reads the configuration', async () => {
 		const result = await run(['dance'], { PIX_LORA: '/hub/missing' });
 		expect([result.code, result.err.startsWith('usage:')]).toEqual([2, true]);

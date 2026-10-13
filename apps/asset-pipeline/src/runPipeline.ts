@@ -8,6 +8,7 @@ import { PipelineCommand } from './cli/pipelineCommand.enum.ts';
 import { renderImageHandler } from './cli/renderImage.handler.ts';
 import { showRenderStatusHandler } from './cli/showRenderStatus.handler.ts';
 import { renderConfig } from './renderConfig.ts';
+import { runFigureCommand } from './runFigureCommand.ts';
 import { z } from 'zod';
 
 /** Where the command line writes; tests pass collectors. */
@@ -21,11 +22,13 @@ type MemoryNow = () => { readonly pressure: number; readonly swapMb: number };
 /** How often the guard reads the memory while a render runs. */
 const guardIntervalMs = 5000;
 
-const usage = 'usage: pnpm assets render <prompt file> <input image> <seed> [<width>x<height>] · pnpm assets status';
+const usage =
+	'usage: pnpm assets render <prompt file> <input image> <seed> [<width>x<height>] · pnpm assets status · ' +
+	'pnpm assets clip|frames|track|export <figure> <motion>';
 
 /**
- * Runs one command and answers the exit code: 0 done, 2 usage, a render failure's own code from the table, 1 for
- * anything unexpected. `env`, `memoryNow`, `interrupts` and `machine` are passed in so tests set the paths, the memory,
+ * Runs one command and answers the exit code: 0 done, 2 usage, a render or figure failure's own code from its table,
+ * 1 for anything unexpected. `env`, `memoryNow`, `interrupts` and `machine` are passed in so tests set the paths, the memory,
  * Ctrl-C and the machine.
  */
 export async function runPipeline(
@@ -43,6 +46,10 @@ export async function runPipeline(
 		if (!known.success) {
 			err.write(`${usage}\n`);
 			return 2;
+		}
+		if (known.data !== PipelineCommand.Render && known.data !== PipelineCommand.Status) {
+			const guard = { readMemory: memoryNow, intervalMs: guardIntervalMs, interrupts };
+			return answer(out, await runFigureCommand(known.data, args, env, machine, guard));
 		}
 		const config = renderConfig(env, machine);
 		const service = new RenderImageService(

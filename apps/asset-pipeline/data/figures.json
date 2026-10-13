@@ -1,0 +1,71 @@
+{
+	"m": {
+		"ear": { "left": 184, "top": 215, "right": 216, "bottom": 260 },
+		"face": {
+			"blank": { "image": "m/blank2.png", "mask": "m/blank2_mask.png" },
+			"brows": { "image": "m/part_brows.png" },
+			"eyes": { "image": "m/part_eyes.png" },
+			"eyes-half": { "image": "m/part_eyes_half.png" },
+			"eyes-closed": { "image": "m/part_eyes_closed.png" },
+			"nose": { "image": "m/part_nose.png" },
+			"mouth": { "image": "m/part_mouth.png" }
+		},
+		"motions": {
+			"idle": {
+				"mode": "loop",
+				"frames": 49,
+				"endStrength": 0.8,
+				"prompt": "prompts/idle.txt",
+				"still": "m/idle-start.png",
+				"range": { "first": 0, "last": 47 },
+				"step": 1,
+				"forward": true,
+				"use": { "first": 11, "last": 34 },
+				"trackStill": "m/open.png"
+			},
+			"walk": {
+				"mode": "cycle",
+				"frames": 49,
+				"endStrength": 1,
+				"prompt": "prompts/walk.txt",
+				"still": "m/walk-start.png",
+				"trackStill": "m/blank2.png"
+			}
+		}
+	},
+	"f": {
+		"ear": { "left": 188, "top": 203, "right": 218, "bottom": 243 },
+		"face": {
+			"blank": { "image": "f/blank2.png", "mask": "f/blank2_mask.png" },
+			"brows": { "image": "f/part_brows.png" },
+			"eyes": { "image": "f/part_eyes.png" },
+			"eyes-half": { "image": "f/part_eyes_half.png" },
+			"eyes-closed": { "image": "f/part_eyes_closed.png" },
+			"nose": { "image": "f/part_nose.png" },
+			"mouth": { "image": "f/part_mouth.png" }
+		},
+		"motions": {
+			"idle": {
+				"mode": "loop",
+				"frames": 49,
+				"endStrength": 0.8,
+				"prompt": "prompts/idle.txt",
+				"still": "f/idle-start.png",
+				"range": { "first": 0, "last": 47 },
+				"step": 1,
+				"forward": true,
+				"use": { "first": 9, "last": 28 },
+				"trackStill": "f/open.png"
+			},
+			"walk": {
+				"mode": "cycle",
+				"frames": 73,
+				"endStrength": 1,
+				"prompt": "prompts/walk.txt",
+				"still": "f/walk-start.png",
+				"range": { "first": 29, "last": 56 },
+				"trackStill": "f/blank2.png"
+			}
+		}
+	}
+}

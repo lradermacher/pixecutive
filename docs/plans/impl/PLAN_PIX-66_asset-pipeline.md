@@ -99,6 +99,12 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 11: the commands read the figures' specs from `apps/asset-pipeline/data/figures.json` (the proof of
+  concept's values: loop ranges, the F walk's cycle bounds, the sprites used, ear boxes, stills, face parts) and the
+  prompts from `data/prompts/`. The stills and face parts stay outside the repo in the figure sources folder
+  (`PIX_FIGURE_SOURCES`, default `renders/figures`), since images live only in the office's asset folder. The idle
+  prompt is the proof of concept's word for word; its walk prompt was kept only shortened, so `walk.txt` is rebuilt
+  from that and has not rendered a clip yet. Each command leaves its work for the next in `renders/work`.
 - 2026-10-13, step 10: the edge clean-up and the face parts reproduce the room page's body frames and face parts of
   M and F, idle and walk, pixel for pixel, the face placements exactly; the clean-up computes the background color in
   double precision as the proof of concept did (single precision moved two alpha values by one). The asset store
@@ -144,8 +150,8 @@ frames numbered with two digits from 00.
 | 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | 2c1b4f4 |
 | 8 | Frame measurer and cutter, Python internals | adapter spec; integration spec on synthetic frames | d8076bd |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | 350b45e |
-| 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, this commit |
-| 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | open |
+| 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, 4a25d08 |
+| 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, this commit |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |
 | 14 | Full gate and independent review | verify-full; review record | open |
