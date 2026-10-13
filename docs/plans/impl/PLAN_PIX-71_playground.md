@@ -53,6 +53,12 @@ pauses and advances one frame; the frame and hold are shown.
 
 ## Changed on the way
 
+- 2026-10-13, step 3: the browser has no DOM in the unit tests and no test library is added for it; the page takes
+  the window it runs in, so its spec drives it with a small fake window, and the controls are data
+  (`controlGroups.ts`) tested without a page. A manifest that cannot be loaded at all says so, not as a refusal.
+  Checked in Chromium through `pnpm playground`: M and F, idle and walk, both facings, 1×, 2× and 4×, the step, and
+  a refused manifest showing its reason; no script error.
+
 - 2026-10-13, before the build, from the approved PNG and the room page's draw code (`drawFace`, `idleFrame`,
   `drawFigure` of the proof of concept): the motion choice has "all" as its default, which shows every figure in every
   motion side by side as the PNG does. A figure is assembled at sprite size, the face parts scaled smoothly as the room
@@ -69,6 +75,6 @@ pauses and advances one frame; the frame and hold are shown.
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | The page's PNG approved | the maintainer's yes on the card | sheet `pix71-plan` F1 = yes, PIX-71 comment 14088 |
-| 2 | Logic: frame at a tick, face placement, mirroring, manifest loading | unit tests | open |
-| 3 | The page with Canvas 2D and the controls, served by `pnpm playground` | the page in a browser, both figures and motions | open |
+| 2 | Logic: frame at a tick, face placement, mirroring, manifest loading | unit tests | 70c27f5 |
+| 3 | The page with Canvas 2D and the controls, served by `pnpm playground` | the page in a browser, both figures and motions | d109f1c; the fixture's types in the next commit |
 | 4 | Full gate and independent review | verify-full; review record | open |
