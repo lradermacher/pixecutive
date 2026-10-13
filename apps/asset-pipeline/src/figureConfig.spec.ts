@@ -93,6 +93,14 @@ describe('figureConfig', () => {
 		);
 	});
 
+	it.each([
+		['PIX_RENDERS_DIR', /^rendersDir \(PIX_RENDERS_DIR\): /],
+		['PIX_FIGURE_SOURCES', /^sources \(PIX_FIGURE_SOURCES\): /],
+		['PIX_UV', /^uv \(PIX_UV\): /],
+	])('stops every command at the start when %s is set empty', (variable, detail) => {
+		expect(failure(() => figureConfig({ [variable]: '' }, new InMemoryRenderMachine(), read))).toMatch(detail);
+	});
+
 	it('sets up frames, track and export on a machine without the video model', () => {
 		const setup = figureConfig({}, new InMemoryRenderMachine(null), read);
 		expect([setup.rendersDir, setup.staging]).toEqual(['/repo/renders', '/repo/renders/export']);

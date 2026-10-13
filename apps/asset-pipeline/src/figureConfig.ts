@@ -13,6 +13,7 @@ import {
 	FigureExceptionKey,
 	type FiguresSpec,
 	figuresSpecSchema,
+	figurePathsSchema,
 	type FrameCutConfig,
 	frameCutConfigSchema,
 	type HeadTrackConfig,
@@ -57,10 +58,20 @@ export interface FigureSetup {
 /** The environment variable that sets each path of the clip, so a message can name what to set. */
 const variableOf: Readonly<Record<string, string>> = Object.freeze({
 	rendersDir: 'PIX_RENDERS_DIR',
+	sources: 'PIX_FIGURE_SOURCES',
 	uv: 'PIX_UV',
 	ltxProject: 'PIX_LTX_PROJECT',
 	model: 'PIX_LTX_MODEL',
 });
+
+/** Names each wrong field with the variable that sets it, as the invalid configuration key. */
+function invalid(issues: readonly { path: readonly PropertyKey[]; message: string }[]): FigureException {
+	const fields = issues.map((issue) => {
+		const field = issue.path.map(String).join('.');
+		return `${field}${field in variableOf ? ` (${variableOf[field] ?? ''})` : ''}: ${issue.message}`;
+	});
+	return new FigureException(FigureExceptionKey.InvalidConfig, fields.join('; '));
+}
 
 /**
  * The video model the machine's cache holds, if any.
@@ -92,20 +103,15 @@ function clipConfig(
 		ltxProject: env['PIX_LTX_PROJECT'] ?? join(env['HOME'] ?? homedir(), 'deps', 'ltx-2-mlx'),
 		model: env['PIX_LTX_MODEL'] ?? cachedVideoModel(machine) ?? '',
 	});
-	if (!clip.success) {
-		const fields = clip.error.issues.map((issue) => {
-			const field = issue.path.join('.');
-			return `${field}${field in variableOf ? ` (${variableOf[field] ?? ''})` : ''}: ${issue.message}`;
-		});
-		throw new FigureException(FigureExceptionKey.InvalidConfig, fields.join('; '));
-	}
+	if (!clip.success) throw invalid(clip.error.issues);
 	return clip.data;
 }
 
 /**
  * Parses the configuration once at the start; `env`, `machine` and `read` are passed in so tests set them. None of
  * the values is a secret, so each has a default.
- * @throws {FigureException} the invalid configuration key with the data file's problem.
+ * @throws {FigureException} the invalid configuration key, each wrong path named with its variable, or the data
+ * file's problem.
  */
 export function figureConfig(
 	env: Readonly<Record<string, string | undefined>>,
@@ -113,8 +119,14 @@ export function figureConfig(
 	read: (path: string) => string = (path) => readFileSync(path, 'utf8'),
 ): FigureSetup {
 	const repo = machine.repoRoot();
-	const rendersDir = env['PIX_RENDERS_DIR'] ?? join(repo, 'renders');
-	const uv = env['PIX_UV'] ?? 'uv';
+	const renders = env['PIX_RENDERS_DIR'] ?? join(repo, 'renders');
+	const paths = figurePathsSchema.safeParse({
+		rendersDir: renders,
+		sources: env['PIX_FIGURE_SOURCES'] ?? join(renders, 'figures'),
+		uv: env['PIX_UV'] ?? 'uv',
+	});
+	if (!paths.success) throw invalid(paths.error.issues);
+	const { rendersDir, sources, uv } = paths.data;
 	const data = join(repo, 'apps', 'asset-pipeline', 'data');
 	const specFile = join(data, 'figures.json');
 	let raw: unknown;
@@ -130,7 +142,7 @@ export function figureConfig(
 	return {
 		clip: () => clipConfig(env, machine, rendersDir, uv),
 		rendersDir,
-		sources: env['PIX_FIGURE_SOURCES'] ?? join(rendersDir, 'figures'),
+		sources,
 		assets: join(repo, 'apps', 'office-ui', 'assets', 'figures'),
 		work: join(rendersDir, 'work'),
 		staging: join(rendersDir, 'export'),
