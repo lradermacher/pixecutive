@@ -1,10 +1,10 @@
-// motion.enum.ts — the motions a base figure has; each one is a clip cut into sprite frames.
+// motion.enum.ts — the motions a base figure has, each with its own sprite frames; speaking is no motion but the
+// mouth's states on any of them.
 
 /** A motion of a figure; its value names its asset folder. */
 export enum Motion {
 	Idle = 'idle',
 	Walk = 'walk',
-	Talk = 'talk',
 	Wave = 'wave',
 	Sit = 'sit',
 	Type = 'type',
