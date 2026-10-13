@@ -4,6 +4,7 @@ import {
 	clipJobSchema,
 	FigureName,
 	frameCutConfigSchema,
+	headTrackJobSchema,
 	Motion,
 	packageName,
 	PlanFramesService,
@@ -37,5 +38,10 @@ describe('@pixecutive/core', () => {
 			frameCutConfigSchema.parse({}),
 		);
 		expect(plan.sprites).toEqual([{ source: 0, hold: 1, shiftX: 0, shiftY: 0 }]);
+	});
+
+	it('exposes the head-tracking job through its entry', () => {
+		const ear = { left: 1, top: 1, right: 9, bottom: 9 };
+		expect(headTrackJobSchema.safeParse({ still: 'm.png', frames: ['00.png'], ear }).success).toBe(true);
 	});
 });

@@ -23,3 +23,15 @@ export { frameCutConfigSchema, type FrameCutConfig } from './domain/Figure/frame
 export { FigureException } from './application/exception/figure.exception.ts';
 export { FigureExceptionKey } from './application/exception/figureExceptionKey.enum.ts';
 export { PlanFramesService, type FrameRange } from './application/service/planFrames.service.ts';
+export type { ClipResult } from './domain/Figure/clipResult.interface.ts';
+export type { CutResult } from './domain/Figure/cutResult.interface.ts';
+export { headTrackJobSchema, type HeadTrackJob } from './domain/Figure/headTrackJob.schema.ts';
+export { CutFramesService, type CutFrames } from './application/service/cutFrames.service.ts';
+export type { CutFramesCommand } from './application/service/cutFramesCommand.ts';
+export { RenderClipService } from './application/service/renderClip.service.ts';
+export type { RenderClipCommand } from './application/service/renderClipCommand.ts';
+export { TrackHeadService } from './application/service/trackHead.service.ts';
+export type { IFrameCutter } from './port/outgoing/frameCutter.interface.ts';
+export type { IFrameMeasurer } from './port/outgoing/frameMeasurer.interface.ts';
+export type { IHeadTracker } from './port/outgoing/headTracker.interface.ts';
+export type { IVideoRenderer } from './port/outgoing/videoRenderer.interface.ts';

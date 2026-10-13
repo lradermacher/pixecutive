@@ -99,6 +99,7 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 5: the export use case moves to step 10, where the manifest it fills is defined.
 - 2026-10-13, step 4: the core decides the sprites, holds, shifts, margin and height; the cutter measures the
   shifted frames and applies them, so the crop is measured on the shifted masks as in the proof of concept. The F walk
   keeps its cycle bounds 29 to 56 as a value: the automatic rule (third-last to last spread maximum) gives 29 to 68
@@ -123,12 +124,12 @@ frames numbered with two digits from 00.
 | 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | 774ff31 |
 | 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | 5ce1f65 |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | 3fdab47 |
-| 5 | Core ports and services: clip, frames, track, export; the figure exception and its keys | service specs with in-memory fakes | open |
+| 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | this commit |
 | 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | open |
 | 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | open |
 | 8 | Frame measurer and cutter with the edge clean-up, Python internals | adapter spec; integration spec on synthetic frames | open |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | open |
-| 10 | Figure manifest schema in `packages/protocol` and the file asset store | protocol and adapter specs; the 256 KB limit | open |
+| 10 | Figure manifest schema in `packages/protocol`, the export use case and the file asset store | protocol, service and adapter specs; the 256 KB limit | open |
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | open |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |
