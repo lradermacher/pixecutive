@@ -125,7 +125,7 @@ frames numbered with two digits from 00.
 | 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | 5ce1f65 |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | 3fdab47 |
 | 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | 80a9e59 |
-| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | this commit |
+| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | 8bc100f; the guarded run of the model process in this commit |
 | 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | open |
 | 8 | Frame measurer and cutter with the edge clean-up, Python internals | adapter spec; integration spec on synthetic frames | open |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | open |

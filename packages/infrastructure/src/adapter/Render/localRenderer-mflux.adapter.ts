@@ -1,5 +1,4 @@
 // localRenderer-mflux.adapter.ts — renders one image with mflux on this Mac, one job at a time, under a memory guard.
-import { type ChildProcess, spawn } from 'node:child_process';
 import type { EventEmitter } from 'node:events';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { basename, join } from 'node:path';
@@ -20,7 +19,8 @@ import { onDisk } from './onDisk.ts';
 import { LocalJobLock } from '../Guard/localJobLock.ts';
 import { LockFailure } from '../Guard/lockFailure.enum.ts';
 import { renderLogRow } from './renderLogRow.ts';
-import { RunEnd } from './runEnd.enum.ts';
+import { guardedRun } from '../Guard/guardedRun.ts';
+import { RunEnd } from '../Guard/runEnd.enum.ts';
 
 /** The shared lock's failures as render keys: another job is busy, or the renders folder failed. */
 function nameLockFailure(failure: LockFailure, detail: string): RenderException {
@@ -59,9 +59,6 @@ const steps = 8;
 
 /** How many log rows the status shows. */
 const statusRows = 5;
-
-/** The signals of Ctrl-C and of a closing terminal; either stops the render, which still writes its log row. */
-const interruptSignals: readonly NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP'];
 
 /** The word the log's result column holds for each end of a run; a reason follows it for every end but done. */
 const logWord: Readonly<Record<RunEnd, string>> = Object.freeze({
@@ -220,116 +217,50 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 	}
 
 	/**
-	 * Runs mflux under the guard; `mark` hears mflux's process ID at the start and with every new step as `n/total`,
-	 * so the lock names the model from its first moment.
+	 * Runs mflux under the shared guard; `mark` hears mflux's process ID at the start and with every new step as
+	 * `n/total`, so the lock names the model from its first moment.
 	 */
-	private run(
+	private async run(
 		start: MemoryReading,
 		argv: readonly string[],
 		mark: (mfluxPid: number, progress: string) => void,
 	): Promise<RunOutcome> {
-		const [binary = '', ...rest] = argv;
-		const startedAt = Date.now();
-		let firstStepAt: number | null = null;
-		let lastStep = '';
 		// mflux says why it failed on its error output: its last error, else its last plain line, else its last warning.
 		const complaint = new MfluxComplaint();
-		let peakPressure = start.pressure;
-		let swapPeakMb = 0;
-		let end = RunEnd.Done;
-		let reason = '';
-		/** Records why the run stops; the first end wins, so a later failure of the stopped model does not hide it. */
-		const stop = (why: RunEnd, what: string): void => {
-			if (end !== RunEnd.Done) return;
-			end = why;
-			reason = what;
+		const run = await guardedRun(
+			{
+				argv,
+				start,
+				readMemory: this.config.readMemory,
+				intervalMs: this.config.intervalMs,
+				interrupts: this.config.interrupts,
+			},
+			{
+				mark,
+				step: (text) => {
+					const step = text
+						.split('\n')
+						.map((line) => mfluxProgress.exec(line))
+						.filter((found) => found !== null)
+						.at(-1);
+					return step === undefined ? null : { done: Number(step[1]), total: Number(step[2]), line: step[0] };
+				},
+				listen: (chunk) => {
+					complaint.listen(chunk);
+				},
+				complaint: () => complaint.finish(),
+				describe: (failure) => (failure instanceof RenderException ? failure.detail : String(failure)),
+			},
+		);
+		const perStep = /([0-9.]+)s\/it/.exec(run.lastStepLine)?.[1];
+		return {
+			firstStepSeconds: run.firstStepSeconds,
+			totalSeconds: run.totalSeconds,
+			secondsPerStep: perStep === undefined ? null : Number(perStep),
+			peakPressure: run.peakPressure,
+			swapPeakMb: run.swapPeakMb,
+			end: run.end,
+			reason: run.reason,
 		};
-		const outcome = (): RunOutcome => {
-			const perStep = /([0-9.]+)s\/it/.exec(lastStep)?.[1];
-			return {
-				firstStepSeconds: firstStepAt === null ? null : Math.round((firstStepAt - startedAt) / 1000),
-				totalSeconds: Math.round((Date.now() - startedAt) / 1000),
-				secondsPerStep: perStep === undefined ? null : Number(perStep),
-				peakPressure,
-				swapPeakMb,
-				end,
-				reason,
-			};
-		};
-		return new Promise((resolve) => {
-			let child: ChildProcess;
-			try {
-				child = spawn(binary, rest, { stdio: ['ignore', 'pipe', 'pipe'] });
-			} catch (failure) {
-				// Some start failures are thrown at once instead of arriving as an error event; both end the same way.
-				stop(RunEnd.Failed, (failure as Error).message);
-				resolve(outcome());
-				return;
-			}
-			// A throw inside a listener would reach no promise: a failed lock write stops mflux and ends the run.
-			const tell = (progress: string): void => {
-				try {
-					mark(child.pid ?? 0, progress);
-				} catch (failure) {
-					stop(RunEnd.StorageFailed, failure instanceof RenderException ? failure.detail : String(failure));
-					child.kill('SIGTERM');
-				}
-			};
-			if (child.pid !== undefined) tell('');
-			const watchOutput = (chunk: Buffer): void => {
-				const text = chunk.toString().replaceAll('\r', '\n');
-				const step = text
-					.split('\n')
-					.map((line) => mfluxProgress.exec(line))
-					.filter((found) => found !== null)
-					.at(-1);
-				if (step === undefined) return;
-				lastStep = step[0];
-				tell(`${step[1] ?? ''}/${step[2] ?? ''}`);
-				if (firstStepAt === null && Number(step[1]) >= 1) firstStepAt = Date.now();
-			};
-			child.stdout?.on('data', watchOutput);
-			child.stderr?.on('data', watchOutput);
-			child.stderr?.on('data', (chunk: Buffer) => {
-				complaint.listen(chunk);
-			});
-			child.on('error', (failure) => {
-				stop(RunEnd.Failed, failure.message);
-			});
-			// The first interrupt asks mflux to stop; a further one ends a model that ignores it, whatever stopped the run.
-			let interrupts = 0;
-			const interrupt = (): void => {
-				interrupts += 1;
-				stop(RunEnd.Interrupted, 'interrupted');
-				child.kill(interrupts > 1 ? 'SIGKILL' : 'SIGTERM');
-			};
-			for (const signal of interruptSignals) this.config.interrupts.on(signal, interrupt);
-			const watch = setInterval(() => {
-				let now: MemoryReading;
-				try {
-					now = this.config.readMemory();
-				} catch {
-					stop(RunEnd.Aborted, 'the memory cannot be read');
-					child.kill('SIGTERM');
-					return;
-				}
-				peakPressure = Math.max(peakPressure, now.pressure);
-				swapPeakMb = Math.max(swapPeakMb, now.swapMb - start.swapMb);
-				const verdict = judgeMemory(true, now.pressure, now.swapMb - start.swapMb);
-				if (verdict.action === MemoryAction.Abort) {
-					stop(RunEnd.Aborted, verdict.reason);
-					child.kill('SIGTERM');
-				}
-			}, this.config.intervalMs);
-			child.on('close', (code, signal) => {
-				clearInterval(watch);
-				for (const signal of interruptSignals) this.config.interrupts.off(signal, interrupt);
-				const said = complaint.finish();
-				// A model killed by a signal has no exit code; the signal says what ended it.
-				const ended = code === null ? `signal ${signal ?? 'unknown'}` : `exit ${String(code)}`;
-				if (code !== 0) stop(RunEnd.Failed, said === '' ? ended : `${ended}: ${said}`);
-				resolve(outcome());
-			});
-		});
 	}
 }

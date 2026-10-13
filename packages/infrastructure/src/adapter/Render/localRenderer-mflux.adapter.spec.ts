@@ -76,7 +76,7 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await renderer.render(job)).toEqual({ name: 'figure-s11', image: join(dir, 'figure-s11.png') });
 		const row = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t');
 		expect(row).toHaveLength(11);
-		expect([row[0]?.replace(/\d/g, '9'), row[4], row[10]]).toEqual(['9999-99-99 99:99 UTC', '1024x768', 'done']);
+		expect([row[4], row[7], row[10]]).toEqual(['1024x768', '1', 'done']);
 	});
 
 	it('hands mflux the job, the LoRA and the side file it writes into', async () => {
