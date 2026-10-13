@@ -55,6 +55,11 @@ class InMemoryFrameCutter implements IFrameCutter {
 /** Keeps what it is given. */
 class InMemoryMotionWork implements IMotionWork {
 	readonly cuts: [FigureName, Motion, CutFrames][] = [];
+	readonly drops: string[] = [];
+	dropCut(figure: FigureName, motion: Motion): Promise<void> {
+		this.drops.push(`${figure} ${motion}`);
+		return Promise.resolve();
+	}
 	saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void> {
 		this.cuts.push([figure, motion, cut]);
 		return Promise.resolve();
@@ -81,12 +86,13 @@ const idle = {
 	forward: false,
 	trackStill: 'o.png',
 };
-/** Keeps every job it was handed. */
+/** Keeps every job it was handed; fails when told to, as a painter with a missing state drawing does. */
 class InMemoryHandPainter implements IHandPainter {
 	readonly jobs: HandPaintJob[] = [];
+	constructor(private readonly fails = false) {}
 	paint(job: HandPaintJob): Promise<void> {
 		this.jobs.push(job);
-		return Promise.resolve();
+		return this.fails ? Promise.reject(new TypeError('no state drawing')) : Promise.resolve();
 	}
 }
 
@@ -143,5 +149,19 @@ describe('cutFramesHandler', () => {
 			[null, 0, null, 0, null, 0],
 			'painted finger states into 3 sprites',
 		]);
+	});
+
+	it('forgets the old cut before cutting, so a painter that fails leaves no cut to track or export', async () => {
+		const work = new InMemoryMotionWork();
+		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1 };
+		const typing = { ...setup, figures: { f: { ...setup.figures.f, motions: { idle: { ...idle, hands } } } } };
+		const failure: unknown = await cutFramesHandler(
+			['f', 'idle'],
+			typing as unknown as FigureSetup,
+			new CutFramesService(new InMemoryFrameMeasurer(), new InMemoryFrameCutter()),
+			work,
+			new PaintHandsService(new InMemoryHandPainter(true)),
+		).catch((error: unknown) => error);
+		expect([failure instanceof TypeError, work.drops, work.cuts]).toEqual([true, ['f idle'], []]);
 	});
 });

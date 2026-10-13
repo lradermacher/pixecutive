@@ -35,6 +35,17 @@ function onDisk<T>(what: string, step: () => T): T {
 export class MotionWorkFilesAdapter implements IMotionWork {
 	constructor(private readonly work: string) {}
 
+	/** Removes the motion's cut and track. */
+	dropCut(figure: FigureName, motion: Motion): Promise<void> {
+		return new Promise((resolve) => {
+			onDisk('drop the old cut', () => {
+				rmSync(this.file(figure, motion, 'cut'), { force: true });
+				rmSync(this.file(figure, motion, 'track'), { force: true });
+			});
+			resolve();
+		});
+	}
+
 	/** Keeps the cut and drops the motion's head track: a track of the sprites before would not fit the new ones. */
 	async saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void> {
 		await this.write(figure, motion, 'cut', cut);

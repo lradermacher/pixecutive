@@ -69,4 +69,15 @@ describe('MotionWorkFilesAdapter', () => {
 		const result = await failure(new MotionWorkFilesAdapter(blocked).saveCut(FigureName.M, Motion.Idle, cut));
 		expect(result?.[0]).toBe(FigureExceptionKey.StorageFailed);
 	});
+
+	it('forgets a dropped cut and its track, so the next commands refuse to build on them', async () => {
+		const work = new MotionWorkFilesAdapter(mkdtempSync(join(tmpdir(), 'work-')));
+		await work.saveCut(FigureName.M, Motion.Walk, cut);
+		await work.saveTrack(FigureName.M, Motion.Walk, track);
+		await work.dropCut(FigureName.M, Motion.Walk);
+		expect([
+			(await failure(work.loadCut(FigureName.M, Motion.Walk)))?.[0],
+			(await failure(work.loadTrack(FigureName.M, Motion.Walk)))?.[0],
+		]).toEqual([FigureExceptionKey.InvalidJob, FigureExceptionKey.InvalidJob]);
+	});
 });

@@ -19,6 +19,8 @@ export async function cutFramesHandler(
 	hands: PaintHandsService,
 ): Promise<string[]> {
 	const { figure, motion, motionSpec } = figureMotion(args, setup.figures);
+	// the cutter replaces the sprites; until the new cut is saved, no older cut or track may describe them
+	await work.dropCut(figure, motion);
 	const cut = await service.cut({
 		clip: VideoRendererLtxAdapter.clipOf(setup.rendersDir, figure, motion),
 		mode: motionSpec.mode,

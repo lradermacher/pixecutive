@@ -55,6 +55,9 @@ class InMemoryAssetStore implements IAssetStore {
 
 /** Holds a cut of three sprites and the track of the two used ones. */
 class InMemoryMotionWork implements IMotionWork {
+	dropCut(): Promise<void> {
+		return Promise.resolve();
+	}
 	saveCut(): Promise<void> {
 		return Promise.resolve();
 	}

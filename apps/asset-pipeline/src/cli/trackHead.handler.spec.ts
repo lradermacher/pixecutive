@@ -36,6 +36,9 @@ class InMemoryHeadTracker implements IHeadTracker {
 /** Holds one cut of five sprites and keeps the tracks it is given. */
 class InMemoryMotionWork implements IMotionWork {
 	readonly tracks: [FigureName, Motion, HeadTrack][] = [];
+	dropCut(): Promise<void> {
+		return Promise.resolve();
+	}
 	saveCut(): Promise<void> {
 		return Promise.resolve();
 	}

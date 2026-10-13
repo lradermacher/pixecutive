@@ -10,6 +10,8 @@ import type { CutFrames } from '../../domain/Figure/cutFrames.interface.ts';
  * run; every method rejects with the storage key when its file cannot be used.
  */
 export interface IMotionWork {
+	/** Forgets the motion's cut and track, so a command that fails before saving leaves nothing to build on. */
+	dropCut(figure: FigureName, motion: Motion): Promise<void>;
 	saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void>;
 	loadCut(figure: FigureName, motion: Motion): Promise<CutFrames>;
 	saveTrack(figure: FigureName, motion: Motion, track: HeadTrack): Promise<void>;
