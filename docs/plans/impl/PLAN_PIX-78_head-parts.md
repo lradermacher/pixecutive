@@ -274,3 +274,10 @@ folder, which is not in git.
   - **Smaller fixes:** the editor's message says "no new" drawing, and a docstring is rewrapped.
   - **Not changed:** `template` and `offered` decide without touching anything and sit in the use-case service beside
     the calls they feed. The core rule allows domain or application.
+- 2026-10-13, the maintainer's look (sheet `pix78-long-hair`):
+  - **The gap:** on sit and type, long hair hangs in the air behind the seated body, because a hairstyle is one rigid
+    layer on the head origin and was drawn on the standing body. 20 of 34 hairstyles of F and 1 of 27 of M reach more
+    than 25 px below the chin. Line 5 is met as worded, but these hairstyles do not look right seated.
+  - **F1 = a:** the fix goes to PIX-79 with the garments on gestures. Long hair is drawn on the seated stills as
+    garments are.
+  - **F2 = a:** PIX-78 is pushed into the draft with this gap named here and on the card.
