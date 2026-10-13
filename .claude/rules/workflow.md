@@ -3,8 +3,8 @@ adr: docs/ADR/0002-feature-flow.md
 summary: >
   No build without ticket and implementation plan; a missing prerequisite is reported first and stops the work.
   Questions go to the maintainer as decision sheets. One open card per session; the branch carries the card key.
-  Commits stay local, the branch is pushed once when the pull request is ready, the maintainer checks locally and
-  merges.
+  Commits stay local; a branch is pushed once per card, into its draft in a collecting series; the maintainer checks
+  locally and merges.
 ---
 
 # Workflow — what applies regardless of the open file

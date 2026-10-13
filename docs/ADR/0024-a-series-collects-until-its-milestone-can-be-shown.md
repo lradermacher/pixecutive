@@ -38,8 +38,9 @@ implementation: docs/plans/impl/PLAN_PIX-75_collection-branch.md
 ## Context and problem
 
 ADR 0002 point 3 and ADR 0004 point 1 let a series of cards share one branch and one pull request, but they do not say
-when a series ends. On 2026-10-13 the first series (PIX-7, 56, 57, 66, 71 and 58, among others) stood ready as pull request #2 with
-893 files: the skeleton, the setup, the asset chain and the base figures, but no office anyone could walk through.
+when a series ends. On 2026-10-13 the first series (PIX-7, 56, 57, 66, 71 and 58, among others) stood ready as pull
+request #2 with 893 files: the skeleton, the setup, the asset chain and the base figures, but no office anyone could
+walk through.
 The maintainer judged that a merge to `main` makes no sense before a whole feature can be delivered. The product plan
 already cuts the work that way: each milestone is one epic and can be shown on its own.
 
@@ -65,10 +66,11 @@ push window and the cards one after another as they are, and still keeps `main` 
    maintainer's judgment]`
 2. **It is merged to `main` once, by the maintainer.** `[Hook guard-state]`
 3. **Every card on the branch is still built and checked on its own, then pushed into the draft.** Its plan, its
-   independent review with its record and the maintainer's local check stay as ADR 0002 says; then it is pushed in
-   the window the maintainer opens, once per card, instead of once per series as in ADR 0004 point 3. The hook
-   gate-before-pr checks the record only when the pull request is created; for every later card the review record
-   and the maintainer's window carry it. `[Gate ticket.ts open · Agent adversarial-review · Hook push-window]`
+   independent review with its record and the maintainer's local check stay as ADR 0002 and ADR 0004 point 4 say; then
+   it is pushed in the window the maintainer opens, once per card, instead of once per series as in ADR 0004 point 3.
+   The hook gate-before-pr checks the record only when the pull request is created; for every later card the code skill
+   and the maintainer's window carry it, the draft check included. `[Gate ticket.ts open · Agent adversarial-review ·
+   Skill code · Hook push-window]`
 4. **A finished card waits in In Review until that merge.** All cards of the series go to Done together after it.
    `[Skill code]`
 5. **CI measures every push through the draft.** The workflow runs on every pull request, drafts included.

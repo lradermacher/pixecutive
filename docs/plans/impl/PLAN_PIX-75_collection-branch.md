@@ -43,7 +43,7 @@ the comment form the README prescribes, and their point text stays.
 - The ADR also names the rejected option, a separate integration branch with one pull request per card (F1 b).
 - ADR 0002 gets `superseded-by: 24 # the end of a series in point 3 only; the rest of this ADR stands`.
 - ADR 0004 gets `superseded-by: [20, 24]`, with a comment that names both: the app names for 20, and the end of a
-  series in point 1 for 24.
+  series in point 1 and its pushes in point 3 for 24.
 - The workflow rule gets a heading of its own for the collecting series, and the rule on commits names the push per
   card.
 
@@ -91,3 +91,7 @@ None: sheet `collection-branch` decided branch, end and record.
       is not changed for it.
     - Local `main` lags behind `origin/main`, which only touches the review's default range.
     - PR #1 was a merge commit, which belongs to PIX-9.
+- 2026-10-13, review run 2 (8 findings, the 6 of this card kept): the workflow summary names the push per card; point
+  3 refers the local check to ADR 0004 point 4, names the code skill among its carriers, and the skill's step 9 does
+  the draft check; the plan names ADR 0004 point 3; two long lines rewrapped. The review range after a fix commit and
+  after a merge of `main` went to a card of its own.
