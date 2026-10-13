@@ -7,12 +7,12 @@ scratchpad page.
 
 ## Acceptance
 
-- [ ] `pnpm playground` serves a page from `apps/office-ui` that loads the figure manifest and refuses one the protocol schema refuses, saying why
-- [ ] Every figure and motion of the manifest plays at 24 ticks per second with its holds, the face parts placed by the head origin per frame
-- [ ] Front-left and front-right (mirrored) can be switched, and the zoom keeps the pixels crisp
-- [ ] The page imports only the protocol, and its logic (frame timing, face placement, mirroring) has unit tests
+- [x] `pnpm playground` serves a page from `apps/office-ui` that loads the figure manifest and refuses one the protocol schema refuses, saying why — root `package.json` script `playground`; `src/playground/readManifest.ts`, `page.ts`; in Chromium a refused manifest shows "No stage: version: …" (review runs 1 and 2)
+- [x] Every figure and motion of the manifest plays at 24 ticks per second with its holds, the face parts placed by the head origin per frame — `frameAt.ts`, `playground.ts`, `facePlaced.ts`, `drawFigure.ts` with their specs; review run 1 measured 48 frame changes in 2 s at hold 1
+- [x] Front-left and front-right (mirrored) can be switched, and the zoom keeps the pixels crisp — `tileTransform.ts`, `controlGroups.ts`; review run 1: mirrored tiles equal the flipped ones with 0 differing bytes, every 2×2 and 4×4 block uniform
+- [x] The page imports only the protocol, and its logic (frame timing, face placement, mirroring) has unit tests — lint zones refuse a core import (probed in review run 1); 9 spec files, 35 tests in `apps/office-ui`
 - [x] The maintainer approved the page from one PNG before it was built — sheet `pix71-plan` F1 = yes (2026-10-13 01:24 UTC), PIX-71 comment 14088
-- [ ] Every gate and verify-full is green, and an independent review checked the diff
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full STAGE 2 GREEN; review runs 1 (c6409f0, 4 findings, fixed in 49353db) and 2 (49353db, 2 notes)
 
 ## Inventory
 
@@ -58,13 +58,19 @@ pauses and advances one frame; the frame and hold are shown.
   (`controlGroups.ts`) tested without a page. A manifest that cannot be loaded at all says so, not as a refusal.
   Checked in Chromium through `pnpm playground`: M and F, idle and walk, both facings, 1×, 2× and 4×, the step, and
   a refused manifest showing its reason; no script error.
+- 2026-10-13, review run 1: a manifest the server does not serve names its HTTP status ("answered 404"), and an image
+  the server lacks is listed above the stage ("Not served, left out: …") instead of being left out silently. Whether
+  a motion's sprites carry a face is not in the manifest; the playground decides it by the name `idle`, and PIX-58
+  settles it for its gestures.
 
 - 2026-10-13, before the build, from the approved PNG and the room page's draw code (`drawFace`, `idleFrame`,
   `drawFigure` of the proof of concept): the motion choice has "all" as its default, which shows every figure in every
-  motion side by side as the PNG does. A figure is assembled at sprite size, the face parts scaled smoothly as the room
-  page does, and only then zoomed without smoothing. The blank head is drawn for idle only, as on the room page. The
-  manifest names no playback, and the room page played idle back and forth: a switch "loop / back and forth" for the
-  motions on the spot (advance 0) is a viewing control of the page, default back and forth; a walk always loops.
+  motion side by side as the PNG does. A figure is assembled at sprite size, the face parts scaled smoothly because
+  their boxes have fractional sizes, and only then zoomed without smoothing. The blank head is drawn for idle only:
+  the idle sprites keep the face of their still, the walk sprites have a blank face. The manifest names no playback,
+  and the room page played idle back and forth, which hides a jump at a loop's ends: a switch "loop / back and forth"
+  for the motions on the spot (advance 0) is a viewing control of the page, default back and forth; a walk always
+  loops.
 
 ## Open questions
 
@@ -76,5 +82,5 @@ pauses and advances one frame; the frame and hold are shown.
 | --- | --- | --- | --- |
 | 1 | The page's PNG approved | the maintainer's yes on the card | sheet `pix71-plan` F1 = yes, PIX-71 comment 14088 |
 | 2 | Logic: frame at a tick, face placement, mirroring, manifest loading | unit tests | 70c27f5 |
-| 3 | The page with Canvas 2D and the controls, served by `pnpm playground` | the page in a browser, both figures and motions | d109f1c; the fixture's types in the next commit |
-| 4 | Full gate and independent review | verify-full; review record | open |
+| 3 | The page with Canvas 2D and the controls, served by `pnpm playground` | the page in a browser, both figures and motions | d109f1c, 6a6a795 |
+| 4 | Full gate and independent review | verify-full; review record | review records c6409f0, 49353db; fixes 49353db |
