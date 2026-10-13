@@ -32,6 +32,7 @@ export class PaintHandsService {
 			box: hands.box,
 			states: hands.states,
 			sequence,
+			reach: hands.reach,
 		});
 		return sequence;
 	}

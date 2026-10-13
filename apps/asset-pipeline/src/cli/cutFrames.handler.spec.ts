@@ -134,7 +134,7 @@ describe('cutFramesHandler', () => {
 
 	it('paints the motion finger states into its sprites, from the figure sources', async () => {
 		const painter = new InMemoryHandPainter();
-		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1 };
+		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1, reach: 6 };
 		const typing = { ...setup, figures: { f: { ...setup.figures.f, motions: { idle: { ...idle, hands } } } } };
 		const lines = await cutFramesHandler(
 			['f', 'idle'],
@@ -153,7 +153,7 @@ describe('cutFramesHandler', () => {
 
 	it('forgets the old cut before cutting, so a painter that fails leaves no cut to track or export', async () => {
 		const work = new InMemoryMotionWork();
-		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1 };
+		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1, reach: 6 };
 		const typing = { ...setup, figures: { f: { ...setup.figures.f, motions: { idle: { ...idle, hands } } } } };
 		const failure: unknown = await cutFramesHandler(
 			['f', 'idle'],

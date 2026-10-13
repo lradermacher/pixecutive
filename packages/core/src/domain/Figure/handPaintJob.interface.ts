@@ -12,4 +12,6 @@ export interface HandPaintJob {
 	readonly box: StillBox;
 	readonly states: readonly string[];
 	readonly sequence: readonly (number | null)[];
+	/** Sprite pixels from the last sprite's hands within which they are searched. */
+	readonly reach: number;
 }

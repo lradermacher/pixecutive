@@ -23,6 +23,7 @@ describe('headTrackConfigSchema', () => {
 		['a negative border', { border: -1 }],
 		['an ear limit of 0', { earLimit: 0 }],
 		['an ear reach of 1', { earReach: 1 }],
+		['an ear reach no farther than the ear limit', { earLimit: 4, earReach: 4 }],
 	])('refuses %s', (_, invalid) => {
 		expect(headTrackConfigSchema.safeParse(invalid).success).toBe(false);
 	});

@@ -143,7 +143,7 @@ def hands(job):
         alpha = np.clip(np.abs(s - background).sum(2) / 120, 0, 1)
         painted.append(scaled_premultiplied(s, alpha, scale))
     th, tw = template.shape[:2]
-    border, reach = max(th, tw), 6
+    border, reach = max(th, tw), job["reach"]
     positions, previous = [], None
     for path, state in zip(job["frames"], job["sequence"]):
         sprite = np.asarray(Image.open(path).convert("RGBA")).astype(np.float32)

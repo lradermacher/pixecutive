@@ -30,6 +30,7 @@ export const headTrackConfigSchema = z
 		 */
 		earReach: z.int().min(2).default(8),
 	})
-	.refine((v) => v.scaleTo > v.scaleFrom, 'the scale search runs upwards');
+	.refine((v) => v.scaleTo > v.scaleFrom, 'the scale search runs upwards')
+	.refine((v) => v.earReach > v.earLimit, 'the ear is searched farther than it may stray, or a drift is never seen');
 
 export type HeadTrackConfig = z.infer<typeof headTrackConfigSchema>;

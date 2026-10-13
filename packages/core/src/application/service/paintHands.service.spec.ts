@@ -27,7 +27,7 @@ describe('PaintHandsService', () => {
 			frames: ['00.png', '01.png', '02.png'],
 			scale: 0.35,
 			still: 'm/type-start.png',
-			hands: { box, states: ['m/a.png'], ticks: 1 },
+			hands: { box, states: ['m/a.png'], ticks: 1, reach: 6 },
 		});
 		expect([sequence, painter.jobs]).toEqual([
 			[null, 0, null],
@@ -39,6 +39,7 @@ describe('PaintHandsService', () => {
 					box,
 					states: ['m/a.png'],
 					sequence: [null, 0, null],
+					reach: 6,
 				},
 			],
 		]);

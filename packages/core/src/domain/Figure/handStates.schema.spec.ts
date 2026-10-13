@@ -9,6 +9,7 @@ describe('handStatesSchema', () => {
 			box,
 			states: ['m/type-lifted.png'],
 			ticks: 4,
+			reach: 6,
 		});
 	});
 
