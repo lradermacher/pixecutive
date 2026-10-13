@@ -3,6 +3,11 @@ paths:
   - "apps/asset-pipeline/**"
   - "apps/office-ui/assets/**"
   - "packages/infrastructure/src/adapter/Render/**"
+  - "packages/infrastructure/src/adapter/Guard/**"
+  - "packages/infrastructure/src/adapter/Video/**"
+  - "packages/infrastructure/src/adapter/Frames/**"
+  - "packages/infrastructure/src/adapter/Head/**"
+  - "packages/infrastructure/src/adapter/Asset/**"
 adr: docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md
 summary: >
   Image models draw every part from our own templates, a local video model makes every motion, nothing comes from

@@ -1,5 +1,5 @@
 # The Python environment of the adapters' pixel steps (ADR 0019: Python only as an adapter's internals, started as a
-# process). Versions are the ones the PIX-65 proof of concept ran with, measured on 2026-10-13.
+# process). The versions are the ones the shipped base figures were made with, so a step reproduces them exactly.
 [project]
 name = "pixecutive-pixel-steps"
 version = "0.0.0"

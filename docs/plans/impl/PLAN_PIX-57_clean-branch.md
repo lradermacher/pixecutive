@@ -1,6 +1,6 @@
 # PLAN PIX-57 — Clean the branch for the proven asset flow and write the hexagon down
 
-Card: PIX-57 (setup), a series with PIX-7 and PIX-56 on `feat/pix-7-skeleton-toolchain`, one pull request.
+Card: PIX-57 (setup), a series with PIX-7 and PIX-56, continued by PIX-66 and PIX-71, on `feat/pix-7-skeleton-toolchain`, one pull request.
 Goal: before the merge the branch holds only what the project uses and needs, nothing outdated reaches `main`, the
 proven asset flow of PIX-65 has its carriers, and the hexagon is explained in this repo so that nobody needs another
 project. Decided on sheet `pix57-clean-branch` (2026-10-12, F1-F8 = a, F5 = b); this plan approved on sheet

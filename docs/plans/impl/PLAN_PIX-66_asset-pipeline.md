@@ -28,10 +28,10 @@ Measured on 2026-10-13 (repo by `git ls-files`, `git grep` and reading; the proo
 | Decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used per motion, head-track verdict | new | core `domain/Figure/` (pure functions) and `application/service/` |
 | Video clip under the guard (LTX-2.3 via `ltx-2-mlx`) | new | core port `videoRenderer.interface.ts`; infrastructure `adapter/Video/` |
 | Frame measuring and cutting, edge clean-up of the light background | new | ports `frameMeasurer`, `frameCutter`; infrastructure `adapter/Frames/` with Python internals |
-| Head tracking per frame | new | port `headTracker`; infrastructure `adapter/Frames/` with Python internals |
-| Face parts scaled per motion with the head origin | new | core decision of the scale and offsets; adapter for the pixel resize |
+| Head tracking per frame | new | port `headTracker`; infrastructure `adapter/Head/` with Python internals |
+| Face parts scaled per motion with the head origin | new | the head tracker measures the scale against the still, the asset store's pixel step scales the parts and measures their offsets; the core checks the track and carries both into the manifest |
 | Asset store and figure manifest | new | port `assetStore`; infrastructure `adapter/Asset/`; manifest schema in `packages/protocol` |
-| Python environment for adapter internals | new | `packages/infrastructure/python/` (`pyproject.toml`, `uv.lock`) |
+| Python environment for adapter internals | new | `packages/infrastructure/pyproject.toml`, `uv.lock` (the package root, where `uv` finds the project) |
 | Parts by green key (Astra via the Codex CLI, key cut, despill, grey layer, main-color mark, trousers per shoe class, belts, hoods, hats, glasses, hair, face variants, in-place fixes) | not this card | PIX-70 |
 | Skill `animate-figure` | extend | names the commands |
 | Office drawing of a dressed figure (layer order, recolor, tucking) | not this card | the office cards (PIX-23 and on); kept described in `ASSEMBLY.md` |
@@ -92,6 +92,12 @@ frames numbered with two digits from 00.
 - The parts by green key (wardrobe, hair, face variants, accessories): PIX-70, split off by the maintainer.
 
 ## Changed on the way
+
+- 2026-10-13, review run 1 (14 findings, all kept): a new cut drops the motion's old head track; an export is staged
+  in `renders/export` and replaces the shipped motion only with its manifest, so a failed export keeps the office's
+  assets; only `clip` needs the video model. The inventory named the head tracker's folder, the Python environment's
+  place and who computes the face scale and offsets wrong; corrected above. The environment variables are documented
+  on `FigureSetup`, because the unit README's four sections are fixed.
 
 - 2026-10-13, decided by the maintainer: the card joins the series on `feat/pix-7-skeleton-toolchain`; no pull request
   before something is properly implemented and tested in the hexagon. The finished figure assets (about 15 MB of PNG,
@@ -157,5 +163,5 @@ frames numbered with two digits from 00.
 | 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, 4a25d08 |
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, 6880a57 |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | 3d54265, 5f62ab0 |
-| 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | this commit |
+| 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | a80fb53 |
 | 14 | Full gate and independent review | verify-full; review record | open |
