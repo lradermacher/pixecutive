@@ -72,6 +72,14 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Changed on the way
 
+- 2026-10-13, talk: the video model gave no mouth states (M's mouth stayed closed in a speaking clip, F turned her
+  head), so Astra drew the half and open mouth on each face still, one call per state, the way the brow and eye
+  variants were made; they were cut by what Astra changed around the mouth, without nose and outline. The first cut
+  was bounded by `blank2_mask`, which covers only the face parts, and cut the open mouth flat; the maintainer saw it
+  and it was cut again before approval (sheet `pix58-mouth` F1 = a, F2 = a: no chin line under the open mouth). The
+  mouth states are face parts on every motion; the playground's mouth switch lets a figure speak on any motion, five
+  syllables a second with a short pause.
+
 - 2026-10-13, decided by the maintainer (sheet `pix58-f-body` F1 = a): F's wave is try 9, whose upper body sways with
   the arm like M's (torso 7.4, legs 2.6 of a rest frame); the check holds legs and feet within 3/255 and lets the
   upper body follow. The prompt asks the shoulders and the upper body to lean and sway with the raised arm.
@@ -135,7 +143,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
-| 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | redefined on sheet `pix58-hands` F1 = a; the clip candidates rejected |
+| 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | mouth states accepted (sheet `pix58-mouth`), 64e91fc; speaking mouth in the playground 427119a; verdict open |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M c3f1eeb (sheet `pix58-wave` F3), F 23b1a06 (sheet `pix58-f-body` F1) |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
