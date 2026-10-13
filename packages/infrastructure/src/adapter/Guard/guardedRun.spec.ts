@@ -85,26 +85,35 @@ describe('guardedRun', () => {
 		expect(interrupts.listenerCount('SIGINT')).toBe(0);
 	});
 
+	// The child holds the output pipe, so the run ends only once the child is gone; it would sleep 30 s on its own.
 	it('stops every process the model started, not only the model', async () => {
 		const pidFile = join(mkdtempSync(join(tmpdir(), 'guarded-')), 'child.pid');
 		const interrupts = new EventEmitter();
-		// The interrupt comes once the child runs, so the guard has a child to stop.
 		const started = setInterval(() => {
-			if (existsSync(pidFile) && readFileSync(pidFile, 'utf8').trim() !== '') {
-				clearInterval(started);
-				interrupts.emit('SIGINT');
-			}
+			if (existsSync(pidFile) && readFileSync(pidFile, 'utf8').trim() !== '') interrupts.emit('SIGINT');
 		}, 10);
-		const outcome = await run([model(`sleep 5 & echo $! > ${pidFile}; wait`)], hooks(), undefined, interrupts);
-		const alive = (pid: number): boolean => {
-			try {
-				process.kill(pid, 0);
-				return true;
-			} catch {
-				return false;
-			}
-		};
-		expect([outcome.end, alive(Number(readFileSync(pidFile, 'utf8')))]).toEqual([RunEnd.Interrupted, false]);
+		const startedAt = Date.now();
+		const outcome = await run([model(`sleep 30 & echo $! > ${pidFile}; wait`)], hooks(), undefined, interrupts).finally(
+			() => {
+				clearInterval(started);
+			},
+		);
+		expect([outcome.end, Date.now() - startedAt < 2000]).toEqual([RunEnd.Interrupted, true]);
+	});
+
+	it('stops every process the model started when the guard itself exits', async () => {
+		const pidFile = join(mkdtempSync(join(tmpdir(), 'guarded-')), 'child.pid');
+		const interrupts = new EventEmitter();
+		const started = setInterval(() => {
+			if (existsSync(pidFile) && readFileSync(pidFile, 'utf8').trim() !== '') interrupts.emit('exit');
+		}, 10);
+		const startedAt = Date.now();
+		const outcome = await run([model(`sleep 30 & echo $! > ${pidFile}; wait`)], hooks(), undefined, interrupts).finally(
+			() => {
+				clearInterval(started);
+			},
+		);
+		expect([outcome.end, Date.now() - startedAt < 2000]).toEqual([RunEnd.Interrupted, true]);
 	});
 
 	it('stops the model when a mark fails and names the failure', async () => {

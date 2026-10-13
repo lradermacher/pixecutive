@@ -89,7 +89,7 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 			resolve(outcome());
 			return;
 		}
-		/** Sends `signal` to the model's process group; a group already gone leaves only the model itself to ask. */
+		/** Sends `signal` to the model's process group; where that is refused, as for a model that left its group, the model alone. */
 		const kill = (signal: NodeJS.Signals): void => {
 			try {
 				if (child.pid !== undefined) process.kill(-child.pid, signal);
@@ -130,6 +130,12 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 			kill(interrupts > 1 ? 'SIGKILL' : 'SIGTERM');
 		};
 		for (const signal of interruptSignals) setup.interrupts.on(signal, interrupt);
+		// The group left the terminal, so no Ctrl-C reaches it once the guard is gone: its own exit takes the group along.
+		const exit = (): void => {
+			stop(RunEnd.Interrupted, 'the guard exited');
+			kill('SIGKILL');
+		};
+		setup.interrupts.on('exit', exit);
 		const watch = setInterval(() => {
 			let now: MemoryReading;
 			try {
@@ -150,6 +156,7 @@ export function guardedRun(setup: GuardedRunSetup, hooks: GuardedRunHooks): Prom
 		child.on('close', (code, signal) => {
 			clearInterval(watch);
 			for (const name of interruptSignals) setup.interrupts.off(name, interrupt);
+			setup.interrupts.off('exit', exit);
 			const said = hooks.complaint();
 			// A model killed by a signal has no exit code; the signal says what ended it.
 			const ended = code === null ? `signal ${signal ?? 'unknown'}` : `exit ${String(code)}`;
