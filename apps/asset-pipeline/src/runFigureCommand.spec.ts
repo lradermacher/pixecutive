@@ -25,9 +25,10 @@ async function failure(
 	command: FigureCommand,
 	args: string[],
 	model = '/hub/ltx',
+	extra: Record<string, string> = {},
 ): Promise<[FigureExceptionKey, string] | null> {
 	const renders = mkdtempSync(join(tmpdir(), 'figure-command-'));
-	const env = { PIX_RENDERS_DIR: renders, PIX_LTX_MODEL: model, PIX_FIGURE_SOURCES: join(renders, 'none') };
+	const env = { PIX_RENDERS_DIR: renders, PIX_LTX_MODEL: model, PIX_FIGURE_SOURCES: join(renders, 'none'), ...extra };
 	const error: unknown = await runFigureCommand(command, args, env, new RenderMachineLocalAdapter(), guard).then(
 		() => null,
 		(caught: unknown) => caught,
@@ -90,7 +91,10 @@ describe('runFigureCommand', () => {
 		async () => {
 			const [cut, draw] = [
 				await failure(PipelineCommand.Cut, ['m', 'glasses', '1']),
-				await failure(PipelineCommand.Draw, ['m', 'glasses', '1'], '/hub/ltx'),
+				// a Codex CLI that is not there, so the run is the same on a machine with Codex and on one without
+				await failure(PipelineCommand.Draw, ['m', 'glasses', '1'], '/hub/ltx', {
+					PIX_CODEX: join(tmpdir(), 'no-codex'),
+				}),
 			];
 			expect([cut?.[0], draw?.[0]]).toEqual([FigureExceptionKey.CutFailed, FigureExceptionKey.DrawFailed]);
 		},
