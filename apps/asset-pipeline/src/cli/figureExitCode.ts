@@ -19,4 +19,6 @@ export const figureExitCode: Readonly<Record<FigureExceptionKey, ExitAnswer>> = 
 	[FigureExceptionKey.TrackFailed]: { code: 22, message: 'The head could not be tracked' },
 	[FigureExceptionKey.HeadDrift]: { code: 23, message: 'The ear strayed from the head; the face would slide' },
 	[FigureExceptionKey.StorageFailed]: { code: 24, message: 'The renders or asset folder cannot be written or read' },
+	[FigureExceptionKey.DrawFailed]: { code: 25, message: 'The image model delivered no drawing' },
+	[FigureExceptionKey.DrawQuota]: { code: 26, message: "The image model's quota is used up; try again later" },
 });

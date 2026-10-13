@@ -13,3 +13,5 @@ export { HeadTrackerOpencvAdapter } from './adapter/Head/headTracker-opencv.adap
 export type { PythonEnvironment, PythonScriptConfig } from './adapter/Python/pythonStep.ts';
 export { AssetStoreFilesAdapter, type AssetStoreConfig } from './adapter/Asset/assetStore-files.adapter.ts';
 export { MotionWorkFilesAdapter } from './adapter/Work/motionWork-files.adapter.ts';
+export { ImageEditorCodexAdapter } from './adapter/Draw/imageEditor-codex.adapter.ts';
+export { codexBinary } from './adapter/Draw/codexBinary.ts';

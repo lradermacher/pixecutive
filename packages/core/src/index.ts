@@ -61,3 +61,5 @@ export { gridLayoutSchema, type GridLayout } from './domain/Figure/gridLayout.sc
 export { headPartsSpecSchema, type HeadPartsSpec } from './domain/Figure/headPartsSpec.schema.ts';
 export { headCutConfigSchema, type HeadCutConfig } from './domain/Figure/headCutConfig.schema.ts';
 export { HeadPartsService } from './application/service/headParts.service.ts';
+export type { ImageEditJob } from './domain/Figure/imageEditJob.interface.ts';
+export type { IImageEditor } from './port/outgoing/imageEditor.interface.ts';

@@ -116,7 +116,7 @@ folder, which is not in git.
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Core: head kinds, variant ids, layer order, hide and open-top rule, lift with clamp, grid layouts, M → F offsets, cut thresholds as a config schema | core unit tests green | a6ef273 |
-| 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | open |
+| 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | 9921684 |
 | 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | open |
 | 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | open |
 | 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | open |
@@ -145,3 +145,12 @@ folder, which is not in git.
   - They are our own files, derived from our approved still. The grids are rebuilt exactly from them (step 5).
 - **Which F glasses and hats were warped from M is not recorded.** Decided, not asked: F's backup layers ship as
   F's own, and the warp stays a command option for new ones.
+
+## Changed on the way
+
+- 2026-10-13, step 3:
+  - The Codex CLI is found as the newest ChatGPT extension of VS Code (`codexBinary`). The app may name another one
+    through its environment. The local config holds no machine paths so far, and the extension updates itself.
+  - The drawing is not resized when it arrives: every cut resizes its input to the template first, as the proof of
+    concept did, so the editor only checks that the drawing is there.
+  - Two keys are new: `figure.draw_failed` and `figure.draw_quota`, with exit codes 25 and 26.
