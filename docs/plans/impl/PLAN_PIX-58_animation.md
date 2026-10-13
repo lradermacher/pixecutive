@@ -47,8 +47,8 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
   mouth and go to the maintainer as one PNG first. Check: each state compared zoomed with the closed mouth and placed
   on every idle frame by the head origin.
 - **wave** (slow loop, 97 frames): the arm away from the head rises out to the side to shoulder height, the open hand
-  waves three times, the arm lowers; everything else as idle, the body may follow the arm slightly. Check: torso and
-  legs within 3/255 of a rest frame, the hand inside the clip and the head blank in every frame.
+  waves three times, the arm lowers; the upper body may follow the arm, the feet stay. Check: legs and feet within
+  3/255 of a rest frame, the hand inside the clip and the head blank in every frame.
 - **sit** (loop on a seated still): sitting upright on an office chair, breathing and blinking as idle. The seated
   still comes from the last frame of a sit-down clip and goes to the maintainer as one PNG first.
 - **type** (loop on the seated still at a desk): both forearms on the desk, fingers tapping, small head movements
@@ -69,6 +69,10 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 - Real-time blending between gestures.
 
 ## Changed on the way
+
+- 2026-10-13, decided by the maintainer (sheet `pix58-f-body` F1 = a): F's wave is try 9, whose upper body sways with
+  the arm like M's (torso 7.4, legs 2.6 of a rest frame); the check holds legs and feet within 3/255 and lets the
+  upper body follow. The prompt asks the shoulders and the upper body to lean and sway with the raised arm.
 
 - 2026-10-13, decided by the maintainer (sheet `pix58-wave`): F1 = a, the arm away from the head waves (the near arm
   passes the head: F's tries melted, painted a face, left the clip, rested on the forehead); F2 = a, torso and legs
