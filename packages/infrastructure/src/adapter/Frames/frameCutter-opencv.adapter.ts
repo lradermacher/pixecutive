@@ -22,7 +22,7 @@ export class FrameCutterOpencvAdapter implements IFrameCutter {
 	constructor(private readonly config: PythonScriptConfig) {}
 
 	/** Cuts the planned frames; sprites of an earlier cut of the same clip are removed first. */
-	cut(clip: string, plan: FramePlan, values: FrameCutConfig): Promise<CutResult> {
+	async cut(clip: string, plan: FramePlan, values: FrameCutConfig): Promise<CutResult> {
 		const folder = join(clip.replace(/\.mp4$/, ''));
 		try {
 			rmSync(folder, { recursive: true, force: true });

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { FigureException, FigureExceptionKey, frameCutConfigSchema, type FramePlan } from '@pixecutive/core';
@@ -90,4 +90,16 @@ describe('FrameCutterOpencvAdapter', () => {
 		},
 		PYTHON_START_MS,
 	);
+
+	it('names a sprite folder it cannot clear with the storage key, before Python starts', async () => {
+		const clips = mkdtempSync(join(tmpdir(), 'cut-locked-'));
+		mkdirSync(join(clips, 'idle'));
+		writeFileSync(join(clips, 'idle', '00.png'), 'old');
+		chmodSync(clips, 0o555);
+		const failure: unknown = await new FrameCutterOpencvAdapter({ python, script })
+			.cut(join(clips, 'idle.mp4'), plan, values)
+			.catch((error: unknown) => error);
+		chmodSync(clips, 0o755);
+		expect(failure instanceof FigureException && failure.key).toBe(FigureExceptionKey.StorageFailed);
+	});
 });

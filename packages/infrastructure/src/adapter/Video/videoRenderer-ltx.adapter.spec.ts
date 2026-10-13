@@ -41,12 +41,17 @@ function fakeUv(dir: string, body = 'printf x > "$out"'): string {
 	return path;
 }
 
-/** An adapter on a throwaway renders folder with the memory readings given in turn (the last one repeats). */
+/**
+ * An adapter on a throwaway renders folder with the memory readings given in turn (the last one repeats), or with
+ * `read` as the memory reader.
+ */
 function adapter(
 	readings: MemoryReading[] = [{ pressure: 1, swapMb: 0 }],
 	body?: string,
-): { renderer: VideoRendererLtxAdapter; dir: string } {
+	read?: () => MemoryReading,
+): { renderer: VideoRendererLtxAdapter; dir: string; interrupts: EventEmitter } {
 	const dir = mkdtempSync(join(tmpdir(), 'clips-'));
+	const interrupts = new EventEmitter();
 	let reads = 0;
 	const renderer = new VideoRendererLtxAdapter({
 		rendersDir: dir,
@@ -57,10 +62,11 @@ function adapter(
 		frameRate: 24,
 		size: 768,
 		intervalMs: 20,
-		readMemory: (): MemoryReading => readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 },
-		interrupts: new EventEmitter(),
+		readMemory:
+			read ?? ((): MemoryReading => readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 }),
+		interrupts,
 	});
-	return { renderer, dir };
+	return { renderer, dir, interrupts };
 }
 
 async function failureKey(render: Promise<unknown>): Promise<FigureExceptionKey | null> {
@@ -128,6 +134,21 @@ describe('VideoRendererLtxAdapter', () => {
 			'exec sleep 5',
 		);
 		expect(await failureKey(renderer.render(job))).toBe(FigureExceptionKey.Aborted);
+		expect(existsSync(join(dir, 'clips', 'm-idle.mp4'))).toBe(false);
+	});
+
+	it('refuses the start when the memory cannot be read', async () => {
+		const { renderer } = adapter(undefined, undefined, () => {
+			throw new FigureException(FigureExceptionKey.MemoryUnreadable, 'memory_pressure is missing');
+		});
+		expect(await failureKey(renderer.render(job))).toBe(FigureExceptionKey.MemoryUnreadable);
+	});
+
+	it('stops the model when the session is interrupted and keeps no clip', async () => {
+		const { renderer, dir, interrupts } = adapter(undefined, 'exec sleep 5');
+		const render = failureKey(renderer.render(job));
+		setTimeout(() => interrupts.emit('SIGINT'), 200);
+		expect(await render).toBe(FigureExceptionKey.Interrupted);
 		expect(existsSync(join(dir, 'clips', 'm-idle.mp4'))).toBe(false);
 	});
 

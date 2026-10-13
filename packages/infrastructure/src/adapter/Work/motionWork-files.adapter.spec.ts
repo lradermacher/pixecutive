@@ -62,4 +62,11 @@ describe('MotionWorkFilesAdapter', () => {
 			FigureExceptionKey.StorageFailed,
 		);
 	});
+
+	it('names a work folder it cannot write with the storage key', async () => {
+		const blocked = join(mkdtempSync(join(tmpdir(), 'work-')), 'file');
+		writeFileSync(blocked, 'not a folder');
+		const result = await failure(new MotionWorkFilesAdapter(blocked).saveCut(FigureName.M, Motion.Idle, cut));
+		expect(result?.[0]).toBe(FigureExceptionKey.StorageFailed);
+	});
 });
