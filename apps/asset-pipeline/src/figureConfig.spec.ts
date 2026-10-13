@@ -46,15 +46,17 @@ function failure(run: () => unknown): string | null {
 describe('figureConfig', () => {
 	it('builds the paths from the repo and the renders folder, and reads the data file there', () => {
 		const setup = figureConfig({ HOME: '/h' }, new InMemoryRenderMachine(), read);
-		expect([setup.clip.rendersDir, setup.clip.ltxProject, setup.clip.model]).toEqual([
+		const clip = setup.clip();
+		expect([clip.rendersDir, clip.ltxProject, clip.model]).toEqual([
 			'/repo/renders',
 			'/h/deps/ltx-2-mlx',
 			'/hub/ltx',
 		]);
-		expect([setup.sources, setup.assets, setup.work]).toEqual([
+		expect([setup.sources, setup.assets, setup.work, setup.staging]).toEqual([
 			'/repo/renders/figures',
 			'/repo/apps/office-ui/assets/figures',
 			'/repo/renders/work',
+			'/repo/renders/export',
 		]);
 		expect([setup.scripts.frames, setup.python.project]).toEqual([
 			'/repo/packages/infrastructure/src/adapter/Frames/frames.py',
@@ -67,13 +69,23 @@ describe('figureConfig', () => {
 	it('takes the environment before the machine', () => {
 		const env = { PIX_RENDERS_DIR: '/r', PIX_LTX_MODEL: '/m', PIX_FIGURE_SOURCES: '/s', PIX_UV: '/bin/uv' };
 		const setup = figureConfig(env, new InMemoryRenderMachine(), read);
-		expect([setup.clip.model, setup.sources, setup.work, setup.python.uv]).toEqual(['/m', '/s', '/r/work', '/bin/uv']);
+		expect([setup.clip().model, setup.sources, setup.work, setup.python.uv]).toEqual([
+			'/m',
+			'/s',
+			'/r/work',
+			'/bin/uv',
+		]);
 	});
 
-	it('names the variable to set when the video model is nowhere', () => {
-		expect(failure(() => figureConfig({}, new InMemoryRenderMachine(null), read))).toMatch(
+	it('names the variable to set when the clip command finds the video model nowhere', () => {
+		expect(failure(() => figureConfig({}, new InMemoryRenderMachine(null), read).clip())).toMatch(
 			/^model \(PIX_LTX_MODEL\): /,
 		);
+	});
+
+	it('sets up frames, track and export on a machine without the video model', () => {
+		const setup = figureConfig({}, new InMemoryRenderMachine(null), read);
+		expect([setup.rendersDir, setup.staging]).toEqual(['/repo/renders', '/repo/renders/export']);
 	});
 
 	it('names the data file when it is no figure spec', () => {

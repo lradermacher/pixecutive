@@ -79,7 +79,7 @@ const idle = {
 	trackStill: 'o.png',
 };
 const setup = {
-	clip: { rendersDir: '/r' },
+	rendersDir: '/r',
 	figures: { f: { ear: { left: 1, top: 1, right: 9, bottom: 9 }, face: {}, motions: { idle } } },
 	cut: frameCutConfigSchema.parse({}),
 } as unknown as FigureSetup;

@@ -1,7 +1,7 @@
-// assetStore-files.adapter.ts — writes a figure's office assets into the asset folder: sprites with their edges
-// cleaned, face parts at a motion's scale (both by the Python pixel step beside this adapter) and the manifest,
-// checked by the protocol's schema before it is written.
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+// assetStore-files.adapter.ts — writes a figure's office assets: sprites with cleaned edges and face parts at a
+// motion's scale (by the Python pixel step beside it), staged outside the asset folder and shipped only with the
+// manifest the protocol's schema accepts, so a failed export leaves the office's assets as they were.
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import {
 	type ExportConfig,
@@ -37,7 +37,15 @@ const wirePart: Readonly<Record<FacePart, WireFacePart>> = Object.freeze({
 export interface AssetStoreConfig extends PythonScriptConfig {
 	/** `apps/office-ui/assets/figures` of the repo. */
 	readonly root: string;
+	/** A folder outside the asset folder where an export is written before it replaces the shipped motion. */
+	readonly staging: string;
 }
+
+/** The two folders one motion of one figure fills: its sprites and its face parts. */
+const motionFolders = (figure: FigureName, motion: Motion): string[] => [
+	join(figure, 'body', motion),
+	join(figure, 'face', motion),
+];
 
 /** The pixel step's answer to `clean`: the files it wrote. */
 const writtenFiles: AnswerSchema<string[]> = {
@@ -136,7 +144,11 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		}));
 	}
 
-	/** Puts the motion into `manifest.json`, keeping every other figure and motion; the result must pass the schema. */
+	/**
+	 * Replaces the motion's shipped sprites and face parts with the staged ones and puts the motion into
+	 * `manifest.json`, keeping every other figure and motion; the result must pass the schema and name only files
+	 * that are there.
+	 */
 	putMotion(figure: FigureName, motion: Motion, asset: MotionAsset): Promise<void> {
 		// Inside the executor every failure, also one reading the old manifest, becomes the promise's rejection.
 		return new Promise((resolve) => {
@@ -160,6 +172,12 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 			});
 			if (!after.success)
 				throw new FigureException(FigureExceptionKey.StorageFailed, `manifest: ${after.error.message}`);
+			this.ship(figure, motion);
+			const missing = [...asset.frames, ...asset.face]
+				.map((f) => f.file)
+				.filter((file) => !existsSync(join(this.config.root, file)));
+			if (missing.length > 0)
+				throw new FigureException(FigureExceptionKey.StorageFailed, `missing ${missing.join(', ')}`);
 			onDisk('write the manifest', () => {
 				writeFileSync(path, `${JSON.stringify(after.data, null, '\t')}\n`);
 			});
@@ -180,9 +198,23 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return parsed.data;
 	}
 
-	/** An emptied folder under the root for one figure's motion. */
+	/** Moves what is staged for the motion over its shipped folders; a folder nothing was staged for stays. */
+	private ship(figure: FigureName, motion: Motion): void {
+		for (const sub of motionFolders(figure, motion)) {
+			const staged = join(this.config.staging, sub);
+			if (!existsSync(staged)) continue;
+			onDisk(`ship ${sub}`, () => {
+				const shipped = join(this.config.root, sub);
+				rmSync(shipped, { recursive: true, force: true });
+				cpSync(staged, shipped, { recursive: true });
+				rmSync(staged, { recursive: true, force: true });
+			});
+		}
+	}
+
+	/** An emptied staging folder for one figure's motion. */
 	private fresh(sub: string): string {
-		const folder = join(this.config.root, sub);
+		const folder = join(this.config.staging, sub);
 		onDisk(`clear ${sub}`, () => {
 			rmSync(folder, { recursive: true, force: true });
 			mkdirSync(folder, { recursive: true });
@@ -190,7 +222,7 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return folder;
 	}
 
-	/** Runs the Python pixel step, then holds every file in the asset folder to the size limit. */
+	/** Runs the Python pixel step, then holds every staged file to the size limit. */
 	private async step<T>(args: readonly string[], schema: AnswerSchema<T>): Promise<T> {
 		const answer = await pixelStep(
 			this.config.python,
@@ -208,17 +240,17 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return answer;
 	}
 
-	/** Every file under the root. */
+	/** Every staged file. */
 	private files(): string[] {
-		return onDisk('list the asset folder', () =>
-			readdirSync(this.config.root, { recursive: true, withFileTypes: true })
+		return onDisk('list the staging folder', () =>
+			readdirSync(this.config.staging, { recursive: true, withFileTypes: true })
 				.filter((entry) => entry.isFile())
 				.map((entry) => join(entry.parentPath, entry.name)),
 		);
 	}
 
-	/** A file's path relative to the root, as the manifest names it. */
+	/** A staged file's path relative to the staging folder, which is its path in the asset folder once shipped. */
 	private within(file: string): string {
-		return relative(this.config.root, file);
+		return relative(this.config.staging, file);
 	}
 }

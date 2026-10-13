@@ -16,7 +16,7 @@ export async function cutFramesHandler(
 ): Promise<string[]> {
 	const { figure, motion, motionSpec } = figureMotion(args, setup.figures);
 	const cut = await service.cut({
-		clip: VideoRendererLtxAdapter.clipOf(setup.clip.rendersDir, figure, motion),
+		clip: VideoRendererLtxAdapter.clipOf(setup.rendersDir, figure, motion),
 		mode: motionSpec.mode,
 		values: setup.cut,
 		...(motionSpec.range ? { range: motionSpec.range } : {}),

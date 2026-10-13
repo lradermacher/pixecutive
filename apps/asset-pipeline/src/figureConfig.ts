@@ -1,5 +1,6 @@
 // figureConfig.ts — the motion chain's configuration: paths from the environment, then what the machine offers; the
-// figures' specs from the data file; the values every step uses. Parsed once at the start.
+// figures' specs from the data file; the values every step uses. Parsed once at the start; the video model's part
+// only by the clip command, so frames, track and export run on a machine without it.
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -22,13 +23,21 @@ import type { PythonEnvironment } from '@pixecutive/infrastructure';
 
 /** Everything the motion chain's commands need. */
 export interface FigureSetup {
-	readonly clip: ClipConfig;
+	/**
+	 * Parses where the video model lives; only the clip command needs it.
+	 * @throws {FigureException} the invalid configuration key, each wrong field named with its variable.
+	 */
+	readonly clip: () => ClipConfig;
+	/** The renders folder: clips, work and staged exports. */
+	readonly rendersDir: string;
 	/** Where the figures' stills and face parts lie (not in the repo: images live only in the office's asset folder). */
 	readonly sources: string;
 	/** `apps/office-ui/assets/figures` of the repo. */
 	readonly assets: string;
 	/** Where the commands leave their work for the next one. */
 	readonly work: string;
+	/** Where an export is written before it replaces the shipped motion in the asset folder. */
+	readonly staging: string;
 	/** `apps/asset-pipeline/data`: the figures' specs and the prompts. */
 	readonly data: string;
 	readonly python: PythonEnvironment;
@@ -48,21 +57,18 @@ const variableOf: Readonly<Record<string, string>> = Object.freeze({
 });
 
 /**
- * Parses the configuration once at the start; `env`, `machine` and `read` are passed in so tests set them. None of
- * the values is a secret, so each has a default.
- * @throws {FigureException} the invalid configuration key, each wrong field named with its variable, or the data
- * file's problem.
+ * Parses the clip's part of the configuration.
+ * @throws {FigureException} the invalid configuration key, each wrong field named with its variable.
  */
-export function figureConfig(
+function clipConfig(
 	env: Readonly<Record<string, string | undefined>>,
 	machine: IRenderMachine,
-	read: (path: string) => string = (path) => readFileSync(path, 'utf8'),
-): FigureSetup {
-	const repo = machine.repoRoot();
-	const rendersDir = env['PIX_RENDERS_DIR'] ?? join(repo, 'renders');
+	rendersDir: string,
+	uv: string,
+): ClipConfig {
 	const clip = clipConfigSchema.safeParse({
 		rendersDir,
-		uv: env['PIX_UV'] ?? 'uv',
+		uv,
 		ltxProject: env['PIX_LTX_PROJECT'] ?? join(env['HOME'] ?? homedir(), 'deps', 'ltx-2-mlx'),
 		model: env['PIX_LTX_MODEL'] ?? machine.cachedVideoModel() ?? '',
 	});
@@ -73,6 +79,22 @@ export function figureConfig(
 		});
 		throw new FigureException(FigureExceptionKey.InvalidConfig, fields.join('; '));
 	}
+	return clip.data;
+}
+
+/**
+ * Parses the configuration once at the start; `env`, `machine` and `read` are passed in so tests set them. None of
+ * the values is a secret, so each has a default.
+ * @throws {FigureException} the invalid configuration key with the data file's problem.
+ */
+export function figureConfig(
+	env: Readonly<Record<string, string | undefined>>,
+	machine: IRenderMachine,
+	read: (path: string) => string = (path) => readFileSync(path, 'utf8'),
+): FigureSetup {
+	const repo = machine.repoRoot();
+	const rendersDir = env['PIX_RENDERS_DIR'] ?? join(repo, 'renders');
+	const uv = env['PIX_UV'] ?? 'uv';
 	const data = join(repo, 'apps', 'asset-pipeline', 'data');
 	const specFile = join(data, 'figures.json');
 	let raw: unknown;
@@ -86,12 +108,14 @@ export function figureConfig(
 		throw new FigureException(FigureExceptionKey.InvalidConfig, `${specFile}: ${figures.error.message}`);
 	const adapters = join(repo, 'packages', 'infrastructure', 'src', 'adapter');
 	return {
-		clip: clip.data,
+		clip: () => clipConfig(env, machine, rendersDir, uv),
+		rendersDir,
 		sources: env['PIX_FIGURE_SOURCES'] ?? join(rendersDir, 'figures'),
 		assets: join(repo, 'apps', 'office-ui', 'assets', 'figures'),
 		work: join(rendersDir, 'work'),
+		staging: join(rendersDir, 'export'),
 		data,
-		python: { uv: clip.data.uv, project: join(repo, 'packages', 'infrastructure') },
+		python: { uv, project: join(repo, 'packages', 'infrastructure') },
 		scripts: {
 			frames: join(adapters, 'Frames', 'frames.py'),
 			head: join(adapters, 'Head', 'head.py'),

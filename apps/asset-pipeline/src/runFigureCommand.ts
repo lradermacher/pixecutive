@@ -38,7 +38,7 @@ export interface GuardSetup {
  * Runs one motion chain command and answers its lines.
  * @throws {FigureException} with the key of the failure.
  */
-export function runFigureCommand(
+export async function runFigureCommand(
 	command: FigureCommand,
 	args: readonly string[],
 	env: Readonly<Record<string, string | undefined>>,
@@ -53,7 +53,7 @@ export function runFigureCommand(
 			return renderClipHandler(
 				args,
 				setup,
-				new RenderClipService(new VideoRendererLtxAdapter({ ...setup.clip, ...guard })),
+				new RenderClipService(new VideoRendererLtxAdapter({ ...setup.clip(), ...guard })),
 			);
 		case PipelineCommand.Frames:
 			return cutFramesHandler(
@@ -74,7 +74,12 @@ export function runFigureCommand(
 				args,
 				setup,
 				new ExportMotionService(
-					new AssetStoreFilesAdapter({ python: setup.python, script: setup.scripts.assets, root: setup.assets }),
+					new AssetStoreFilesAdapter({
+						python: setup.python,
+						script: setup.scripts.assets,
+						root: setup.assets,
+						staging: setup.staging,
+					}),
 				),
 				work,
 			);

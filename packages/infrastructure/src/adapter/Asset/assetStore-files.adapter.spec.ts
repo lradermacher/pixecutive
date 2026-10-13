@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import {
 	exportConfigSchema,
 	FacePart,
@@ -47,9 +47,16 @@ async function sources(): Promise<{ dir: string; sprites: string[]; big: string 
 	return { dir, sprites: [join(dir, 's0.png'), join(dir, 's1.png')], big: join(dir, 'big.png') };
 }
 
-function store(): { adapter: AssetStoreFilesAdapter; root: string } {
+function store(): { adapter: AssetStoreFilesAdapter; root: string; staging: string } {
 	const root = mkdtempSync(join(tmpdir(), 'figures-'));
-	return { adapter: new AssetStoreFilesAdapter({ python, script, root }), root };
+	const staging = mkdtempSync(join(tmpdir(), 'staging-'));
+	return { adapter: new AssetStoreFilesAdapter({ python, script, root, staging }), root, staging };
+}
+
+/** Puts `content` at `file` under `dir`, creating its folders. */
+function place(dir: string, file: string, content = 'png'): void {
+	mkdirSync(dirname(join(dir, file)), { recursive: true });
+	writeFileSync(join(dir, file), content);
 }
 
 const asset = (frames: string[]): MotionAsset => ({
@@ -63,25 +70,47 @@ const asset = (frames: string[]): MotionAsset => ({
 
 describe('AssetStoreFilesAdapter', () => {
 	it(
-		'writes the sprites into the motion folder and answers their files and size',
+		'stages the sprites and answers their files as the asset folder will name them, and their size',
 		async () => {
-			const { adapter, root } = store();
+			const { adapter, root, staging } = store();
 			const { sprites } = await sources();
 			const stored = await adapter.putFrames(FigureName.M, Motion.Idle, sprites, values);
 			expect(stored).toEqual({ files: ['m/body/idle/00.png', 'm/body/idle/01.png'], width: 30, height: 60 });
-			expect(existsSync(join(root, 'm/body/idle/01.png'))).toBe(true);
+			expect([existsSync(join(staging, 'm/body/idle/01.png')), existsSync(join(root, 'm/body'))]).toEqual([
+				true,
+				false,
+			]);
 		},
 		PYTHON_START_MS,
 	);
 
 	it(
-		'replaces the frames an earlier export of the motion left',
+		'replaces the frames an earlier export of the motion left once the manifest takes the new ones',
 		async () => {
 			const { adapter, root } = store();
-			mkdirSync(join(root, 'm/body/idle'), { recursive: true });
-			writeFileSync(join(root, 'm/body/idle/07.png'), 'stale');
-			await adapter.putFrames(FigureName.M, Motion.Idle, (await sources()).sprites, values);
-			expect(existsSync(join(root, 'm/body/idle/07.png'))).toBe(false);
+			place(root, 'm/body/idle/07.png', 'stale');
+			const { files } = await adapter.putFrames(FigureName.M, Motion.Idle, (await sources()).sprites, values);
+			await adapter.putMotion(FigureName.M, Motion.Idle, { ...asset(files), face: [] });
+			expect([existsSync(join(root, 'm/body/idle/07.png')), existsSync(join(root, 'm/body/idle/01.png'))]).toEqual([
+				false,
+				true,
+			]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'leaves the shipped motion as it was when an export fails before its manifest',
+		async () => {
+			const { adapter, root } = store();
+			place(root, 'm/body/idle/00.png', 'shipped');
+			const failure: unknown = await adapter
+				.putFrames(FigureName.M, Motion.Idle, [join(root, 'no-such-sprite.png')], values)
+				.catch((error: unknown) => error);
+			expect([
+				failure instanceof FigureException && failure.key,
+				readFileSync(join(root, 'm/body/idle/00.png'), 'utf8'),
+			]).toEqual([FigureExceptionKey.StorageFailed, 'shipped']);
 		},
 		PYTHON_START_MS,
 	);
@@ -112,12 +141,25 @@ describe('AssetStoreFilesAdapter', () => {
 	);
 
 	it('records motions in the manifest, keeping the others, in a form the protocol accepts', async () => {
-		const { adapter, root } = store();
+		const { adapter, root, staging } = store();
+		for (const file of ['m/body/idle/00.png', 'm/body/walk/00.png', 'm/body/walk/01.png', 'm/face/idle/mouth.png'])
+			place(staging, file);
 		await adapter.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png']));
 		await adapter.putMotion(FigureName.M, Motion.Walk, asset(['m/body/walk/00.png', 'm/body/walk/01.png']));
 		const manifest = figureManifestSchema.parse(JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8')));
 		expect(Object.keys(manifest.figures['m']?.motions ?? {})).toEqual(['idle', 'walk']);
 		expect(manifest.figures['m']?.motions['walk']?.face['mouth']?.x).toBe(1);
+	});
+
+	it('refuses a manifest that would name a file that is not there', async () => {
+		const { adapter, root } = store();
+		const failure: unknown = await adapter
+			.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png']))
+			.catch((error: unknown) => error);
+		expect([failure instanceof FigureException && failure.detail, existsSync(join(root, 'manifest.json'))]).toEqual([
+			'missing m/body/idle/00.png, m/face/idle/mouth.png',
+			false,
+		]);
 	});
 
 	it('refuses to build on a manifest the protocol refuses', async () => {

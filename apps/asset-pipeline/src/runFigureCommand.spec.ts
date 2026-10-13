@@ -16,10 +16,17 @@ const guard = {
 	interrupts: new EventEmitter(),
 };
 
-/** Runs a command of this repo's data file against empty renders and sources folders; answers the key and detail. */
-async function failure(command: FigureCommand, args: string[]): Promise<[FigureExceptionKey, string] | null> {
+/**
+ * Runs a command of this repo's data file against empty renders and sources folders, with the video model at
+ * `model`; answers the key and detail.
+ */
+async function failure(
+	command: FigureCommand,
+	args: string[],
+	model = '/hub/ltx',
+): Promise<[FigureExceptionKey, string] | null> {
 	const renders = mkdtempSync(join(tmpdir(), 'figure-command-'));
-	const env = { PIX_RENDERS_DIR: renders, PIX_LTX_MODEL: '/hub/ltx', PIX_FIGURE_SOURCES: join(renders, 'none') };
+	const env = { PIX_RENDERS_DIR: renders, PIX_LTX_MODEL: model, PIX_FIGURE_SOURCES: join(renders, 'none') };
 	const error: unknown = await runFigureCommand(command, args, env, new RenderMachineLocalAdapter(), guard).then(
 		() => null,
 		(caught: unknown) => caught,
@@ -38,6 +45,17 @@ describe('runFigureCommand', () => {
 		'wires the frames command to the frame adapters, which cannot read a clip that is not there',
 		async () => {
 			expect((await failure(PipelineCommand.Frames, ['m', 'idle']))?.[0]).toBe(FigureExceptionKey.FramesFailed);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'runs frames on a machine without the video model, which only the clip command needs',
+		async () => {
+			expect([
+				(await failure(PipelineCommand.Frames, ['m', 'idle'], ''))?.[0],
+				(await failure(PipelineCommand.Clip, ['m', 'idle'], ''))?.[0],
+			]).toEqual([FigureExceptionKey.FramesFailed, FigureExceptionKey.InvalidConfig]);
 		},
 		PYTHON_START_MS,
 	);
