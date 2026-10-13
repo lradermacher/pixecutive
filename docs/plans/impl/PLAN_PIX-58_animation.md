@@ -67,6 +67,15 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Changed on the way
 
+- 2026-10-13, night: talk and wave for M and F rendered through the commands (8 clips, about 3.5 min each, one at a
+  time under the guard). Talk try 1 froze, because its prompt said mostly what stays still; try 2 made one wide
+  gesture (M's head turned 3.5 px, refused by the guard); try 3 made one small held gesture (M passes, F crouched and
+  was refused). Candidates in the asset folder, uncommitted until the maintainer's verdict: M talk try 3, F talk try 2.
+  The first wave track jumped 44 px: the ear was searched in the whole sprite and the raised arm's curve looked more
+  like an ear; it is now searched within `earReach` (8 px) of where the head puts it (4ab91d4, idle and walk unchanged
+  byte for byte). The waves still miss the 1 px ear limit by up to 0.68 px; the limit, talk and wave go to the
+  maintainer on sheet `pix58-talk-wave`.
+
 - 2026-10-13, decided by the maintainer (sheet `pix71-plan` F2 = a): the card joins the series branch and starts with
   talk and wave for M and F, rendered through the new commands one at a time under the guard and shown in the
   playground of PIX-71, which takes over the room page's part: the office's own draw functions. Talk is body only:
@@ -99,8 +108,8 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
-| 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | open |
-| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | open |
+| 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | candidates checked (M try 3, F try 2); verdict on sheet `pix58-talk-wave` F2 |
+| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | rendered; ear limit and verdict on sheet `pix58-talk-wave` F1, F3; ear search fixed in 4ab91d4 |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | open |
