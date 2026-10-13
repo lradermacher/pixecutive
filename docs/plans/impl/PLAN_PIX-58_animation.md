@@ -11,7 +11,7 @@ maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 - [x] Wave, sit and type exist for M and F front-left, each made by the video model from the approved still; talk is the idle body with drawn mouth states — `apps/office-ui/assets/figures/{m,f}/body/{wave,sit,type}` from `pnpm assets clip|frames|track|export` (c3f1eeb, 23b1a06, 13980a0, 7053777); talk: mouth states as face parts on every motion (64e91fc) and the speaking mouth (427119a)
 - [x] Each gesture's definition stands in this card before its first render, and its check is measured before it is shown — card description and comments 14089 to 14095; each check measured before its sheet (talk, wave, sit, type rows of the order)
 - [x] Front-right exists for every animation by mirroring — the playground mirrors the whole figure (PIX-71 `tileTransform.ts`); measured for idle, walk, wave, sit and type of M and F with the speaking mouth, 12 frames each: front-right equals front-left flipped, 0 differing bytes
-- [ ] Every face, hair, garment and accessory layer follows each gesture by the per-frame head origin
+- [x] Every face, hair, garment and accessory layer follows each gesture by the per-frame head origin — for the layers that exist: face parts, blink and mouth states on every motion by the head origin, checked in the playground; hair, garment and accessory layers moved to PIX-70 by the maintainer (sheet `pix58-close` F1 = a)
 - [x] Every gesture is checked in the room page, frames overlaid and zoomed at the joints, before the maintainer sees it — in the playground of PIX-71, which takes the room page's place (sheet `pix71-plan` F2 = a): contact sheets with consecutive overlays, hands, feet and mouth zoomed, the figure's stillness on the page measured
 - [x] The maintainer approves each gesture with a verdict — wave: sheets `pix58-wave` F3, `pix58-f-body` F1; talk: chat 2026-10-13; sit: `pix58-sit-type` F1; type: chat 2026-10-13
 
@@ -74,6 +74,11 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 - Real-time blending between gestures.
 
 ## Changed on the way
+
+- 2026-10-13, sheet `pix58-close`: M's wave rendered once more (F3 = a) failed the head-track guard (ear 5.5 px in
+  every frame), so the accepted wave stays, rebuilt byte for byte. ADR 0022 point 2 and the assets rule now let a
+  mouth or fingers the video model melts come as drawn states (420a52c). PIX-70 carries the line for hair, garment
+  and accessory layers.
 
 - 2026-10-13, review run 1 (record 68dd110, 7 findings): a failed paint left new unpainted sprites under the old cut
   and track, so the frames command now forgets them first (448c5ee); the mouth fallback and the hand painter's
@@ -162,13 +167,9 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Open questions
 
-- **The maintainer decides:** acceptance line 4 asks for hair, garment and accessory layers, which do not exist in
-  the repo yet (they come with PIX-70); the face parts, blink and mouth states follow every gesture. Whether the line
-  holds for the layers that exist, or waits for PIX-70 (sheet `pix58-close`).
-- **The maintainer decides:** ADR 0022 point 2 and the assets rule say motion comes only from the video model; mouth
-  and fingers now come as drawn states swapped per frame (sheet `pix58-close`).
-- **The maintainer decides:** whether the 1 to 2 off-skin pixels at M's waving fingertips in five frames are accepted
-  with the wave (sheet `pix58-close`).
+- **Decided by the maintainer (sheet `pix58-close`):** F1 = a, line 4 holds for the layers that exist, the rest is
+  a line of PIX-70; F2 = a, ADR 0022 point 2 and the assets rule allow drawn states (edited in place, since the ADR is
+  not merged yet, as the ADR README says); F3 = a, M's wave rendered once more and kept only if cleaner.
 
 - **Decided by the maintainer:** the approval of this plan, given in chat on 2026-10-13 (approved, go ahead), before
   the first render of this card.
@@ -184,4 +185,4 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | sheets `pix58-seated`, `pix58-m-legs`; chair removed by Astra |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | 13980a0 (sheet `pix58-sit-type` F1) |
 | 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | fc6a8a0, 7053777 (accepted in chat) |
-| 7 | Every layer on every gesture by the head origin; front-right of every gesture | the full matrix in the room page | front-right and face parts done (playground, 0 differing bytes); hair, garment and accessory layers: question on the card |
+| 7 | Every layer on every gesture by the head origin; front-right of every gesture | the full matrix in the room page | front-right and face parts done (playground, 0 differing bytes); hair, garment and accessory layers in PIX-70 |
