@@ -8,7 +8,7 @@ the repo that nothing goes to main before a milestone can be shown, and that thi
 
 - [x] ADR 0024 states that a series runs on one branch with a draft pull request until its milestone can be shown, and is then merged once — `docs/ADR/0024-a-series-collects-until-its-milestone-can-be-shown.md` points 1 and 2
 - [x] ADR 0024 names M1 as the milestone that ends the current series, with sheet `collection-branch` as its source — point 6 and "Chosen"
-- [x] ADR 0002 point 3 and ADR 0004 point 1 point to ADR 0024 for when a series ends, in the way the ADR README prescribes — `superseded-by` with the point named in a comment in both, `supersedes: [2, 4]` with its comment in ADR 0024; the state tables are regenerated
+- [x] ADR 0002 point 3 and ADR 0004 point 1 point to ADR 0024 for when a series ends, in the way the ADR README prescribes — `superseded-by` with the point named in a comment in both (ADR 0004 also point 3, its pushes), `supersedes: [2, 4]` with its comment in ADR 0024; the state tables are regenerated
 - [x] The workflow rule on series says the same in one line, and check-rules is green — `.claude/rules/workflow.md` "A series collects on its branch until its milestone can be shown"; check-rules green in verify-full
 - [x] Finished cards of a collecting series stay In Review until the milestone merge, and the rule or ADR says so — ADR 0024 point 4 and the workflow rule
 
@@ -35,16 +35,17 @@ the comment form the README prescribes, and their point text stays.
   1. A series collects on its branch, with its pull request as a draft, until the milestone it belongs to can be
      shown. `[Prose: whether a milestone can be shown is the maintainer's judgment]`
   2. It is then merged once, by the maintainer. `[Hook guard-state]`
-  3. Every card on the branch still gets its own plan, review and local check.
-     `[Gate ticket open · Agent adversarial-review]`
-  4. Finished cards stay In Review until that merge and then go to Done together. `[Hook guard-done]`
-  5. CI measures every push through the draft. `[Config ci.yml]`
+  3. Every card on the branch still gets its own plan, review and local check, then its push into the draft.
+     `[Gate ticket.ts open · Agent adversarial-review · Hook push-window]`
+  4. Finished cards stay In Review until that merge and then go to Done together. `[Skill code]`
+  5. CI measures every push through the draft. `[Config .github/workflows/ci.yml]`
 - The current series ends with M1 "Walk through your own office" (sheet `collection-branch` F2 = a).
 - The ADR also names the rejected option, a separate integration branch with one pull request per card (F1 b).
 - ADR 0002 gets `superseded-by: 24 # the end of a series in point 3 only; the rest of this ADR stands`.
 - ADR 0004 gets `superseded-by: [20, 24]`, with a comment that names both: the app names for 20, and the end of a
   series in point 1 for 24.
-- The workflow rule's series heading gets one sentence with the ADR's carrier.
+- The workflow rule gets a heading of its own for the collecting series, and the rule on commits names the push per
+  card.
 
 ## Test plan
 
@@ -57,7 +58,7 @@ the comment form the README prescribes, and their point text stays.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | ADR 0024, the two frontmatter comments, the state tables, the README index if it lists ADRs, the workflow rule line; tick the five lines | check-docs, check-carriers, check-rules green; verify-full green | done; its commit carries the review record |
+| 1 | ADR 0024, the two frontmatter comments, the state tables, the README index if it lists ADRs, the workflow rule line; tick the five lines | check-docs, check-carriers, check-rules green; verify-full green | 345a4e5; review run 1 fixes in the commit that carries its record |
 
 ## Out of scope
 
@@ -68,3 +69,25 @@ the comment form the README prescribes, and their point text stays.
 ## Open questions
 
 None: sheet `collection-branch` decided branch, end and record.
+
+## Changed on the way
+
+- 2026-10-13, review run 1 (10 findings: 1 blocker, 3 should, 2 minor, 4 notes; the 7 actionable ones kept):
+  - In Review until the merge is carried by the code skill, not by guard-done. guard-done reads only the plan boxes,
+    measured with a Done transition that passed on an open draft.
+  - ADR 0024 also supersedes ADR 0004 point 3: a collecting series is pushed once per card into its draft. The
+    workflow rule on commits says so.
+  - Point 3 says that gate-before-pr checks the record only at `gh pr create`. For later cards the record and the
+    maintainer's window carry it.
+  - The code skill's steps 9 and 10 name the draft.
+  - The Consequences name the long-lived branch against trunk-based, and how a change on `main` comes in (a merge
+    of `main`; guard-state rejects a local merge only on `main`).
+  - Point 5 names `.github/workflows/ci.yml` as its Config carrier.
+  - Confirmation names the manual draft check.
+  - The rule is a new heading of its own, not a sentence under the series heading. Card line 4 is the maintainer's
+    yes for it (ADR 0001).
+  - Not kept:
+    - The supersede comments stay in the "in point N" form, so check-carriers keeps measuring both points; the README
+      is not changed for it.
+    - Local `main` lags behind `origin/main`, which only touches the review's default range.
+    - PR #1 was a merge commit, which belongs to PIX-9.

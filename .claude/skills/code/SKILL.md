@@ -76,10 +76,12 @@ tooling in [ops](../../rules/ops.md). The four stages and the card lifecycle are
    [gate-before-pr](../../hooks/gate-before-pr.ts) judges the whole command before any part of it runs.
    *Done when the maintainer answered the sheet and the kept findings are fixed.*
 9. **Hand the branch to the maintainer** — who checks it locally; only the maintainer's `/push` opens the window
-   ([push](../push/SKILL.md)). Then the branch is pushed once and the pull request opened.
-   *Done when the pull request exists.*
-10. **Move the card to In Review with the pull request** — in a series already when the card is finished, because its
-    pull request comes only with the last card. First a comment that names, per acceptance line, its evidence (file
+   ([push](../push/SKILL.md)). Then the branch is pushed once and the pull request opened; a series that collects
+   until its milestone opens it as a draft (`gh pr create --draft`), and each later card of it is pushed into that
+   draft the same way ([ADR 0024](../../../docs/ADR/0024-a-series-collects-until-its-milestone-can-be-shown.md)).
+   *Done when the pull request exists, or the card's commits are in the series' draft.*
+10. **Move the card to In Review with the pull request** — in a series already when the card is finished, because the
+    series' pull request is merged only when its milestone can be shown. First a comment that names, per acceptance line, its evidence (file
     and line, a gate or a probe), every review with its record and report, and the pull request; then the
     transition `tracker.transitions.inReview`. Close the work package with `node scripts/ticket.ts close`; it leaves
     a closing record that the Done transition reads. *Done when the evidence comment stands, the card is on In Review
