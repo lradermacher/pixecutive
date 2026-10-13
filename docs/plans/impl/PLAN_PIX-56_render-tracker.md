@@ -19,7 +19,7 @@ because of a render.
 | --- | --- | --- |
 | The render port and its use case | new | core `port/outgoing/localRenderer.interface.ts`, `application/service/renderImage.service.ts`, `domain/Render/` |
 | The guarded render: lock, memory guard, log row, step in the lock | new | infrastructure `adapter/Render/localRenderer-mflux.adapter.ts` |
-| Memory reading (pressure level, swap in MB) and the guard decision | new | infrastructure `adapter/Render/readMemory.ts`, `judgeMemory.ts` |
+| Memory reading (pressure level, swap in MB) and the guard decision | new | infrastructure `adapter/Guard/readMemory.ts`, `judgeMemory.ts` (moved from `adapter/Render/` by PIX-66) |
 | Log row: format | new | infrastructure `adapter/Render/renderLogRow.ts` |
 | The commands `render` and `status` | new | `apps/asset-pipeline/src/cli/renderImage.handler.ts`, `showRenderStatus.handler.ts`, `runPipeline.ts` |
 | Output folder and log | extend | `.gitignore` gets `renders/` |

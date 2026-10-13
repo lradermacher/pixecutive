@@ -76,8 +76,7 @@ describe('LocalRendererMfluxAdapter', () => {
 		expect(await renderer.render(job)).toEqual({ name: 'figure-s11', image: join(dir, 'figure-s11.png') });
 		const row = readFileSync(join(dir, 'renders.tsv'), 'utf8').trim().split('\t');
 		expect(row).toHaveLength(11);
-		expect(row[0]).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$/);
-		expect([row[4], row[10]]).toEqual(['1024x768', 'done']);
+		expect([row[0]?.replace(/\d/g, '9'), row[4], row[10]]).toEqual(['9999-99-99 99:99 UTC', '1024x768', 'done']);
 	});
 
 	it('hands mflux the job, the LoRA and the side file it writes into', async () => {
@@ -294,6 +293,12 @@ describe('LocalRendererMfluxAdapter and its lock', () => {
 		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
 		writeFileSync(join(dir, 'current.lock'), `${String(process.pid)}\tother`);
 		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.Busy);
+	});
+
+	it('names a lock it cannot read with the storage key of a render', async () => {
+		const { renderer, dir } = adapter([{ pressure: 1, swapMb: 100 }]);
+		mkdirSync(join(dir, 'current.lock'));
+		expect(await failureKey(renderer.render(job))).toBe(RenderExceptionKey.StorageFailed);
 	});
 
 	it('clears an empty lock and renders', async () => {

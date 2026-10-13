@@ -3,5 +3,5 @@
 /** The name under which this package is published in the workspace. */
 export const packageName: string = '@pixecutive/infrastructure';
 export { LocalRendererMfluxAdapter, type MfluxRenderConfig } from './adapter/Render/localRenderer-mflux.adapter.ts';
-export { readMemory } from './adapter/Render/readMemory.ts';
+export { readMemory } from './adapter/Guard/readMemory.ts';
 export { RenderMachineLocalAdapter } from './adapter/Render/renderMachine-local.adapter.ts';

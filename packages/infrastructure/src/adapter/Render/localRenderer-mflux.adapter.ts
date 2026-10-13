@@ -11,15 +11,24 @@ import {
 	RenderException,
 	RenderExceptionKey,
 } from '@pixecutive/core';
-import { judgeMemory } from './judgeMemory.ts';
+import { judgeMemory } from '../Guard/judgeMemory.ts';
 import { MfluxComplaint } from './mfluxComplaint.ts';
 import { mfluxProgress } from './mfluxProgress.ts';
-import { MemoryAction } from './memoryAction.enum.ts';
-import type { MemoryReading } from './memoryReading.interface.ts';
+import { MemoryAction } from '../Guard/memoryAction.enum.ts';
+import type { MemoryReading } from '../Guard/memoryReading.interface.ts';
 import { onDisk } from './onDisk.ts';
-import { RenderLock } from './renderLock.ts';
+import { LocalJobLock } from '../Guard/localJobLock.ts';
+import { LockFailure } from '../Guard/lockFailure.enum.ts';
 import { renderLogRow } from './renderLogRow.ts';
 import { RunEnd } from './runEnd.enum.ts';
+
+/** The shared lock's failures as render keys: another job is busy, or the renders folder failed. */
+function nameLockFailure(failure: LockFailure, detail: string): RenderException {
+	return new RenderException(
+		failure === LockFailure.Busy ? RenderExceptionKey.Busy : RenderExceptionKey.StorageFailed,
+		detail,
+	);
+}
 
 /** Where mflux and its weights live, and how the guard reads the memory; the app builds it from its configuration. */
 export interface MfluxRenderConfig {
@@ -97,7 +106,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		for (const [what, path] of inputs) {
 			if (!existsSync(path)) throw new RenderException(RenderExceptionKey.InvalidJob, `${what} ${path} does not exist`);
 		}
-		const lock = new RenderLock(join(rendersDir, 'current.lock'));
+		const lock = new LocalJobLock(join(rendersDir, 'current.lock'), nameLockFailure);
 		const running = lock.running();
 		if (running !== null) throw new RenderException(RenderExceptionKey.Busy, `a render is running (${running})`);
 		const start = this.memory();
@@ -153,7 +162,7 @@ export class LocalRendererMfluxAdapter implements ILocalRenderer {
 		const log = join(this.config.rendersDir, 'renders.tsv');
 		const memory = this.memory();
 		return {
-			running: new RenderLock(join(this.config.rendersDir, 'current.lock')).running(),
+			running: new LocalJobLock(join(this.config.rendersDir, 'current.lock'), nameLockFailure).running(),
 			pressure: memory.pressure,
 			swapMb: memory.swapMb,
 			lastRows: existsSync(log)

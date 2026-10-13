@@ -2,9 +2,23 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { RenderException, RenderExceptionKey } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
-import { RenderLock } from './renderLock.ts';
+import { LocalJobLock } from './localJobLock.ts';
+import { LockFailure } from './lockFailure.enum.ts';
+
+/** The failure a lock reported, as the fake adapter names it. */
+class NamedFailure extends Error {
+	constructor(
+		readonly failure: LockFailure,
+		readonly detail: string,
+	) {
+		super(`${failure}: ${detail}`);
+	}
+}
+
+/** A lock that names its failures like an adapter would. */
+const lockAt = (path: string): LocalJobLock =>
+	new LocalJobLock(path, (failure, detail) => new NamedFailure(failure, detail));
 
 /** A lock path in a throwaway folder. */
 function lockPath(): string {
@@ -16,10 +30,10 @@ function goneProcess(): number {
 	return spawnSync('true').pid;
 }
 
-describe('RenderLock', () => {
+describe('LocalJobLock', () => {
 	it('takes the lock with this process and the label', () => {
 		const path = lockPath();
-		new RenderLock(path).take('figure-s11');
+		lockAt(path).take('figure-s11');
 		expect(readFileSync(path, 'utf8')).toBe(`${String(process.pid)}\tfigure-s11`);
 	});
 
@@ -28,18 +42,18 @@ describe('RenderLock', () => {
 		writeFileSync(path, '');
 		const failure: unknown = ((): unknown => {
 			try {
-				new RenderLock(path).take('figure-s11');
+				lockAt(path).take('figure-s11');
 				return null;
 			} catch (error) {
 				return error;
 			}
 		})();
-		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.Busy);
+		expect(failure instanceof NamedFailure && failure.failure).toBe(LockFailure.Busy);
 	});
 
 	it('rewrites the lock through a side file it does not leave behind', () => {
 		const path = lockPath();
-		const lock = new RenderLock(path);
+		const lock = lockAt(path);
 		lock.take('figure-s11');
 		lock.update([process.pid, 4711], 'figure-s11 3/8');
 		expect([readFileSync(path, 'utf8'), existsSync(`${path}.next`)]).toEqual([
@@ -50,7 +64,7 @@ describe('RenderLock', () => {
 
 	it('rewrites through the side file, never in place', () => {
 		const path = lockPath();
-		const lock = new RenderLock(path);
+		const lock = lockAt(path);
 		lock.take('figure-s11');
 		mkdirSync(`${path}.next`);
 		const failure: unknown = ((): unknown => {
@@ -61,7 +75,10 @@ describe('RenderLock', () => {
 				return error;
 			}
 		})();
-		expect(failure instanceof RenderException && failure.key).toBe(RenderExceptionKey.StorageFailed);
+		expect(failure instanceof NamedFailure && [failure.failure, failure.detail.split(':')[0]]).toEqual([
+			LockFailure.Storage,
+			'update the lock',
+		]);
 		expect(readFileSync(path, 'utf8')).toBe(`${String(process.pid)}\tfigure-s11`);
 	});
 
@@ -72,18 +89,18 @@ describe('RenderLock', () => {
 	])('clears %s', (_, line) => {
 		const path = lockPath();
 		writeFileSync(path, line);
-		expect([new RenderLock(path).running(), existsSync(path)]).toEqual([null, false]);
+		expect([lockAt(path).running(), existsSync(path)]).toEqual([null, false]);
 	});
 
 	it('stays running while the second process still lives, though the first is gone', () => {
 		const path = lockPath();
 		writeFileSync(path, `${String(goneProcess())},${String(process.pid)}\tfigure-s9 3/8`);
-		expect(new RenderLock(path).running()).toBe('figure-s9 3/8');
+		expect(lockAt(path).running()).toBe('figure-s9 3/8');
 	});
 
 	it('releases the lock', () => {
 		const path = lockPath();
-		const lock = new RenderLock(path);
+		const lock = lockAt(path);
 		lock.take('figure-s11');
 		lock.release();
 		expect(existsSync(path)).toBe(false);

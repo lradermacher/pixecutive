@@ -22,7 +22,7 @@ Measured on 2026-10-13 (repo by `git ls-files`, `git grep` and reading; the proo
 | Part | State | File |
 | --- | --- | --- |
 | Image render under the memory guard, render log, lock, status | exists | core `domain/Render/`, `port/outgoing/localRenderer.interface.ts`; infrastructure `adapter/Render/` |
-| Memory reading and guard decision, lock | extend (shared by image and video) | infrastructure `adapter/Render/readMemory.ts`, `judgeMemory.ts`, `renderLock.ts` |
+| Memory reading and guard decision, lock | extend (shared by image and video) | infrastructure `adapter/Guard/readMemory.ts`, `judgeMemory.ts`, `localJobLock.ts` (moved from `adapter/Render/`, the lock renamed from `renderLock.ts`) |
 | Composition root, config by core schema, exit code table | extend | `apps/asset-pipeline/src/runPipeline.ts`, `renderConfig.ts`, `cli/renderExitCode.ts` |
 | Figure, motion, clip and frame types | new | core `domain/Figure/` |
 | Decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used per motion, head-track verdict | new | core `domain/Figure/` (pure functions) and `application/service/` |
@@ -124,8 +124,8 @@ frames numbered with two digits from 00.
 | 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | 774ff31 |
 | 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | 5ce1f65 |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | 3fdab47 |
-| 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | this commit |
-| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | open |
+| 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | 80a9e59 |
+| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | this commit |
 | 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | open |
 | 8 | Frame measurer and cutter with the edge clean-up, Python internals | adapter spec; integration spec on synthetic frames | open |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | open |
