@@ -75,3 +75,10 @@ export type {
 	VariantCutJob,
 } from './domain/Figure/partCutJob.interface.ts';
 export type { IPartCutter } from './port/outgoing/partCutter.interface.ts';
+export { MakeHeadPartService } from './application/service/makeHeadPart.service.ts';
+export type {
+	CutHeadPartCommand,
+	DrawHeadPartCommand,
+	HeadSources,
+	SplitHeadPartCommand,
+} from './application/service/makeHeadPartCommand.ts';

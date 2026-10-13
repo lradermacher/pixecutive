@@ -87,7 +87,7 @@ const failureKey = (running: Promise<unknown>): Promise<unknown> =>
 
 describe('PartCutterOpencvAdapter', () => {
 	it(
-		'puts the still box into every grid cell and splits a drawn grid back into stills of the base',
+		'puts the still box into every grid cell and splits a drawn grid back into stills, in folders it makes',
 		async () => {
 			const s = await scene();
 			const layout = {
@@ -101,8 +101,8 @@ describe('PartCutterOpencvAdapter', () => {
 				{ left: 0, top: 0, right: 128, bottom: 128 },
 				{ left: 128, top: 0, right: 256, bottom: 128 },
 			];
-			const grid = join(s.dir ?? '', 'grid.png');
-			const outs = [join(s.dir ?? '', 'one.png'), join(s.dir ?? '', 'two.png')];
+			const grid = join(s.dir ?? '', 'new', 'grid.png');
+			const outs = [join(s.dir ?? '', 'stills', 'one.png'), join(s.dir ?? '', 'stills', 'two.png')];
 			await cutter.grid({ still: s.green ?? '', layout, cells, out: grid });
 			await cutter.split({ grid, layout, cells, base: s.green ?? '', outs });
 			expect(outs.map((path) => existsSync(path))).toEqual([true, true]);

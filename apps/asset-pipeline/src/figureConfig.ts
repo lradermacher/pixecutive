@@ -16,12 +16,14 @@ import {
 	figurePathsSchema,
 	type FrameCutConfig,
 	frameCutConfigSchema,
+	type HeadCutConfig,
+	headCutConfigSchema,
 	type HeadTrackConfig,
 	headTrackConfigSchema,
 	type IRenderMachine,
 	RenderException,
 } from '@pixecutive/core';
-import type { PythonEnvironment } from '@pixecutive/infrastructure';
+import { codexBinary, type PythonEnvironment } from '@pixecutive/infrastructure';
 
 /** Everything the motion chain's commands need. */
 export interface FigureSetup {
@@ -48,7 +50,14 @@ export interface FigureSetup {
 	readonly data: string;
 	/** The pixel steps' Python environment; `PIX_UV` names the uv command (default `uv` on the path). */
 	readonly python: PythonEnvironment;
-	readonly scripts: { readonly frames: string; readonly head: string; readonly assets: string };
+	readonly scripts: { readonly frames: string; readonly head: string; readonly assets: string; readonly parts: string };
+	/**
+	 * Finds the Codex CLI the image model is drawn through; only the draw command needs it. `PIX_CODEX` names it,
+	 * default the CLI of the newest ChatGPT extension of VS Code.
+	 * @throws {FigureException} the invalid configuration key when neither names one.
+	 */
+	readonly codex: () => string;
+	readonly headCut: HeadCutConfig;
 	readonly figures: FiguresSpec;
 	readonly cut: FrameCutConfig;
 	readonly track: HeadTrackConfig;
@@ -62,6 +71,7 @@ const variableOf: Readonly<Record<string, string>> = Object.freeze({
 	uv: 'PIX_UV',
 	ltxProject: 'PIX_LTX_PROJECT',
 	model: 'PIX_LTX_MODEL',
+	codex: 'PIX_CODEX',
 });
 
 /** Names each wrong field with the variable that sets it, as the invalid configuration key. */
@@ -152,7 +162,14 @@ export function figureConfig(
 			frames: join(adapters, 'Frames', 'frames.py'),
 			head: join(adapters, 'Head', 'head.py'),
 			assets: join(adapters, 'Asset', 'assets.py'),
+			parts: join(adapters, 'Parts', 'parts.py'),
 		},
+		codex: (): string => {
+			const binary = env['PIX_CODEX'] ?? codexBinary(env['HOME'] ?? homedir());
+			if (binary === null || binary === '') throw invalid([{ path: ['codex'], message: 'no Codex CLI found' }]);
+			return binary;
+		},
+		headCut: headCutConfigSchema.parse({}),
 		figures: figures.data,
 		cut: frameCutConfigSchema.parse({}),
 		track: headTrackConfigSchema.parse({}),

@@ -114,4 +114,16 @@ describe('figureConfig', () => {
 		const detail = failure(() => figureConfig({}, new InMemoryRenderMachine(), () => '{"x": {}}'));
 		expect(detail).toMatch(/^\/repo\/apps\/asset-pipeline\/data\/figures\.json: /);
 	});
+
+	it('takes the Codex CLI from PIX_CODEX, else the newest extension, and names the variable when there is none', () => {
+		const setup = figureConfig({ PIX_CODEX: '/bin/codex' }, new InMemoryRenderMachine(), read);
+		expect([setup.codex(), setup.scripts.parts, setup.headCut.lift]).toEqual([
+			'/bin/codex',
+			'/repo/packages/infrastructure/src/adapter/Parts/parts.py',
+			30,
+		]);
+		expect(failure(() => figureConfig({ HOME: '/nowhere' }, new InMemoryRenderMachine(), read).codex())).toMatch(
+			/^codex \(PIX_CODEX\): /,
+		);
+	});
 });

@@ -75,4 +75,25 @@ describe('runFigureCommand', () => {
 	])('wires %s to the work, which names the command to run first', async (command, detail) => {
 		expect(await failure(command, ['m', 'walk'])).toEqual([FigureExceptionKey.InvalidJob, detail]);
 	});
+
+	it.each<[FigureCommand, string[], string]>([
+		[PipelineCommand.Grid, ['m', 'nine'], 'm has no grid nine; it has head, tall, face'],
+		[PipelineCommand.Split, ['m', 'hat', '1'], 'm hat has no drawn grid 1'],
+		[PipelineCommand.Fit, ['m', 'hair', '1'], 'm hair is not fitted from another figure'],
+		[PipelineCommand.HairUnderHat, ['f', '49'], 'f has no hair under a hat 49'],
+	])('wires %s to the head parts of this repo data file', async (command, args, detail) => {
+		expect(await failure(command, args)).toEqual([FigureExceptionKey.InvalidJob, detail]);
+	});
+
+	it(
+		'wires draw and cut to the cutter and the editor, which need the sources and the drawing first',
+		async () => {
+			const [cut, draw] = [
+				await failure(PipelineCommand.Cut, ['m', 'glasses', '1']),
+				await failure(PipelineCommand.Draw, ['m', 'glasses', '1'], '/hub/ltx'),
+			];
+			expect([cut?.[0], draw?.[0]]).toEqual([FigureExceptionKey.CutFailed, FigureExceptionKey.DrawFailed]);
+		},
+		PYTHON_START_MS,
+	);
 });

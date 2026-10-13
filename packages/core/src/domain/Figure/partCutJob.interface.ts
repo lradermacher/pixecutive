@@ -70,11 +70,10 @@ export interface VariantCutJob {
 	readonly out: string;
 }
 
-/** The input for hair under a hat: the hairstyle's still with the hat shrunk by `shrink` pixels on top. */
+/** The input for hair under a hat: the hairstyle's still, at the hat layer's size, with the hat shrunk on top. */
 export interface UnderHatJob {
 	readonly hair: string;
 	readonly hat: string;
-	readonly size: readonly [number, number];
 	readonly shrink: number;
 	readonly out: string;
 }

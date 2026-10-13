@@ -24,7 +24,9 @@ const guardIntervalMs = 5000;
 
 const usage =
 	'usage: pnpm assets render <prompt file> <input image> <seed> [<width>x<height>] · pnpm assets status · ' +
-	'pnpm assets clip|frames|track|export <figure> <motion>';
+	'pnpm assets clip|frames|track|export <figure> <motion> · pnpm assets grid <figure> <grid> · ' +
+	'pnpm assets draw|split <figure> <kind> <drawing> · pnpm assets cut|fit <figure> <kind> <id> · ' +
+	'pnpm assets hair-under-hat <figure> <id>';
 
 /**
  * Runs one command and answers the exit code: 0 done, 2 usage, a render or figure failure's own code from its table,

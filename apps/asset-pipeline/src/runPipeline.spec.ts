@@ -153,4 +153,10 @@ describe('runPipeline', () => {
 		const result = await run(['dance']);
 		expect([result.code, result.err.startsWith('usage:')]).toEqual([2, true]);
 	});
+
+	it('answers a head-part failure with its own code and names the head commands in the usage', async () => {
+		const result = await run(['grid', 'm', 'nine']);
+		const usage = await run(['dance']);
+		expect([result.code, usage.err.includes('pnpm assets cut|fit <figure> <kind> <id>')]).toEqual([13, true]);
+	});
 });

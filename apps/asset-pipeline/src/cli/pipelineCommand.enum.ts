@@ -8,4 +8,10 @@ export enum PipelineCommand {
 	Frames = 'frames',
 	Track = 'track',
 	Export = 'export',
+	Grid = 'grid',
+	Draw = 'draw',
+	Split = 'split',
+	Cut = 'cut',
+	HairUnderHat = 'hair-under-hat',
+	Fit = 'fit',
 }

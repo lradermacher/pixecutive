@@ -2,6 +2,7 @@
 # the thresholds, the grids and the fits come from the core; every subcommand takes one job as JSON and answers JSON.
 #   parts.py <grid|split|key_cut|hat_cut|glasses_cut|variant_cut|under_hat|fit|skull|first_row> <job json>
 import json
+import os
 import sys
 
 import cv2
@@ -526,10 +527,11 @@ def variant_cut(job):
 
 
 def under_hat(job):
-    """The input for hair under a hat: the hairstyle's still with the hat's silhouette on top, flat magenta with a dark
-    outline, shrunk so the hat covers where hair and hat meet."""
-    V = np.asarray(Image.open(job["hair"]).convert("RGB").resize(tuple(job["size"]), Image.LANCZOS)).copy()
-    hat = cv2.erode((alpha(job["hat"]) > 127).astype(np.uint8), kernel(job["shrink"])) > 0
+    """The input for hair under a hat: the hairstyle's still at the hat layer's size with the hat's silhouette on top,
+    flat magenta with a dark outline, shrunk so the hat covers where hair and hat meet."""
+    hat_alpha = alpha(job["hat"])
+    V = np.asarray(Image.open(job["hair"]).convert("RGB").resize(hat_alpha.shape[1::-1], Image.LANCZOS)).copy()
+    hat = cv2.erode((hat_alpha > 127).astype(np.uint8), kernel(job["shrink"])) > 0
     edge = hat & ~(cv2.erode(hat.astype(np.uint8), kernel(7)) > 0)
     V[hat] = (255, 0, 255)
     V[edge] = (25, 20, 30)
@@ -589,4 +591,9 @@ if __name__ == "__main__":
     if command not in COMMANDS or len(sys.argv) != 3:
         sys.stderr.write(f"usage: parts.py <{'|'.join(COMMANDS)}> <job json>")
         sys.exit(2)
-    print(json.dumps(COMMANDS[command](json.loads(sys.argv[2]))))
+    job = json.loads(sys.argv[2])
+    # every file a job writes lands in a folder that may not exist yet
+    for path in [job.get("out"), job.get("hide"), *job.get("outs", [])]:
+        if path:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+    print(json.dumps(COMMANDS[command](job)))

@@ -105,3 +105,6 @@ telea
 mgrid
 getbbox
 getpixel
+cel
+monolid
+coily

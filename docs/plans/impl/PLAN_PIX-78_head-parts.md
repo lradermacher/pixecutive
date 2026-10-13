@@ -118,7 +118,7 @@ folder, which is not in git.
 | 1 | Core: head kinds, variant ids, layer order, hide and open-top rule, lift with clamp, grid layouts, M → F offsets, cut thresholds as a config schema | core unit tests green | a6ef273 |
 | 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | 9921684 |
 | 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | 65ba227 |
-| 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | open |
+| 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | d897df7 |
 | 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | open |
 | 6 | Line 3: cut m hair 1, m hat 4, m glasses 1 from the backup's renders and compare; one fresh draw per kind | pixel and alpha difference reported; zoomed PNG to the maintainer | open |
 | 7 | Export extended; import every head part of M and F from the backup's renders through split and cut | lift 75/75 equal to BK; manifest parses; assets folder holds every head part | open |
@@ -177,3 +177,25 @@ folder, which is not in git.
     - The kernel sizes of the cuts stay named in `parts.py`, where they are part of the algorithm. The thresholds a
       change would tune are in `headCutConfig`.
     - A new key `figure.cut_failed` gets exit code 27.
+- 2026-10-13, step 5:
+  - **A sixth command:** `pnpm assets fit <figure> <kind> <id>`. It carries the warp of a layer from another figure,
+    which the plan named only as an option of the cut.
+  - **The grid belongs to each drawing,** not to its kind: F's hair is drawn in the head grid and in the tall grid.
+  - **New in the spec:**
+    - `hidden`: the variants drawn and cut but not offered, F's 14 hairstyles clipped by their grid cell.
+    - The open still, on which face variants are aligned and the skull is measured.
+  - **The cell-to-variant mapping, measured:** the backup records no cell-to-variant mapping, so every drawn grid was
+    split and its cells matched to the variant stills by their bytes. All hair, beard and face grids map in order.
+  - **F hair without a grid:** F's hair 40 to 48 come from no grid that maps, so they have no drawing in the data, and
+    their stills are imported as they are.
+  - **The prompts,** taken from the backup's scripts and logs:
+    - The CLI framing ("Use your image generation tool...", "Save the resulting image...") is the adapter's.
+    - `{who}`, `{what}` and `{styles}` fill the rest.
+    - British spellings became American for the English gate.
+  - **Two model inputs differ from the backup, measured:**
+    - The face grid is off by up to 7 levels (mean 0.18), from an unknown resampling of its producer.
+    - The hair-under-hat input was made with a version of the beanie that the backup no longer holds.
+
+    Both are only what the model draws on. The cuts that count are exact (step 4).
+  - **Output folders:** the commands make the folders they write into. The first real `grid` run failed without them,
+    and a spec now covers it.

@@ -39,10 +39,12 @@ describe('figuresSpecSchema', () => {
 			box: { left: 120, top: 60, right: 400, bottom: 340 },
 		};
 		const head = {
+			open: 'm/open.png',
 			green: 'm/green.png',
+			greenAccessory: 'm/green-accessory.png',
 			greenOpen: 'm/green-open.png',
-			grids: { head: grid },
-			kinds: { hair: { ids: [1, 2], grid: 'head' } },
+			grids: { head: { ...grid, still: 'm/green.png' } },
+			kinds: { hair: { ids: [1, 2], draws: [{ prompt: 'head/hair.txt', grid: 'head', ids: [1, 2] }] } },
 		};
 		expect(figuresSpecSchema.parse({ m: { ...spec.m, head } }).m?.head).toEqual(head);
 	});
