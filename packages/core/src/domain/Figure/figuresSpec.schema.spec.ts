@@ -30,6 +30,23 @@ describe('figuresSpecSchema', () => {
 		expect(figuresSpecSchema.parse(typing).m?.motions.type?.hands?.ticks).toBe(4);
 	});
 
+	it('accepts a figure with its head parts', () => {
+		const grid = {
+			columns: 3,
+			rows: 3,
+			width: 1024,
+			height: 1024,
+			box: { left: 120, top: 60, right: 400, bottom: 340 },
+		};
+		const head = {
+			green: 'm/green.png',
+			greenOpen: 'm/green-open.png',
+			grids: { head: grid },
+			kinds: { hair: { ids: [1, 2], grid: 'head' } },
+		};
+		expect(figuresSpecSchema.parse({ m: { ...spec.m, head } }).m?.head).toEqual(head);
+	});
+
 	it('accepts a motion with a sprite height of its own', () => {
 		const sit = { m: { ...spec.m, motions: { sit: { ...idle, height: 183 } } } };
 		expect(figuresSpecSchema.parse(sit).m?.motions.sit?.height).toBe(183);

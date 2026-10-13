@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-75_collection-branch.md
 | **Superseded by**   | —                                                                                                                                                                    |
 | **Analysis**        | —                                                                                                                                                                    |
 | **Implementation**  | [PLAN_PIX-75_collection-branch.md](../plans/impl/PLAN_PIX-75_collection-branch.md)                                                                                   |
-| **Cards**           | PIX-75                                                                                                                                                               |
+| **Cards**           | PIX-75 · PIX-78                                                                                                                                                      |
 
 <!-- STATE:END -->
 

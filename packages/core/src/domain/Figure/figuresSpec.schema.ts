@@ -1,6 +1,6 @@
-// figuresSpec.schema.ts — how each base figure's motions are made: per figure the ear box that checks the head track
-// and the face parts on the still, per motion the clip, its cut, the sprites the office uses and the still the head is
-// tracked against. Images are named relative to the figure sources folder, prompts relative to the data folder.
+// figuresSpec.schema.ts — how each base figure is made: per figure the ear box, the face parts and the head parts, per
+// motion the clip, its cut, the sprites the office uses and the still the head is tracked against. Images are named
+// relative to the figure sources folder, prompts relative to the data folder.
 import { z } from 'zod';
 import { ClipMode } from './clipMode.enum.ts';
 import { earBoxSchema } from './earBox.schema.ts';
@@ -8,6 +8,7 @@ import { FacePart } from './facePart.enum.ts';
 import { FigureName } from './figureName.enum.ts';
 import { frameCountSchema } from './frameCount.schema.ts';
 import { handStatesSchema } from './handStates.schema.ts';
+import { headPartsSpecSchema } from './headPartsSpec.schema.ts';
 import { Motion } from './motion.enum.ts';
 
 const png = z.string().endsWith('.png');
@@ -40,10 +41,11 @@ const motionSpecSchema = z.object({
 	trackStill: png,
 });
 
-/** One figure: the ear box on its stills, its face parts and its motions. */
+/** One figure: the ear box on its stills, its face parts, its head parts and its motions. */
 const figureSpecSchema = z.object({
 	ear: earBoxSchema,
 	face: z.partialRecord(z.enum(FacePart), z.object({ image: png, mask: png.optional() })),
+	head: headPartsSpecSchema.optional(),
 	motions: z.partialRecord(z.enum(Motion), motionSpecSchema),
 });
 

@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 | **Superseded by**   | —                                                                        |
 | **Analysis**        | —                                                                        |
 | **Implementation**  | [PLAN_PIX-57_clean-branch.md](../plans/impl/PLAN_PIX-57_clean-branch.md) |
-| **Cards**           | PIX-7 · PIX-56 · PIX-57 · PIX-66                                         |
+| **Cards**           | PIX-7 · PIX-56 · PIX-57 · PIX-66 · PIX-78                                |
 
 <!-- STATE:END -->
 
