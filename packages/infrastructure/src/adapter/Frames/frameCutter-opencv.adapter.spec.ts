@@ -12,8 +12,11 @@ const values = frameCutConfigSchema.parse({});
 /** A real Python start loads OpenCV and decodes a clip; under a full parallel test run that takes longer than 5 s. */
 const PYTHON_START_MS = 30_000;
 
-/** A 6-frame clip of a dark standing figure on the light blue background, drawn by OpenCV into a temp folder. */
-async function standingClip(): Promise<string> {
+/**
+ * A 6-frame clip of a dark standing figure on the light blue background, drawn by OpenCV into a temp folder; `left`
+ * is the figure's first column (the clip is 160 wide, the figure 41).
+ */
+async function standingClip(left = 60): Promise<string> {
 	const dir = mkdtempSync(join(tmpdir(), 'cut-clip-'));
 	const maker = join(dir, 'make.py');
 	writeFileSync(
@@ -23,13 +26,14 @@ async function standingClip(): Promise<string> {
 			'w = cv2.VideoWriter(sys.argv[1], cv2.VideoWriter_fourcc(*"mp4v"), 24, (160, 160))',
 			'for k in range(6):',
 			'    f = np.full((160, 160, 3), (226, 212, 186), np.uint8)',
-			'    cv2.rectangle(f, (60, 30 + k % 2), (100, 129 + k % 2), (40, 60, 90), -1)',
+			'    x = int(sys.argv[2])',
+			'    cv2.rectangle(f, (x, 30 + k % 2), (x + 40, 129 + k % 2), (40, 60, 90), -1)',
 			'    w.write(f)',
 			'w.release()',
 		].join('\n'),
 	);
 	const clip = join(dir, 'idle.mp4');
-	await runPythonStep(python, maker, [clip]);
+	await runPythonStep(python, maker, [clip, String(left)]);
 	return clip;
 }
 
@@ -62,6 +66,29 @@ describe('FrameCutterOpencvAdapter', () => {
 			// the figure is 100 rows tall and 41 columns wide; with the margins (2 above, 2 left, 2 right) the sprite is
 			// 102 by 45 video pixels, at a scale of 50/100 that is 51 by 22 (Python rounds 22.5 to the even 22)
 			expect([result.scale, result.height, result.width]).toEqual([0.5, 51, 22]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'refuses a figure that leaves the clip, naming the edge and the video frame',
+		async () => {
+			const failure: unknown = await new FrameCutterOpencvAdapter({ python, script })
+				.cut(await standingClip(0), plan, values)
+				.catch((error: unknown) => error);
+			expect(failure instanceof FigureException && [failure.key, failure.detail]).toEqual([
+				FigureExceptionKey.FramesFailed,
+				'exit 1: the figure leaves the clip at its left edge in video frame 0: a part of it is cut off',
+			]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'cuts a figure whose margin reaches past the clip edge at the same size as anywhere else',
+		async () => {
+			const result = await new FrameCutterOpencvAdapter({ python, script }).cut(await standingClip(1), plan, values);
+			expect([result.height, result.width]).toEqual([51, 22]);
 		},
 		PYTHON_START_MS,
 	);

@@ -77,6 +77,13 @@ def cut(clip, plan, values, out_dir):
     frames = read_clip(clip)
     chosen = [shifted(frames[s["source"]], figure_mask(frames[s["source"]], values), s["shiftX"], s["shiftY"])
               for s in plan["sprites"]]
+    for (_, mask), sprite in zip(chosen, plan["sprites"]):
+        edges = [name for name, line in (("top", mask[0]), ("bottom", mask[-1]), ("left", mask[:, 0]),
+                                         ("right", mask[:, -1])) if line.any()]
+        if edges:
+            sys.stderr.write(f"the figure leaves the clip at its {' and '.join(edges)} edge in video frame "
+                             f"{sprite['source']}: a part of it is cut off")
+            sys.exit(1)
     rows = np.concatenate([np.where(m.any(1))[0] for _, m in chosen])
     cols = np.concatenate([np.where(m.any(0))[0] for _, m in chosen])
     margin = plan["margin"]
@@ -85,6 +92,10 @@ def cut(clip, plan, values, out_dir):
     tallest = max(np.ptp(np.where(m.any(1))[0]) for _, m in chosen) + 1
     scale = plan["height"] / tallest
     width, height = int(round((x1 - x0) * scale)), int(round((y1 - y0) * scale))
+    # a margin may reach past the clip's edge: the frames get that much empty background around them
+    pad = max(0, -y0, -x0, y1 - frames[0].shape[0], x1 - frames[0].shape[1])
+    chosen = [(np.pad(f, ((pad, pad), (pad, pad), (0, 0))), np.pad(m, pad)) for f, m in chosen]
+    y0, y1, x0, x1 = y0 + pad, y1 + pad, x0 + pad, x1 + pad
     os.makedirs(out_dir, exist_ok=True)
     written = []
     for k, (frame, mask) in enumerate(chosen):
