@@ -8,6 +8,8 @@ paths:
   - "packages/infrastructure/src/adapter/Frames/**"
   - "packages/infrastructure/src/adapter/Head/**"
   - "packages/infrastructure/src/adapter/Asset/**"
+  - "packages/infrastructure/src/adapter/Work/**"
+  - "packages/infrastructure/src/adapter/Python/**"
 adr: docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md
 summary: >
   Image models draw every part from our own templates, a local video model makes every motion, nothing comes from

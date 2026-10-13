@@ -64,7 +64,7 @@ Commands (names final in the step that builds them):
 - `pnpm assets frames <figure> <motion>` cuts the clip into sprite frames: a loop between its anchors, a cycle by the
   leg spread with each unique pose and its hold; the light background is taken off the edges.
 - `pnpm assets track <figure> <motion>` finds the head origin per frame and checks it against the ear (at most 1 px).
-- `pnpm assets export <figure>` writes the frames, the face parts at the motion's scale and the manifest into
+- `pnpm assets export <figure> <motion>` writes the frames, the face parts at the motion's scale and the manifest into
   `apps/office-ui/assets/` in the agreed layout.
 
 **Asset layout** (agreed on sheet `pix66-layout`, 2026-10-13): `apps/office-ui/assets/figures/` holds a generated
@@ -101,6 +101,10 @@ frames numbered with two digits from 00.
   OpenCV comes as its headless build of the same version (4.14.0.94); `frames`, `track` and `export` rebuilt every
   shipped file of M and F byte for byte with it. Outside this card: check-comments skips Python and TOML (PIX-72),
   and `pnpm install` stops on the ignored build script of unrs-resolver (PIX-73).
+- 2026-10-13, review run 2 (6 findings, all kept): every command parses the renders folder, the figure sources and
+  uv by a core schema at its start, not only `clip`; an export checks only the files it staged for its motion, names
+  them by their staged path, and ships nothing before every file the manifest names is there. `export` takes the
+  motion like the other commands (`<figure> <motion>`), one motion per run.
 
 - 2026-10-13, decided by the maintainer: the card joins the series on `feat/pix-7-skeleton-toolchain`; no pull request
   before something is properly implemented and tested in the hexagon. The finished figure assets (about 15 MB of PNG,
