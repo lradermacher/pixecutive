@@ -3,7 +3,7 @@
 import type { FigureManifest } from '@pixecutive/protocol';
 
 /** Shared by every spec; a spec that changes a manifest changes a copy. */
-export const fixtureManifest: FigureManifest = Object.freeze({
+export const fixtureManifest: FigureManifest = {
 	version: 1,
 	figures: {
 		m: {
@@ -55,4 +55,4 @@ export const fixtureManifest: FigureManifest = Object.freeze({
 			},
 		},
 	},
-});
+};
