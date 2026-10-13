@@ -36,3 +36,4 @@ export type { IFrameMeasurer } from './port/outgoing/frameMeasurer.interface.ts'
 export type { IHeadTracker } from './port/outgoing/headTracker.interface.ts';
 export type { IVideoRenderer } from './port/outgoing/videoRenderer.interface.ts';
 export { clipConfigSchema, type ClipConfig } from './domain/Figure/clipConfig.schema.ts';
+export { headTrackConfigSchema, type HeadTrackConfig } from './domain/Figure/headTrackConfig.schema.ts';

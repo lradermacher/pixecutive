@@ -7,4 +7,6 @@ export { readMemory } from './adapter/Guard/readMemory.ts';
 export { RenderMachineLocalAdapter } from './adapter/Render/renderMachine-local.adapter.ts';
 export { VideoRendererLtxAdapter, type LtxClipConfig } from './adapter/Video/videoRenderer-ltx.adapter.ts';
 export { FrameCutterOpencvAdapter } from './adapter/Frames/frameCutter-opencv.adapter.ts';
-export { FrameMeasurerOpencvAdapter, type FramesScriptConfig } from './adapter/Frames/frameMeasurer-opencv.adapter.ts';
+export { FrameMeasurerOpencvAdapter } from './adapter/Frames/frameMeasurer-opencv.adapter.ts';
+export { HeadTrackerOpencvAdapter } from './adapter/Head/headTracker-opencv.adapter.ts';
+export type { PythonEnvironment, PythonScriptConfig } from './adapter/Python/pythonStep.ts';

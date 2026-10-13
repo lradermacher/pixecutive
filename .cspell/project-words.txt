@@ -92,3 +92,4 @@ cvt
 fromarray
 ptp
 fourcc
+SQDIFF

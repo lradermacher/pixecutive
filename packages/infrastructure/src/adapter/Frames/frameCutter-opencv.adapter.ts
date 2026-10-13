@@ -11,15 +11,15 @@ import {
 	type FramePlan,
 	type IFrameCutter,
 } from '@pixecutive/core';
-import type { FramesScriptConfig } from './frameMeasurer-opencv.adapter.ts';
-import { pixelStep } from './pixelStep.ts';
+import type { PythonScriptConfig } from '../Python/pythonStep.ts';
+import { pixelStep } from '../Python/pixelStep.ts';
 
 /**
  * Writes one sprite per planned frame into `<clip without .mp4>/NN.png`.
  * @throws {FigureException} the frames-failed key when the step fails, the storage key when the old sprites cannot go.
  */
 export class FrameCutterOpencvAdapter implements IFrameCutter {
-	constructor(private readonly config: FramesScriptConfig) {}
+	constructor(private readonly config: PythonScriptConfig) {}
 
 	/** Cuts the planned frames; sprites of an earlier cut of the same clip are removed first. */
 	cut(clip: string, plan: FramePlan, values: FrameCutConfig): Promise<CutResult> {
@@ -34,6 +34,7 @@ export class FrameCutterOpencvAdapter implements IFrameCutter {
 			this.config.script,
 			['cut', clip, JSON.stringify(plan), JSON.stringify(values), folder],
 			cutResultSchema,
+			FigureExceptionKey.FramesFailed,
 		);
 	}
 }

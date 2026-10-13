@@ -16,6 +16,12 @@ export interface PythonEnvironment {
 	project: string;
 }
 
+/** An adapter's Python script and the environment it runs in (passed in: a bundled app cannot find the script). */
+export interface PythonScriptConfig {
+	readonly python: PythonEnvironment;
+	readonly script: string;
+}
+
 /**
  * Runs `script` with `args` through `uv run --frozen` in the project's locked environment and collects its answer;
  * a step that cannot start answers with code null and the reason as its complaint.

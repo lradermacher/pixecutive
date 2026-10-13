@@ -59,8 +59,9 @@ describe('FrameCutterOpencvAdapter', () => {
 			const folder = clip.replace(/\.mp4$/, '');
 			expect(result.frames).toEqual(['00.png', '01.png', '02.png'].map((name) => join(folder, name)));
 			expect(result.frames.map(pngSize)).toEqual(Array.from({ length: 3 }, () => [result.width, result.height]));
-			// the figure is 100 rows tall; with the 2-row top margin the sprite is 102 rows at a scale of 50/100
-			expect([result.scale, result.height]).toEqual([0.5, 51]);
+			// the figure is 100 rows tall and 41 columns wide; with the margins (2 above, 2 left, 2 right) the sprite is
+			// 102 by 45 video pixels, at a scale of 50/100 that is 51 by 22 (Python rounds 22.5 to the even 22)
+			expect([result.scale, result.height, result.width]).toEqual([0.5, 51, 22]);
 		},
 		PYTHON_START_MS,
 	);

@@ -6,6 +6,7 @@ import {
 	cutResultSchema,
 	FigureName,
 	frameCutConfigSchema,
+	headTrackConfigSchema,
 	headTrackJobSchema,
 	Motion,
 	packageName,
@@ -54,5 +55,9 @@ describe('@pixecutive/core', () => {
 
 	it('exposes the cut result through its entry', () => {
 		expect(cutResultSchema.safeParse({ frames: ['00.png'], scale: 1, width: 1, height: 1 }).success).toBe(true);
+	});
+
+	it('exposes the head-tracking values through its entry', () => {
+		expect(headTrackConfigSchema.parse({}).border).toBe(12);
 	});
 });

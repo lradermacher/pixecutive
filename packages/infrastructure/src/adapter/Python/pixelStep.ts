@@ -1,7 +1,7 @@
-// pixelStep.ts — one call of the frame adapters' Python step, its answer checked by a core schema; whatever goes
-// wrong becomes the frames-failed key.
-import { FigureException, FigureExceptionKey } from '@pixecutive/core';
-import { type PythonEnvironment, runPythonStep } from '../Python/pythonStep.ts';
+// pixelStep.ts — one call of an adapter's Python step, its answer checked by a core schema; whatever goes wrong
+// becomes the calling adapter's failure key.
+import { FigureException, type FigureExceptionKey } from '@pixecutive/core';
+import { type PythonEnvironment, runPythonStep } from './pythonStep.ts';
 
 /** What the step needs of a core schema: a check that answers the data or the issues. */
 export interface AnswerSchema<T> {
@@ -14,7 +14,7 @@ export interface AnswerSchema<T> {
 
 /**
  * Runs `script` with `args` and parses its standard output as JSON by `schema`.
- * @throws {FigureException} the frames-failed key when the step does not start, ends with an error, or answers
+ * @throws {FigureException} with `key` when the step does not start, ends with an error, or answers
  * something the schema refuses.
  */
 export async function pixelStep<T>(
@@ -22,22 +22,23 @@ export async function pixelStep<T>(
 	script: string,
 	args: readonly string[],
 	schema: AnswerSchema<T>,
+	key: FigureExceptionKey,
 ): Promise<T> {
 	const answer = await runPythonStep(env, script, args);
 	if (answer.code !== 0) {
 		const ended = answer.code === null ? 'did not start' : `exit ${String(answer.code)}`;
-		throw new FigureException(FigureExceptionKey.FramesFailed, `${ended}: ${answer.stderr.trim()}`);
+		throw new FigureException(key, `${ended}: ${answer.stderr.trim()}`);
 	}
 	let json: unknown;
 	try {
 		json = JSON.parse(answer.stdout);
 	} catch {
-		throw new FigureException(FigureExceptionKey.FramesFailed, `no JSON answer: ${answer.stdout.slice(0, 200)}`);
+		throw new FigureException(key, `no JSON answer: ${answer.stdout.slice(0, 200)}`);
 	}
 	const parsed = schema.safeParse(json);
 	if (!parsed.success) {
 		throw new FigureException(
-			FigureExceptionKey.FramesFailed,
+			key,
 			parsed.error.issues.map((issue) => `${issue.path.map(String).join('.')}: ${issue.message}`).join('; '),
 		);
 	}

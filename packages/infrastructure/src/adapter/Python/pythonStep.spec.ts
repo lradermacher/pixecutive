@@ -39,6 +39,18 @@ describe('runPythonStep', () => {
 	);
 
 	it(
+		'hands every argument over whole, spaces and quotes included',
+		async () => {
+			const answer = await runPythonStep(env, script('import sys, json\nprint(json.dumps(sys.argv[1:]))\n'), [
+				'a b',
+				'{"x": 1}',
+			]);
+			expect(JSON.parse(answer.stdout)).toEqual(['a b', '{"x": 1}']);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
 		'answers the exit code and the complaint of a failing step',
 		async () => {
 			const answer = await runPythonStep(env, script('import sys\nsys.stderr.write("no frames")\nsys.exit(3)\n'), []);

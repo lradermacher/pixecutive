@@ -45,10 +45,12 @@ describe('FrameMeasurerOpencvAdapter', () => {
 		async () => {
 			const measures = await new FrameMeasurerOpencvAdapter({ python, script }).measure(await walkingClip(), values);
 			expect(measures).toHaveLength(12);
-			const [first, second] = measures;
-			expect([first?.top, first?.bottom]).toEqual([30, 140]);
-			expect((second?.headCenterX ?? 0) - (first?.headCenterX ?? 0)).toBeCloseTo(2, 0);
-			expect((measures[3]?.legSpread ?? 0) - (first?.legSpread ?? 0)).toBeGreaterThan(30);
+			const [first, second, , fourth] = measures.map((m) => m);
+			if (!first || !second || !fourth) throw new TypeError('fewer than four measures');
+			expect([first.top, first.bottom]).toEqual([30, 140]);
+			expect(second.headCenterX - first.headCenterX).toBeCloseTo(2, 0);
+			expect(fourth.legSpread - first.legSpread).toBeGreaterThan(30);
+			expect([first.change, second.change > 0]).toEqual([0, true]);
 		},
 		PYTHON_START_MS,
 	);

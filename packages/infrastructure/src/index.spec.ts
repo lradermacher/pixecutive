@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { packageName as dependencyName } from '@pixecutive/core';
-import { FrameCutterOpencvAdapter, FrameMeasurerOpencvAdapter, packageName, VideoRendererLtxAdapter } from './index.ts';
+import {
+	FrameCutterOpencvAdapter,
+	FrameMeasurerOpencvAdapter,
+	HeadTrackerOpencvAdapter,
+	packageName,
+	VideoRendererLtxAdapter,
+} from './index.ts';
 
 describe('@pixecutive/infrastructure', () => {
 	it('exposes its workspace name through its entry', () => {
@@ -20,5 +26,9 @@ describe('@pixecutive/infrastructure', () => {
 			typeof FrameMeasurerOpencvAdapter.prototype.measure,
 			typeof FrameCutterOpencvAdapter.prototype.cut,
 		]).toEqual(['function', 'function']);
+	});
+
+	it('exposes the head tracker through its entry', () => {
+		expect(typeof HeadTrackerOpencvAdapter.prototype.track).toBe('function');
 	});
 });

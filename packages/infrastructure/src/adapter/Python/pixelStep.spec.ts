@@ -30,7 +30,7 @@ describe('pixelStep', () => {
 		async () => {
 			const answer = { frames: ['00.png'], scale: 0.5, width: 10, height: 20 };
 			const script = step(`import json\nprint(json.dumps(${JSON.stringify(answer)}))\n`);
-			expect(await pixelStep(env, script, [], cutResultSchema)).toEqual(answer);
+			expect(await pixelStep(env, script, [], cutResultSchema, FigureExceptionKey.FramesFailed)).toEqual(answer);
 		},
 		PYTHON_START_MS,
 	);
@@ -39,7 +39,7 @@ describe('pixelStep', () => {
 		'names a failing step with the frames-failed key, its exit code and its complaint',
 		async () => {
 			const script = step('import sys\nsys.stderr.write("no frames in x.mp4")\nsys.exit(2)\n');
-			expect(await failure(pixelStep(env, script, [], cutResultSchema))).toEqual([
+			expect(await failure(pixelStep(env, script, [], cutResultSchema, FigureExceptionKey.FramesFailed))).toEqual([
 				FigureExceptionKey.FramesFailed,
 				'exit 2: no frames in x.mp4',
 			]);
@@ -50,7 +50,9 @@ describe('pixelStep', () => {
 	it(
 		'names an answer that is no JSON',
 		async () => {
-			const result = await failure(pixelStep(env, step('print("done")\n'), [], cutResultSchema));
+			const result = await failure(
+				pixelStep(env, step('print("done")\n'), [], cutResultSchema, FigureExceptionKey.FramesFailed),
+			);
 			expect(result).toEqual([FigureExceptionKey.FramesFailed, 'no JSON answer: done\n']);
 		},
 		PYTHON_START_MS,
@@ -60,7 +62,7 @@ describe('pixelStep', () => {
 		'names the field of an answer the schema refuses',
 		async () => {
 			const script = step('import json\nprint(json.dumps({"frames": [], "scale": 1, "width": 1, "height": 1}))\n');
-			const result = await failure(pixelStep(env, script, [], cutResultSchema));
+			const result = await failure(pixelStep(env, script, [], cutResultSchema, FigureExceptionKey.FramesFailed));
 			expect(result?.[0]).toBe(FigureExceptionKey.FramesFailed);
 			expect(result?.[1]).toMatch(/^frames: /);
 		},
@@ -68,7 +70,15 @@ describe('pixelStep', () => {
 	);
 
 	it('names a step that cannot start', async () => {
-		const result = await failure(pixelStep({ ...env, uv: join(tmpdir(), 'no-uv') }, step(''), [], cutResultSchema));
+		const result = await failure(
+			pixelStep(
+				{ ...env, uv: join(tmpdir(), 'no-uv') },
+				step(''),
+				[],
+				cutResultSchema,
+				FigureExceptionKey.FramesFailed,
+			),
+		);
 		expect(result?.[1]).toMatch(/^did not start: .*ENOENT/);
 	});
 });
