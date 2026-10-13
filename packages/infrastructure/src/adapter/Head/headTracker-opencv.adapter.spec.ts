@@ -21,8 +21,12 @@ const moves = [
 /**
  * A still of a figure (a round head with a dark ear on a body) on the light blue background, and three sprites: the
  * figure at a third of its size, moved by `moves`. Drawn by OpenCV into a temp folder, so no image enters the repo.
+ * `decoy` puts a copy of the ear on the body of sprite 1 and a thin line over its own ear, as a raised arm's curve
+ * does; `earShift` moves the ear of sprite 2 to the right by that many sprite pixels, as a head that turned would.
  */
-async function figure(): Promise<{ still: string; frames: string[] }> {
+async function figure(
+	options: { decoy?: boolean; earShift?: number } = {},
+): Promise<{ still: string; frames: string[] }> {
 	const dir = mkdtempSync(join(tmpdir(), 'head-'));
 	const maker = join(dir, 'make.py');
 	writeFileSync(
@@ -30,7 +34,7 @@ async function figure(): Promise<{ still: string; frames: string[] }> {
 		[
 			'import sys, json, cv2, numpy as np',
 			'from PIL import Image',
-			'out, moves = sys.argv[1], json.loads(sys.argv[2])',
+			'out, moves, decoy, shift = sys.argv[1], json.loads(sys.argv[2]), sys.argv[3] == "1", int(sys.argv[4])',
 			's = np.full((600, 480, 3), (186, 212, 226), np.uint8)',
 			'cv2.circle(s, (240, 150), 90, (230, 160, 110), -1)',
 			'cv2.circle(s, (200, 140), 18, (120, 60, 40), -1)',
@@ -41,11 +45,23 @@ async function figure(): Promise<{ still: string; frames: string[] }> {
 			'for k, (dx, dy) in enumerate(moves):',
 			'    canvas = np.full((220, 180, 3), (186, 212, 226), np.uint8)',
 			'    canvas[10 + dy:10 + dy + 200, 10 + dx:10 + dx + 160] = small',
+			'    ear = small[40:54, 60:74].copy()',
+			'    if decoy and k == 1:',
+			'        canvas[150:164, 75:89] = ear',
+			'        cv2.line(canvas, (10 + dx + 60, 10 + dy + 47), (10 + dx + 73, 10 + dy + 47), (230, 160, 110), 1)',
+			'    if shift and k == 2:',
+			'        canvas[10 + dy + 40:10 + dy + 54, 10 + dx + 60:10 + dx + 74] = (230, 160, 110)',
+			'        canvas[10 + dy + 40:10 + dy + 54, 10 + dx + 60 + shift:10 + dx + 74 + shift] = ear',
 			'    alpha = np.full((220, 180), 255, np.uint8)',
 			'    Image.fromarray(np.dstack([canvas, alpha])).save(f"{out}/{k:02d}.png")',
 		].join('\n'),
 	);
-	await runPythonStep(python, maker, [dir, JSON.stringify(moves)]);
+	await runPythonStep(python, maker, [
+		dir,
+		JSON.stringify(moves),
+		options.decoy ? '1' : '0',
+		String(options.earShift ?? 0),
+	]);
 	return { still: join(dir, 'still.png'), frames: moves.map((_, k) => join(dir, `0${String(k)}.png`)) };
 }
 
@@ -63,6 +79,26 @@ describe('HeadTrackerOpencvAdapter', () => {
 			expect([Math.round(x0), Math.round(y0)]).toEqual([10, 10]);
 			expect(track.origin.map(([x, y]) => [Math.round(x - x0), Math.round(y - y0)])).toEqual(moves);
 			expect(Math.max(...track.earOffset)).toBeLessThan(1);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'searches the ear only near where the head puts it, so an ear-like shape elsewhere is not taken',
+		async () => {
+			const { still, frames } = await figure({ decoy: true });
+			const track = await new HeadTrackerOpencvAdapter({ python, script }).track({ still, frames, ear }, values);
+			expect(Math.max(...track.earOffset)).toBeLessThan(1);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'still measures an ear that moved against the head within the reach',
+		async () => {
+			const { still, frames } = await figure({ earShift: 4 });
+			const track = await new HeadTrackerOpencvAdapter({ python, script }).track({ still, frames, ear }, values);
+			expect(track.earOffset[2]).toBeCloseTo(4, 0);
 		},
 		PYTHON_START_MS,
 	);

@@ -49,16 +49,28 @@ def subpixel(a, b, c):
     return 0.0 if d == 0 else 0.5 * (a - c) / d
 
 
-def track(still, box, frames, scale, border):
-    """Where the still's (0, 0) lands in every frame when its `box` is matched there."""
+def best_at(r):
+    """The best place of a match result, to a fraction of a pixel."""
+    _, _, (x, y), _ = cv2.minMaxLoc(r)
+    dx = subpixel(r[y, x - 1], r[y, x], r[y, x + 1]) if 0 < x < r.shape[1] - 1 else 0
+    dy = subpixel(r[y - 1, x], r[y, x], r[y + 1, x]) if 0 < y < r.shape[0] - 1 else 0
+    return x + dx, y + dy
+
+
+def track(still, box, frames, scale, border, near=None, reach=0):
+    """Where the still's (0, 0) lands in every frame when its `box` is matched there; with `near` (an origin per
+    frame) only within `reach` pixels of where that origin puts the box, so a like shape elsewhere is not taken."""
     template = cv2.resize(still[box[1]:box[3], box[0]:box[2]], None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    th, tw = template.shape[:2]
     out = []
-    for frame in frames:
-        r = cv2.matchTemplate(frame, template, cv2.TM_SQDIFF)
-        _, _, (x, y), _ = cv2.minMaxLoc(r)
-        dx = subpixel(r[y, x - 1], r[y, x], r[y, x + 1]) if 0 < x < r.shape[1] - 1 else 0
-        dy = subpixel(r[y - 1, x], r[y, x], r[y + 1, x]) if 0 < y < r.shape[0] - 1 else 0
-        out.append((x + dx - border - box[0] * scale, y + dy - border - box[1] * scale))
+    for k, frame in enumerate(frames):
+        x0 = y0 = 0
+        if near is not None:
+            ex, ey = int(round(near[k][0] + border + box[0] * scale)), int(round(near[k][1] + border + box[1] * scale))
+            x0, y0 = max(0, ex - reach), max(0, ey - reach)
+            frame = frame[y0:min(frame.shape[0], ey + th + reach), x0:min(frame.shape[1], ex + tw + reach)]
+        x, y = best_at(cv2.matchTemplate(frame, template, cv2.TM_SQDIFF))
+        out.append((x0 + x - border - box[0] * scale, y0 + y - border - box[1] * scale))
     return np.array(out)
 
 
@@ -69,7 +81,8 @@ def run(still_path, frame_paths, ear, values):
     box = head_box(still, values)
     scale = best_scale(still, box, frames, values)
     head = track(still, box, frames, scale, values["border"])
-    ear_at = track(still, (ear["left"], ear["top"], ear["right"], ear["bottom"]), frames, scale, values["border"])
+    ear_box = (ear["left"], ear["top"], ear["right"], ear["bottom"])
+    ear_at = track(still, ear_box, frames, scale, values["border"], head, values["earReach"])
     d = ear_at - head
     stray = np.hypot(d[:, 0] - np.median(d[:, 0]), d[:, 1] - np.median(d[:, 1]))
     return {"scale": scale, "origin": head.tolist(), "earOffset": stray.tolist()}

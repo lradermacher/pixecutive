@@ -21,6 +21,11 @@ export const headTrackConfigSchema = z
 		scaleStep: z.number().positive().default(0.0025),
 		/** The ear may stray from the head by at most this many sprite pixels in any frame, or the face would slide. */
 		earLimit: z.number().positive().default(1),
+		/**
+		 * Sprite pixels around the place the head puts the ear in which the ear is searched: an arm's curve elsewhere
+		 * looks like an ear, and a drift up to this far is still measured.
+		 */
+		earReach: z.int().min(2).default(8),
 	})
 	.refine((v) => v.scaleTo > v.scaleFrom, 'the scale search runs upwards');
 

@@ -13,6 +13,7 @@ describe('headTrackConfigSchema', () => {
 			scaleTo: 0.38,
 			scaleStep: 0.0025,
 			earLimit: 1,
+			earReach: 8,
 		});
 	});
 
@@ -21,6 +22,7 @@ describe('headTrackConfigSchema', () => {
 		['a head band of 1', { headHeightBand: 1 }],
 		['a negative border', { border: -1 }],
 		['an ear limit of 0', { earLimit: 0 }],
+		['an ear reach of 1', { earReach: 1 }],
 	])('refuses %s', (_, invalid) => {
 		expect(headTrackConfigSchema.safeParse(invalid).success).toBe(false);
 	});
