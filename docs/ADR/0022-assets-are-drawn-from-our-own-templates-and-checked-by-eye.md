@@ -32,8 +32,8 @@ implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 > **In short.** In the context of a public MIT repo whose office needs figures with free colors, wardrobe and
 > motion, facing a Blender rebuild and part rigs that did not reach the approved look, generated output of different
 > licenses and changes that broke the look when nobody looked, we decided that image models draw every asset from our
-> own templates and style, a local video model makes every motion, and every result is checked by eye before it is
-> shown, and against modelling or rigging by hand, to reach the approved HD office pixel style, accepting a license
+> own templates and style, a local video model makes every motion (what it melts, drawn states), and every result is
+> checked by eye before it is shown, and against modelling or rigging by hand, to reach the approved HD office pixel style, accepting a license
 > check per tool and drawings that need redrawing when they drift.
 
 ## Context and problem
@@ -65,9 +65,10 @@ Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it rea
 1. **A base figure comes from our own template and style.** The local image model renders the approved template with
    the style LoRA we trained on our own approved drawings; the result is accepted by the maintainer before anything
    is built on it. `[Prose: a base figure is made once per figure and accepted by eye]`
-2. **Motion comes only from the local video model.** A walk or another cycle is cut from a free clip, a gesture on the
-   spot is a loop anchored on the same still at both ends; no part is stretched, rotated or moved like a puppet.
-   `[Skill animate-figure]`
+2. **Motion comes from the local video model; what it melts comes as drawn states.** A walk or another cycle is cut
+   from a free clip, a gesture on the spot is a loop anchored on the same still at both ends. What the video model
+   cannot move without melting it, a speaking mouth or typing fingers, is drawn as states on the approved still and
+   swapped per frame. No part is stretched, rotated or moved like a puppet. `[Skill animate-figure]`
 3. **A gesture is defined before its first render.** What moves, what stays still, the timing and the measured check
    stand in its card. `[Skill animate-figure]`
 4. **A part is drawn, cut by key and recolored at runtime.** An image model draws it on a template whose free area is

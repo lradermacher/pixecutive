@@ -12,9 +12,9 @@ paths:
   - "packages/infrastructure/src/adapter/Python/**"
 adr: docs/ADR/0022-assets-are-drawn-from-our-own-templates-and-checked-by-eye.md
 summary: >
-  Image models draw every part from our own templates, a local video model makes every motion, nothing comes from
-  another game. One local render at a time under the memory guard. A gesture is defined before its first render;
-  where layers meet, the meeting is drawn. Every result is looked at through the office's own draw functions first.
+  Image models draw every part from our own templates; motion comes from a local video model, drawn states where it
+  melts. Nothing from another game. One render at a time under the memory guard. A gesture is defined before its
+  first render; where layers meet, the meeting is drawn. Every result is looked at in the office's own draw functions.
 ---
 
 # Assets — how they are made
@@ -27,9 +27,9 @@ The lock refuses a second render in the same renders folder; the guard refuses a
 run at critical pressure.
 `[Gate verify-full: renderer spec]`
 
-## Motion comes only from the local video model
-A cycle is cut from a free clip, a gesture on the spot is a loop anchored on the same still; no part is stretched,
-rotated or moved by code. `[Skill animate-figure]`
+## Motion comes from the local video model; what it melts comes as drawn states
+A cycle is cut from a free clip, a gesture on the spot is a loop anchored on the same still; a mouth or fingers the
+model melts are drawn states swapped per frame. No part is stretched, rotated or moved by code. `[Skill animate-figure]`
 
 ## A gesture is defined in its card before its first render
 What moves, what stays still, the timing and the measured check. `[Skill animate-figure]`
