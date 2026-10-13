@@ -143,7 +143,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
-| 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | mouth states accepted (sheet `pix58-mouth`), 64e91fc; speaking mouth in the playground 427119a; verdict open |
+| 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | mouth states accepted (sheet `pix58-mouth`), 64e91fc; speaking mouth 427119a, wobble fixed 13a9983; accepted by the maintainer in chat (2026-10-13) |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M c3f1eeb (sheet `pix58-wave` F3), F 23b1a06 (sheet `pix58-f-body` F1) |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
