@@ -97,3 +97,5 @@ dtype
 pycache
 dgrauet
 asarray
+napi
+unrs
