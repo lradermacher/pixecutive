@@ -13,3 +13,10 @@ export type { RenderImageCommand } from './application/service/renderImageComman
 export type { IClock } from './port/outgoing/clock.interface.ts';
 export type { ILocalRenderer } from './port/outgoing/localRenderer.interface.ts';
 export type { IRenderMachine } from './port/outgoing/renderMachine.interface.ts';
+export { ClipMode } from './domain/Figure/clipMode.enum.ts';
+export { clipJobSchema, type ClipJob } from './domain/Figure/clipJob.schema.ts';
+export { FigureName } from './domain/Figure/figureName.enum.ts';
+export { frameMeasureSchema, type FrameMeasure } from './domain/Figure/frameMeasure.schema.ts';
+export { framePlanSchema, type FramePlan } from './domain/Figure/framePlan.schema.ts';
+export { headTrackSchema, type HeadTrack } from './domain/Figure/headTrack.schema.ts';
+export { Motion } from './domain/Figure/motion.enum.ts';

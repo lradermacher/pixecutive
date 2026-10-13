@@ -113,8 +113,8 @@ frames numbered with two digits from 00.
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | The asset layout under `apps/office-ui/assets/` as one PNG of the folder tree | the maintainer's yes on the card | sheet `pix66-layout` F1 = yes, PIX-66 comment 14084 |
-| 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | this commit |
-| 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | open |
+| 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | 774ff31 |
+| 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | this commit |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | open |
 | 5 | Core ports and services: clip, frames, track, export; the figure exception and its keys | service specs with in-memory fakes | open |
 | 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | open |

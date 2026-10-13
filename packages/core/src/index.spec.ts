@@ -1,8 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { packageName } from './index.ts';
+import { ClipMode, clipJobSchema, FigureName, Motion, packageName } from './index.ts';
 
 describe('@pixecutive/core', () => {
 	it('exposes its workspace name through its entry', () => {
 		expect(packageName).toBe('@pixecutive/core');
+	});
+
+	it('exposes the figure domain through its entry', () => {
+		const job = clipJobSchema.parse({
+			figure: FigureName.F,
+			motion: Motion.Walk,
+			mode: ClipMode.Cycle,
+			still: 'f.png',
+			promptFile: 'walk.txt',
+			frames: 73,
+			endStrength: 1,
+		});
+		expect([job.figure, job.motion, job.mode]).toEqual(['f', 'walk', 'cycle']);
 	});
 });
