@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RenderMachineLocalAdapter } from '@pixecutive/infrastructure';
@@ -106,6 +106,30 @@ describe('runPipeline', () => {
 		const machine = new MachineWithRepoAt(root);
 		const result = await run(['render', prompt, image, '11'], {}, new EventEmitter(), machine, false);
 		expect([result.code, result.out.split('\n')[1]]).toEqual([0, join(root, 'renders', 'figure-s11.png')]);
+	});
+
+	it('shows each step of a clip on the error output while it renders', async () => {
+		const sources = mkdtempSync(join(tmpdir(), 'sources-'));
+		mkdirSync(join(sources, 'm'));
+		writeFileSync(join(sources, 'm', 'idle-start.png'), 'a still');
+		const uv = join(mkdtempSync(join(tmpdir(), 'uv-')), 'uv');
+		writeFileSync(
+			uv,
+			[
+				'#!/bin/sh',
+				'out=""; while [ $# -gt 0 ]; do [ "$1" = "-o" ] && out="$2"; shift; done',
+				"printf 'Denoising:  50%%|#    | 1/2 [00:07<00:07, 7.5s/it]\\r' >&2; sleep 0.2",
+				"printf 'Denoising: 100%%|#####| 2/2 [00:15<00:00, 7.5s/it]\\n' >&2",
+				'printf x > "$out"',
+			].join('\n'),
+		);
+		chmodSync(uv, 0o755);
+		const result = await run(['clip', 'm', 'idle'], {
+			PIX_LTX_MODEL: '/hub/ltx',
+			PIX_UV: uv,
+			PIX_FIGURE_SOURCES: sources,
+		});
+		expect([result.code, result.err]).toEqual([0, 'm-idle 1/2\nm-idle 2/2\n']);
 	});
 
 	it('answers a motion chain failure with its own code from the figure table', async () => {

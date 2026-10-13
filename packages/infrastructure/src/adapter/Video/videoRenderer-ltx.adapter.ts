@@ -22,8 +22,10 @@ import { MemoryAction } from '../Guard/memoryAction.enum.ts';
 import type { MemoryReading } from '../Guard/memoryReading.interface.ts';
 import { RunEnd } from '../Guard/runEnd.enum.ts';
 
-/** The machine's clip settings plus how the guard reads the memory and where interrupts arrive. */
+/** The machine's clip settings plus how the guard reads the memory, where interrupts arrive and who hears the steps. */
 export interface LtxClipConfig extends ClipConfig {
+	/** Hears each new denoising step as `<figure>-<motion> n/total`, so the command line can show it. */
+	readonly progress: (step: string) => void;
 	readonly intervalMs: number;
 	readonly readMemory: () => MemoryReading;
 	/** Where Ctrl-C and a closed terminal arrive; the process itself in production, a plain emitter in tests. */
@@ -110,6 +112,7 @@ export class VideoRendererLtxAdapter implements IVideoRenderer {
 		try {
 			const end = await this.run(start, this.argv(job, prompt, rendering), (pid, progress) => {
 				lock.update([process.pid, pid], progress === '' ? name : `${name} ${progress}`);
+				if (progress !== '') this.config.progress(`${name} ${progress}`);
 			});
 			if (end.end !== RunEnd.Done) throw new FigureException(endKey[end.end], end.reason);
 			if (!existsSync(rendering)) throw new FigureException(FigureExceptionKey.ClipFailed, 'the model wrote no clip');

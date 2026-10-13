@@ -27,11 +27,12 @@ import { figureConfig } from './figureConfig.ts';
 export type FigureCommand =
 	PipelineCommand.Clip | PipelineCommand.Frames | PipelineCommand.Track | PipelineCommand.Export;
 
-/** How the guard reads the memory and how often, and where interrupts arrive. */
+/** How the guard reads the memory and how often, where interrupts arrive, and where a clip's steps are shown. */
 export interface GuardSetup {
 	readonly readMemory: () => { readonly pressure: number; readonly swapMb: number };
 	readonly intervalMs: number;
 	readonly interrupts: EventEmitter;
+	readonly progress: (step: string) => void;
 }
 
 /**

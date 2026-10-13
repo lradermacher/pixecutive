@@ -14,6 +14,7 @@ const guard = {
 	readMemory: (): { pressure: number; swapMb: number } => ({ pressure: 1, swapMb: 0 }),
 	intervalMs: 50,
 	interrupts: new EventEmitter(),
+	progress: (): void => undefined,
 };
 
 /**

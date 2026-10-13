@@ -48,7 +48,10 @@ export async function runPipeline(
 			return 2;
 		}
 		if (known.data !== PipelineCommand.Render && known.data !== PipelineCommand.Status) {
-			const guard = { readMemory: memoryNow, intervalMs: guardIntervalMs, interrupts };
+			const progress = (step: string): void => {
+				err.write(`${step}\n`);
+			};
+			const guard = { readMemory: memoryNow, intervalMs: guardIntervalMs, interrupts, progress };
 			return answer(out, await runFigureCommand(known.data, args, env, machine, guard));
 		}
 		const config = renderConfig(env, machine);

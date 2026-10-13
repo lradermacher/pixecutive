@@ -33,7 +33,8 @@ function fakeUv(dir: string, body = 'printf x > "$out"'): string {
 			'#!/bin/sh',
 			`printf '%s\\n' "$@" > "${join(dir, 'args.txt')}"`,
 			'out=""; while [ $# -gt 0 ]; do [ "$1" = "-o" ] && out="$2"; shift; done',
-			"printf 'Denoising:  50%%|#    | 1/2 [00:07<00:07, 7.5s/it]\\rDenoising: 100%%|#####| 2/2 [00:15<00:00, 7.5s/it]\\n' >&2",
+			"printf 'Denoising:  50%%|#    | 1/2 [00:07<00:07, 7.5s/it]\\r' >&2; sleep 0.2",
+			"printf 'Denoising: 100%%|#####| 2/2 [00:15<00:00, 7.5s/it]\\n' >&2",
 			body,
 		].join('\n'),
 	);
@@ -49,9 +50,10 @@ function adapter(
 	readings: MemoryReading[] = [{ pressure: 1, swapMb: 0 }],
 	body?: string,
 	read?: () => MemoryReading,
-): { renderer: VideoRendererLtxAdapter; dir: string; interrupts: EventEmitter } {
+): { renderer: VideoRendererLtxAdapter; dir: string; interrupts: EventEmitter; steps: string[] } {
 	const dir = mkdtempSync(join(tmpdir(), 'clips-'));
 	const interrupts = new EventEmitter();
+	const steps: string[] = [];
 	let reads = 0;
 	const renderer = new VideoRendererLtxAdapter({
 		rendersDir: dir,
@@ -65,8 +67,11 @@ function adapter(
 		readMemory:
 			read ?? ((): MemoryReading => readings[Math.min(reads++, readings.length - 1)] ?? { pressure: 1, swapMb: 0 }),
 		interrupts,
+		progress: (step): void => {
+			steps.push(step);
+		},
 	});
-	return { renderer, dir, interrupts };
+	return { renderer, dir, interrupts, steps };
 }
 
 async function failureKey(render: Promise<unknown>): Promise<FigureExceptionKey | null> {
@@ -93,6 +98,12 @@ describe('VideoRendererLtxAdapter', () => {
 		expect(args.slice(0, 5)).toEqual(['run', '--project', '/deps/ltx-2-mlx', 'ltx-2-mlx', 'generate']);
 		expect(args[args.indexOf('--prompt') + 1]).toBe('stands and waits calmly, three-quarter view');
 		expect(args.join(' ')).toContain(`--image ${still} 0 1.0 --image ${still} 48 0.8 -f 49 --frame-rate 24`);
+	});
+
+	it('tells each new denoising step as it comes', async () => {
+		const { renderer, steps } = adapter();
+		await renderer.render(job);
+		expect(steps).toEqual(['m-idle 1/2', 'm-idle 2/2']);
 	});
 
 	it('names the clip of a figure motion where the frames command reads it', () => {
