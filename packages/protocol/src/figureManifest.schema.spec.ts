@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { FacePart } from './facePart.enum.ts';
 import { figureManifestSchema } from './figureManifest.schema.ts';
+import { HeadPartKind } from './headPartKind.enum.ts';
 
 const idle = {
 	frames: [
@@ -26,8 +27,44 @@ describe('figureManifestSchema', () => {
 		expect(figureManifestSchema.parse(manifest)).toEqual(manifest);
 	});
 
+	it('accepts head parts per kind and variant, a hat with its hide, and the lift and open hats of the figure', () => {
+		const at = { x: 1, y: -2, width: 30, height: 20 };
+		const parts = {
+			[HeadPartKind.Hair]: { '1': { file: 'm/head/idle/hair-1.png', ...at } },
+			[HeadPartKind.Hat]: {
+				'4': { file: 'm/head/idle/hat-4.png', ...at, hide: { file: 'm/head/idle/hat-4-hide.png', ...at } },
+			},
+		};
+		const dressed = {
+			version: 1,
+			figures: { m: { head: { lift: { '1': 12 }, openTop: [12] }, motions: { idle: { ...idle, parts } } } },
+		};
+		expect(figureManifestSchema.parse(dressed)).toEqual(dressed);
+	});
+
 	it.each([
 		['another format version', { ...manifest, version: 2 }],
+		[
+			'a variant id that is no number',
+			{
+				version: 1,
+				figures: {
+					m: {
+						motions: {
+							idle: { ...idle, parts: { hair: { a: { file: 'm/x.png', x: 0, y: 0, width: 1, height: 1 } } } },
+						},
+					},
+				},
+			},
+		],
+		[
+			'a kind that does not exist',
+			{ version: 1, figures: { m: { motions: { idle: { ...idle, parts: { cape: {} } } } } } },
+		],
+		[
+			'a negative lift',
+			{ version: 1, figures: { m: { head: { lift: { '1': -3 }, openTop: [] }, motions: { idle } } } },
+		],
 		[
 			'fewer head origins than frames',
 			{ version: 1, figures: { m: { motions: { idle: { ...idle, head: { scale: 0.345, origin: [[0, 0]] } } } } } },

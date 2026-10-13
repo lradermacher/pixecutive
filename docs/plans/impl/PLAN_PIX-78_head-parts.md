@@ -115,7 +115,7 @@ folder, which is not in git.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Core: head kinds, variant ids, layer order, hide and open-top rule, lift with clamp, grid layouts, M → F offsets, cut thresholds as a config schema | core unit tests green | open |
+| 1 | Core: head kinds, variant ids, layer order, hide and open-top rule, lift with clamp, grid layouts, M → F offsets, cut thresholds as a config schema | core unit tests green | a6ef273 |
 | 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | open |
 | 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | open |
 | 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | open |

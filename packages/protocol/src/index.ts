@@ -4,3 +4,5 @@
 export const packageName: string = '@pixecutive/protocol';
 export { FacePart } from './facePart.enum.ts';
 export { figureManifestSchema, type FigureManifest } from './figureManifest.schema.ts';
+export { HeadPartKind } from './headPartKind.enum.ts';
+export { HeadLayer } from './headLayer.enum.ts';
