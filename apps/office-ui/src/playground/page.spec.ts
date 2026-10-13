@@ -228,4 +228,14 @@ describe('startPlayground', () => {
 			.flatMap((c) => c.context.calls);
 		expect(drawn.some((call) => call.startsWith('draw smooth img assets/figures/m/head/idle/hair-1.png'))).toBe(true);
 	});
+
+	it('grows a tile by the room its head parts need above the sprite', async () => {
+		const manifest = copy() as { figures: { m: { motions: Record<string, { parts?: unknown }> } } };
+		const hat = { '4': { file: 'm/head/idle/hat-4.png', x: 0, y: -100, width: 10, height: 6 } };
+		for (const motion of Object.values(manifest.figures.m.motions)) motion.parts = { hat };
+		const { win, body } = fakeWindow(manifest);
+		await startPlayground(win);
+		const tiles = body.all().filter((node) => node.tag === 'canvas' && node.className === 'tile');
+		expect([tiles.length, tiles.every((tile) => tile.height > 402)]).toEqual([2, true]);
+	});
 });

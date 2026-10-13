@@ -7,12 +7,12 @@ Astra adapter and the key cut built so that PIX-70 reuses them for the body part
 
 ## Acceptance
 
-- [ ] Each step of the head-parts chain (green head templates, hair and beards, hats with hide masks, glasses, hair under hats with its lift, face-part variants) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters
-- [ ] Every core decision has unit tests with in-memory fakes, every adapter its own spec
-- [ ] One hairstyle, one hat and one pair of glasses made through the commands match their proof-of-concept layers, compared zoomed through the page's draw functions
-- [ ] The hair, beards, hats, glasses and face variants of M and F reach `apps/office-ui/assets/` and the manifest through the commands
-- [ ] Every head part follows each gesture (idle, walk, wave, sit, type) by the per-frame head origin, checked in the playground
-- [ ] The skill `figure-part` names the commands
+- [x] Each step of the head-parts chain (green head templates, hair and beards, hats with hide masks, glasses, hair under hats with its lift, face-part variants) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters — `pnpm assets grid|draw|split|cut|hair-under-hat|fit` (ee17a18), decisions in `MakeHeadPartService` and `HeadPartsService`, tools behind `IImageEditor` (Codex) and `IPartCutter` (OpenCV); the lift by `export`
+- [x] Every core decision has unit tests with in-memory fakes, every adapter its own spec — core specs with `InMemoryImageEditor` and `InMemoryPartCutter`; `imageEditor-codex.adapter.spec.ts` against a stub CLI, `partCutter-opencv.adapter.spec.ts` on synthetic scenes, `assetStore-files.adapter.spec.ts` for `putHead` and `putFigureHead`
+- [x] One hairstyle, one hat and one pair of glasses made through the commands match their proof-of-concept layers, compared zoomed through the page's draw functions — m hair 1, m hat 4 with its hide and m glasses 1 cut through the commands from the backup's drawings differ by 0 from its layers (step 6); the same bytes go through the playground's own `drawFigure`; zoomed comparison PNG with three fresh drawings
+- [x] The hair, beards, hats, glasses and face variants of M and F reach `apps/office-ui/assets/` and the manifest through the commands — split, cut and export: 404 of 406 layers equal the backup's (the two others are hidden variants); M 176 and F 181 head parts per motion, lifts 61 of 61 equal to the backup; `shippedFigures.spec.ts` checks every file named and named once
+- [x] Every head part follows each gesture (idle, walk, wave, sit, type) by the per-frame head origin, checked in the playground — the export places every part on every motion by its head origin; checked in `pnpm playground` through the page's own buttons and draw functions on all five motions, both facings, 4× zoom (hair, hats incl. the chef hat over long hair, glasses, beard, eye variant)
+- [x] The skill `figure-part` names the commands — steps 2, 3, 5 and 8 of `.claude/skills/figure-part/SKILL.md`
 - [ ] Every gate and verify-full is green, and an independent review checked the diff
 
 ## Inventory
@@ -120,10 +120,10 @@ folder, which is not in git.
 | 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | 65ba227 |
 | 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | d897df7 |
 | 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | ee17a18 |
-| 6 | Line 3: cut m hair 1, m hat 4, m glasses 1 from the backup's renders and compare; one fresh draw per kind | pixel and alpha difference reported; zoomed PNG to the maintainer | open |
-| 7 | Export extended; import every head part of M and F from the backup's renders through split and cut | lift 75/75 equal to BK; manifest parses; assets folder holds every head part | open |
-| 8 | Playground: head layers, pickers, hide by `destination-out`, hat lift | playground specs green; every head part on all five motions, both facings, zoomed, checked in the browser | open |
-| 9 | Skill `figure-part` names the commands, the assets rule if a line changes | check-skills, check-rules green | open |
+| 6 | Line 3: cut m hair 1, m hat 4, m glasses 1 from the backup's renders and compare; one fresh draw per kind | pixel and alpha difference reported; zoomed PNG to the maintainer | 934fc1c; difference 0 for all three, zoomed PNG with the fresh drawings |
+| 7 | Export extended; import every head part of M and F from the backup's renders through split and cut | lift 75/75 equal to BK; manifest parses; assets folder holds every head part | 3c7993c and the assets commit; lifts 61/61 (the offered hairstyles) |
+| 8 | Playground: head layers, pickers, hide by `destination-out`, hat lift | playground specs green; every head part on all five motions, both facings, zoomed, checked in the browser | 3c7993c and the headroom in the assets commit |
+| 9 | Skill `figure-part` names the commands, the assets rule if a line changes | check-skills, check-rules green | the assets commit |
 | 10 | verify-full, the boxes, the review | verify-full green, `ticket.ts boxes` with no open box, review record on the head | open |
 
 ## Out of scope
@@ -205,3 +205,25 @@ folder, which is not in git.
   - **Fresh drawings:** the first fresh run failed in Codex with "No such file or directory", because the CLI starts
     in the output's folder, which a first drawing of a kind has not made. The image editor makes that folder now, and
     a spec covers it. The three fresh drawings then came through: hair 12,700 pixels, hat 14,647, glasses 1,561.
+- 2026-10-13, steps 7 and 8:
+  - **The export** writes every offered head part per motion through the asset store's `putHead`. The face step
+    scales it exactly like a face part. The figure's lifts and open hats go under `head` in the manifest
+    (`putFigureHead`), and `putMotion` keeps them.
+  - **The lifts** are measured in one Python pass for all hairstyles (`firstRows`), not one process per hairstyle.
+  - **F hair under hats:** F's hair under hats exist as drawings for 35 hairstyles, the 34 offered and 41, which is
+    hidden. The data names those 35, and the 13 older layers in the backup that no drawing produced stay out.
+  - **The playground** draws the look of each figure: face variants in place of the default parts, then beard, the
+    hat's hide (cut with `destination-out`), the hair or its drawing under the hat, glasses and the hat, which rises by
+    the hair's lift. These are the backup page's rules (`cw_template.html`). Its trim of hair under a hat stays with
+    the office renderer, as the plan's out of scope says.
+- 2026-10-13, steps 7 to 9, the checks:
+  - **The import:** split, cut and export of every head part. 404 of 406 layers equal the backup's. F hair 28 (1 pixel)
+    and F hair under hat 41 (957 pixels) differ, both hidden and not shipped. F's glasses and hats come exactly from
+    F's own drawings, so no fit was needed.
+  - **The lifts:** 61 of 61 offered hairstyles have the backup's lift, clamped to 0 to 30 as its page clamped it. The
+    plan's 75 counted the hidden ones.
+  - **Body frames and face parts** of all ten motions came out of the new export byte for byte as before.
+  - **Headroom in the playground:** the figure was assembled on a canvas of the sprite's size, so a chef hat raised
+    over hair was cut at the top. The playground now grows the canvas by the headroom the head parts need in any
+    frame (`headroom.ts`), measured in the browser with the chef hat over long hair on M and F.
+  - **The skill** names the commands, its prompt folder as a link.

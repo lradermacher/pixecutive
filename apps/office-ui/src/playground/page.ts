@@ -4,6 +4,7 @@ import { drawFigure } from './drawFigure.ts';
 import { controlGroups } from './controlGroups.ts';
 import { Playground } from './playground.ts';
 import { type ManifestReading, readManifest } from './readManifest.ts';
+import { headroom } from './headroom.ts';
 import { tileTransform } from './tileTransform.ts';
 
 /** Where the figures' assets are served, relative to the page. */
@@ -78,11 +79,14 @@ export async function startPlayground(win: Window): Promise<void> {
 	const layout = (): void => {
 		shown = playground.tiles().map((tile) => {
 			const canvas = element(doc, 'canvas', 'tile');
-			canvas.width = tile.motion.width * playground.zoom;
-			canvas.height = tile.motion.height * playground.zoom;
+			const room = headroom(tile.motion);
+			const width = tile.motion.width + room.left + room.right;
+			const height = tile.motion.height + room.top;
+			canvas.width = width * playground.zoom;
+			canvas.height = height * playground.zoom;
 			const sprite = doc.createElement('canvas');
-			sprite.width = tile.motion.width;
-			sprite.height = tile.motion.height;
+			sprite.width = width;
+			sprite.height = height;
 			return { canvas, sprite, caption: element(doc, 'figcaption', 'caption') };
 		});
 		stage.replaceChildren(
@@ -102,11 +106,12 @@ export async function startPlayground(win: Window): Promise<void> {
 			const spriteCanvas = place?.sprite.getContext('2d');
 			const tileCanvas = place?.canvas.getContext('2d');
 			if (!place || !spriteCanvas || !tileCanvas) return;
-			drawFigure(spriteCanvas, image, tile.name, tile.motion, tile.frame, tile.mouth, tile.look, tile.head);
+			const room = headroom(tile.motion);
+			drawFigure(spriteCanvas, image, tile.name, tile.motion, tile.frame, tile.mouth, tile.look, tile.head, room);
 			tileCanvas.setTransform(1, 0, 0, 1, 0, 0);
 			tileCanvas.clearRect(0, 0, place.canvas.width, place.canvas.height);
 			tileCanvas.imageSmoothingEnabled = false;
-			tileCanvas.setTransform(...tileTransform(tile.motion.width, playground.zoom, playground.facing));
+			tileCanvas.setTransform(...tileTransform(place.sprite.width, playground.zoom, playground.facing));
 			tileCanvas.drawImage(place.sprite, 0, 0);
 			place.caption.textContent = tile.label;
 		});

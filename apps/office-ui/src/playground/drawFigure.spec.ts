@@ -49,6 +49,7 @@ describe('drawFigure', () => {
 		expect(canvas.calls).toEqual([
 			'transform 1 0 0 1 0 0',
 			'clear 0 0 89 201',
+			'transform 1 0 0 1 0 0',
 			'smoothing true',
 			'm/body/idle/02.png 0 0 89 201',
 			'm/face/idle/blank.png 35 24 10 8',
@@ -105,5 +106,12 @@ describe('drawFigure', () => {
 			'm/head/idle/hair-1.png -48 -36 10 5',
 			'm/head/idle/hat-4.png -48 -36 10 5',
 		]);
+	});
+
+	it('clears the canvas with its headroom and moves the sprite by it, so parts past the sprite stay on it', () => {
+		const canvas = new RecordingCanvas();
+		if (idle)
+			drawFigure(canvas, (file) => file, 'idle', idle, 2, FacePart.Mouth, {}, undefined, { top: 5, left: 3, right: 2 });
+		expect(canvas.calls.slice(0, 3)).toEqual(['transform 1 0 0 1 0 0', 'clear 0 0 94 206', 'transform 1 0 0 1 3 5']);
 	});
 });

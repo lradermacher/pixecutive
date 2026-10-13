@@ -72,8 +72,20 @@ const motionFolders = (figure: FigureName, motion: Motion): string[] => [
 	join(figure, 'head', motion),
 ];
 
+/** A sprite coordinate as the manifest holds it: four decimals, a ten-thousandth of a sprite pixel. */
+const fine = (value: number): number => Math.round(value * 10_000) / 10_000;
+
 /** A placement as the manifest holds it. */
-const placed = (p: Placement): Placement => ({ file: p.file, x: p.x, y: p.y, width: p.width, height: p.height });
+const placed = (p: Placement): Placement => ({
+	file: p.file,
+	x: fine(p.x),
+	y: fine(p.y),
+	width: fine(p.width),
+	height: fine(p.height),
+});
+
+/** The manifest as written: on one line, since every motion carries hundreds of head parts and the file has a limit. */
+const written = (manifest: FigureManifest): string => `${JSON.stringify(manifest)}\n`;
 
 /** One motion as the manifest holds it: the face parts and head parts under their wire names. */
 function manifestEntry(asset: MotionAsset): FigureManifest['figures'][string]['motions'][string] {
@@ -89,7 +101,7 @@ function manifestEntry(asset: MotionAsset): FigureManifest['figures'][string]['m
 		width: asset.width,
 		height: asset.height,
 		advance: asset.advance,
-		head: { scale: asset.head.scale, origin: asset.head.origin.map(([x, y]): [number, number] => [x, y]) },
+		head: { scale: asset.head.scale, origin: asset.head.origin.map(([x, y]): [number, number] => [fine(x), fine(y)]) },
 		face,
 		...(asset.parts && asset.parts.length > 0 ? { parts } : {}),
 	};
@@ -259,7 +271,7 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 			if (!after.success)
 				throw new FigureException(FigureExceptionKey.StorageFailed, `manifest: ${after.error.message}`);
 			onDisk('write the manifest', () => {
-				writeFileSync(path, `${JSON.stringify(after.data, null, '\t')}\n`);
+				writeFileSync(path, written(after.data));
 			});
 			resolve();
 		});
@@ -293,7 +305,7 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 				throw new FigureException(FigureExceptionKey.StorageFailed, `missing ${missing.join(', ')}`);
 			this.ship(staged);
 			onDisk('write the manifest', () => {
-				writeFileSync(path, `${JSON.stringify(after.data, null, '\t')}\n`);
+				writeFileSync(path, written(after.data));
 			});
 			resolve();
 		});

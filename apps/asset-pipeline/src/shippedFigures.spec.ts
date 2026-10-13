@@ -13,6 +13,9 @@ const named = Object.values(manifest.figures).flatMap((figure) =>
 	Object.values(figure.motions).flatMap((motion) => [
 		...motion.frames.map((frame) => frame.file),
 		...Object.values(motion.face).map((part) => part.file),
+		...Object.values(motion.parts ?? {}).flatMap((variants) =>
+			Object.values(variants).flatMap((part) => [part.file, ...(part.hide ? [part.hide.file] : [])]),
+		),
 	]),
 );
 const shipped = readdirSync(root, { recursive: true, withFileTypes: true })
@@ -31,7 +34,25 @@ describe('the shipped figures', () => {
 		expect(shipped.filter((file) => !named.includes(file))).toEqual([]);
 	});
 
-	it('keep every file within the office limit', () => {
-		expect(shipped.filter((file) => statSync(join(root, file)).size > fileLimitBytes)).toEqual([]);
+	it('carry the same head parts on every motion of a figure, and a lift for each of its hairstyles', () => {
+		for (const figure of Object.values(manifest.figures)) {
+			const kinds = Object.values(figure.motions).map((motion) =>
+				Object.entries(motion.parts ?? {})
+					.map(([kind, variants]) => `${kind} ${Object.keys(variants).join(',')}`)
+					.sort(),
+			);
+			const hair = Object.keys(figure.motions['idle']?.parts?.hair ?? {});
+			expect([
+				new Set(kinds.map((k) => k.join('|'))).size,
+				hair.length > 0,
+				Object.keys(figure.head?.lift ?? {}),
+			]).toEqual([1, true, hair]);
+		}
+	});
+
+	it('keep every file within the office limit, the manifest too', () => {
+		expect([...shipped, 'manifest.json'].filter((file) => statSync(join(root, file)).size > fileLimitBytes)).toEqual(
+			[],
+		);
 	});
 });

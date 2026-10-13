@@ -302,4 +302,20 @@ describe('AssetStoreFilesAdapter shipping a motion', () => {
 		await expect(shipped).rejects.toThrow(/missing m\/head\/idle\/hair-1\.png/);
 		expect(existsSync(join(root, 'manifest.json'))).toBe(false);
 	});
+
+	it('writes the manifest on one line with its coordinates at four decimals', async () => {
+		const { adapter, root, staging } = store();
+		place(staging, 'm/body/idle/00.png');
+		place(staging, 'm/face/idle/00.png');
+		await adapter.putMotion(FigureName.M, Motion.Idle, {
+			...asset(['m/body/idle/00.png']),
+			face: [{ part: FacePart.Mouth, file: 'm/face/idle/00.png', x: 60.720000000000006, y: 1, width: 3, height: 4 }],
+		});
+		const text = readFileSync(join(root, 'manifest.json'), 'utf8');
+		expect([text.trim().split('\n').length, text.includes('60.72,'), text.includes('60.720000000000006')]).toEqual([
+			1,
+			true,
+			false,
+		]);
+	});
 });
