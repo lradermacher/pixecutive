@@ -89,7 +89,7 @@ describe('trackHeadHandler', () => {
 		const failure: unknown = await trackHeadHandler(
 			['m', 'idle'],
 			setup,
-			new TrackHeadService(new InMemoryHeadTracker(2)),
+			new TrackHeadService(new InMemoryHeadTracker(3)),
 			work,
 		).catch((error: unknown) => error);
 		expect([failure instanceof FigureException && failure.key, work.tracks]).toEqual([

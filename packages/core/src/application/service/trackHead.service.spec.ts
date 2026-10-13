@@ -35,8 +35,8 @@ const values = headTrackConfigSchema.parse({});
 const failureOf = (promise: Promise<unknown>): Promise<unknown> => promise.catch((error: unknown) => error);
 
 describe('TrackHeadService', () => {
-	it('answers the track when every ear stays within 1 px of the head', async () => {
-		const tracker = new InMemoryHeadTracker([0.4, 1]);
+	it('answers the track when every ear stays within 2 px of the head', async () => {
+		const tracker = new InMemoryHeadTracker([0.4, 2]);
 		const track = await new TrackHeadService(tracker).track({ ...job, values });
 		expect(tracker.borders).toEqual([12]);
 		expect(track.origin).toEqual([
@@ -45,20 +45,20 @@ describe('TrackHeadService', () => {
 		]);
 	});
 
-	it('names every frame whose ear strayed more than 1 px with the head drift key', async () => {
+	it('names every frame whose ear strayed more than 2 px with the head drift key', async () => {
 		const failure = await failureOf(
-			new TrackHeadService(new InMemoryHeadTracker([0.4, 1.01])).track({ ...job, values }),
+			new TrackHeadService(new InMemoryHeadTracker([0.4, 2.01])).track({ ...job, values }),
 		);
 		expect(failure instanceof FigureException && [failure.key, failure.detail]).toEqual([
 			FigureExceptionKey.HeadDrift,
-			'frame 1: 1.01 px',
+			'frame 1: 2.01 px',
 		]);
 	});
 
 	it('takes the ear limit from the values', async () => {
 		const service = new TrackHeadService(new InMemoryHeadTracker([1.5]));
-		const strict = await failureOf(service.track({ ...job, values }));
-		const loose = await service.track({ ...job, values: { ...values, earLimit: 2 } });
+		const strict = await failureOf(service.track({ ...job, values: { ...values, earLimit: 1 } }));
+		const loose = await service.track({ ...job, values });
 		expect([strict instanceof FigureException && strict.key, loose.earOffset]).toEqual([
 			FigureExceptionKey.HeadDrift,
 			[1.5],

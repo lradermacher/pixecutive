@@ -19,8 +19,11 @@ export const headTrackConfigSchema = z
 		scaleFrom: z.number().positive().default(0.32),
 		scaleTo: z.number().positive().default(0.38),
 		scaleStep: z.number().positive().default(0.0025),
-		/** The ear may stray from the head by at most this many sprite pixels in any frame, or the face would slide. */
-		earLimit: z.number().positive().default(1),
+		/**
+		 * The ear may stray from the head by at most this many sprite pixels in any frame, or the face would slide; a
+		 * raised arm moves the two apart by up to 1.7 px with the face still on the head, a turned head by 3.5 px.
+		 */
+		earLimit: z.number().positive().default(2),
 		/**
 		 * Sprite pixels around the place the head puts the ear in which the ear is searched: an arm's curve elsewhere
 		 * looks like an ear, and a drift up to this far is still measured.

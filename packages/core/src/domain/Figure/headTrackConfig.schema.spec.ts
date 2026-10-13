@@ -12,7 +12,7 @@ describe('headTrackConfigSchema', () => {
 			scaleFrom: 0.32,
 			scaleTo: 0.38,
 			scaleStep: 0.0025,
-			earLimit: 1,
+			earLimit: 2,
 			earReach: 8,
 		});
 	});
