@@ -7,4 +7,5 @@ export enum Motion {
 	Talk = 'talk',
 	Wave = 'wave',
 	Sit = 'sit',
+	Type = 'type',
 }
