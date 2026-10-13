@@ -36,8 +36,9 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Standards the build follows
 
-- Rules: assets (motion from the video model, drawn states where it melts, a gesture defined before its first render, results checked
-  through the office's own draw functions), workflow (one PNG before a visual is built), basis.
+- Rules: assets (motion from the video model, drawn states where it melts, a gesture defined before its first
+  render, results checked through the office's own draw functions), workflow (one PNG before a visual is built),
+  basis.
 - One local render at a time under the memory guard, its progress streamed into the chat.
 
 ## Behavior
@@ -87,8 +88,9 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
   pose's own height and drawn states (b806b48). M's waving fingertips show 1 to 2 off-skin pixels in five frames;
   found after the wave was accepted, so it goes to the maintainer (sheet `pix58-close`).
 - 2026-10-13, review run 2 (record b53145a, 7 findings): the hand painter's spec now tells following from the last
-  sprite from searching around the first (moves 0, 4, 8), a spec shows the reach reaches the step, and the frames
-  handler's order (forget, then cut) is pinned. A frames run that fails also forgets the work of the run before; that
+  sprite from searching around the first (moves 0, 4, 8), a spec shows the reach reaches the step, the frames
+  handler's order (forget, then measure) is pinned, and two comments over 120 characters are wrapped (all 5471aac).
+  A frames run that fails also forgets the work of the run before; that
   is local work only and is meant: a failed cut leaves nothing to build on.
 
 - 2026-10-13, type (sheets `pix58-type-still`, `pix58-fingers` F1 = a, `pix58-finger-states` F1 = a): moving fingers

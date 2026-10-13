@@ -169,7 +169,7 @@ describe('cutFramesHandler', () => {
 		expect([failure instanceof TypeError, work.drops, work.cuts]).toEqual([true, ['f idle'], []]);
 	});
 
-	it('forgets the old cut before the cutter touches the sprites', async () => {
+	it('forgets the old cut before the clip is measured', async () => {
 		const log: string[] = [];
 		await cutFramesHandler(
 			['f', 'idle'],

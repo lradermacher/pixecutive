@@ -32,7 +32,7 @@ implementation: docs/plans/impl/PLAN_PIX-57_clean-branch.md
 > **In short.** In the context of a public MIT repo whose office needs figures with free colors, wardrobe and
 > motion, facing a Blender rebuild and part rigs that did not reach the approved look, generated output of different
 > licenses and changes that broke the look when nobody looked, we decided that image models draw every asset from our
-> own templates and style, a local video model makes every motion (what it melts, drawn states), and every result is
+> own templates and style, motion comes from a local video model with drawn states where it melts, and every result is
 > checked by eye before it is shown, and against modelling or rigging by hand, to reach the approved HD office pixel
 > style, accepting a license check per tool and drawings that need redrawing when they drift.
 
@@ -60,7 +60,8 @@ figure LoRA, pose control, and code that clipped or redrew where two layers meet
 
 ## Decision
 
-Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it reached the approved look.
+Chosen: **A**, sheet `pix57-clean-branch` of 2026-10-12, F2, because only it reached the approved look; the drawn
+states of point 2 come from sheet `pix58-close` of 2026-10-13, F2.
 
 1. **A base figure comes from our own template and style.** The local image model renders the approved template with
    the style LoRA we trained on our own approved drawings; the result is accepted by the maintainer before anything

@@ -101,8 +101,8 @@ frames numbered with two digits from 00.
   OpenCV comes as its headless build of the same version (4.14.0.94); `frames`, `track` and `export` rebuilt every
   shipped file of M and F byte for byte with it. Outside this card: check-comments skips Python and TOML (PIX-72),
   and `pnpm install` stops on the ignored build script of unrs-resolver (PIX-73).
-- 2026-10-13, acceptance line 4 waits for the maintainer: the commands produce the base figures (rebuilt byte for
-  byte), the comparison with the room page is the maintainer's; the work package closes with that line open.
+- 2026-10-13, acceptance line 4 waited for the maintainer: the commands produce the base figures (rebuilt byte for
+  byte), the comparison with the room page is the maintainer's. Ticked on sheet `series-ready` F1 = a.
 - 2026-10-13, review run 2 (6 findings, all kept): every command parses the renders folder, the figure sources and
   uv by a core schema at its start, not only `clip`; an export checks only the files it staged for its motion, names
   them by their staged path, and ships nothing before every file the manifest names is there. `export` takes the
