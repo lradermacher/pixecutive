@@ -31,24 +31,13 @@
         "still": "m/walk-start.png",
         "trackStill": "m/blank2.png"
       },
-      "talk": {
-        "mode": "loop",
-        "frames": 49,
-        "endStrength": 0.8,
-        "prompt": "prompts/talk.txt",
-        "still": "m/walk-start.png",
-        "range": { "first": 0, "last": 47 },
-        "step": 1,
-        "forward": true,
-        "trackStill": "m/blank2.png"
-      },
       "wave": {
         "mode": "loop",
-        "frames": 73,
+        "frames": 97,
         "endStrength": 0.8,
         "prompt": "prompts/wave.txt",
         "still": "m/walk-start.png",
-        "range": { "first": 0, "last": 71 },
+        "range": { "first": 0, "last": 95 },
         "step": 1,
         "forward": true,
         "trackStill": "m/blank2.png"
@@ -88,24 +77,13 @@
         "range": { "first": 29, "last": 56 },
         "trackStill": "f/blank2.png"
       },
-      "talk": {
-        "mode": "loop",
-        "frames": 49,
-        "endStrength": 0.8,
-        "prompt": "prompts/talk.txt",
-        "still": "f/walk-start.png",
-        "range": { "first": 0, "last": 47 },
-        "step": 1,
-        "forward": true,
-        "trackStill": "f/blank2.png"
-      },
       "wave": {
         "mode": "loop",
-        "frames": 73,
+        "frames": 97,
         "endStrength": 0.8,
         "prompt": "prompts/wave.txt",
         "still": "f/walk-start.png",
-        "range": { "first": 0, "last": 71 },
+        "range": { "first": 0, "last": 95 },
         "step": 1,
         "forward": true,
         "trackStill": "f/blank2.png"
