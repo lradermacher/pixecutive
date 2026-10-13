@@ -101,6 +101,10 @@ describe('figureConfig', () => {
 		expect(failure(() => figureConfig({ [variable]: '' }, new InMemoryRenderMachine(), read))).toMatch(detail);
 	});
 
+	it('stops at the start when a variable holds only blanks', () => {
+		expect(failure(() => figureConfig({ PIX_UV: ' ' }, new InMemoryRenderMachine(), read))).toMatch(/^uv \(PIX_UV\): /);
+	});
+
 	it('sets up frames, track and export on a machine without the video model', () => {
 		const setup = figureConfig({}, new InMemoryRenderMachine(null), read);
 		expect([setup.rendersDir, setup.staging]).toEqual(['/repo/renders', '/repo/renders/export']);

@@ -2,7 +2,8 @@
 // app's start whether or not the command renders a clip.
 import { z } from 'zod';
 
-const path = z.string().min(1);
+/** A path or command; blanks alone name nothing. */
+const path = z.string().trim().min(1);
 
 /** The renders folder, the figure sources folder and the uv command. */
 export const figurePathsSchema = z.object({

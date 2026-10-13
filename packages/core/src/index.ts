@@ -47,5 +47,5 @@ export { ExportMotionService } from './application/service/exportMotion.service.
 export type { ExportMotionCommand } from './application/service/exportMotionCommand.ts';
 export type { IAssetStore } from './port/outgoing/assetStore.interface.ts';
 export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figuresSpec.schema.ts';
-export { figurePathsSchema, type FigurePaths } from './domain/Figure/figurePaths.schema.ts';
+export { figurePathsSchema } from './domain/Figure/figurePaths.schema.ts';
 export type { IMotionWork } from './port/outgoing/motionWork.interface.ts';

@@ -8,7 +8,10 @@ describe('figurePathsSchema', () => {
 		expect(figurePathsSchema.parse(paths)).toEqual(paths);
 	});
 
-	it.each(['rendersDir', 'sources', 'uv'])('refuses an empty %s', (field) => {
-		expect(figurePathsSchema.safeParse({ ...paths, [field]: '' }).success).toBe(false);
+	it.each(['rendersDir', 'sources', 'uv'])('refuses an empty %s and one of blanks only', (field) => {
+		expect([
+			figurePathsSchema.safeParse({ ...paths, [field]: '' }).success,
+			figurePathsSchema.safeParse({ ...paths, [field]: ' ' }).success,
+		]).toEqual([false, false]);
 	});
 });

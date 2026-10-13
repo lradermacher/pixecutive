@@ -55,7 +55,7 @@ export interface FigureSetup {
 	readonly export: ExportConfig;
 }
 
-/** The environment variable that sets each path of the clip, so a message can name what to set. */
+/** The environment variable that sets each configured path and command, so a message can name what to set. */
 const variableOf: Readonly<Record<string, string>> = Object.freeze({
 	rendersDir: 'PIX_RENDERS_DIR',
 	sources: 'PIX_FIGURE_SOURCES',
