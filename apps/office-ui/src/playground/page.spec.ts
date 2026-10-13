@@ -156,10 +156,10 @@ describe('startPlayground', () => {
 		frame(50);
 		const images = created.filter((node) => node.tag === 'img').map((node) => node.src);
 		const sprite = created.find((node) => node.tag === 'canvas' && node.className === '' && node.width === 89);
-		// idle frames 0 and 1 with blank, eyes and mouth; walk frame 0 with its eyes
+		// idle frames 0 and 1 with blank, eyes and mouth; walk frame 0 with its eyes and mouth
 		expect([images.length, new Set(images).size, sprite?.context.calls.find((c) => c.includes('blank'))]).toEqual([
-			7,
-			7,
+			8,
+			8,
 			'draw smooth img assets/figures/m/face/idle/blank.png 34 24 10 8',
 		]);
 	});

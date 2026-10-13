@@ -24,6 +24,7 @@ describe('facePlaced', () => {
 		const walk = motions['walk'];
 		expect(walk && facePlaced('walk', walk, 1)).toEqual([
 			{ file: 'm/face/walk/eyes.png', x: 47, y: 23, width: 10, height: 8 },
+			{ file: 'm/face/walk/mouth.png', x: 56, y: 23, width: 10, height: 8 },
 		]);
 	});
 
@@ -32,6 +33,9 @@ describe('facePlaced', () => {
 		expect([
 			idle && facePlaced('idle', idle, 1, FacePart.MouthOpen).at(-1),
 			walk && facePlaced('walk', walk, 1, FacePart.MouthOpen).map((part) => part.file),
-		]).toEqual([{ file: 'm/face/idle/mouth-open.png', x: 49, y: 24, width: 10, height: 11 }, ['m/face/walk/eyes.png']]);
+		]).toEqual([
+			{ file: 'm/face/idle/mouth-open.png', x: 49, y: 24, width: 10, height: 11 },
+			['m/face/walk/eyes.png', 'm/face/walk/mouth.png'],
+		]);
 	});
 });
