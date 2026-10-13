@@ -7,12 +7,12 @@ const tall = { columns: 3, rows: 2, width: 1024, height: 1024, box: { left: 110,
 describe('HeadPartsService', () => {
 	const service = new HeadPartsService();
 
-	it('splits a grid image evenly, rounded, so a 1024 image of three cells starts them at 0, 341 and 683', () => {
+	it('starts three cells of a 1024 image at 0, 341 and 683, each 341 wide, so the line at 682 is in none', () => {
 		expect([0, 1, 2, 4, 8].map((i) => service.cell(head, i))).toEqual([
 			{ left: 0, top: 0, right: 341, bottom: 341 },
-			{ left: 341, top: 0, right: 683, bottom: 341 },
+			{ left: 341, top: 0, right: 682, bottom: 341 },
 			{ left: 683, top: 0, right: 1024, bottom: 341 },
-			{ left: 341, top: 341, right: 683, bottom: 683 },
+			{ left: 341, top: 341, right: 682, bottom: 682 },
 			{ left: 683, top: 683, right: 1024, bottom: 1024 },
 		]);
 	});

@@ -117,7 +117,7 @@ folder, which is not in git.
 | --- | --- | --- | --- |
 | 1 | Core: head kinds, variant ids, layer order, hide and open-top rule, lift with clamp, grid layouts, M → F offsets, cut thresholds as a config schema | core unit tests green | a6ef273 |
 | 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | 9921684 |
-| 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | open |
+| 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | 65ba227 |
 | 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | open |
 | 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | open |
 | 6 | Line 3: cut m hair 1, m hat 4, m glasses 1 from the backup's renders and compare; one fresh draw per kind | pixel and alpha difference reported; zoomed PNG to the maintainer | open |
@@ -154,3 +154,26 @@ folder, which is not in git.
   - The drawing is not resized when it arrives: every cut resizes its input to the template first, as the proof of
     concept did, so the editor only checks that the drawing is there.
   - Two keys are new: `figure.draw_failed` and `figure.draw_quota`, with exit codes 25 and 26.
+- 2026-10-13, step 4:
+  - **Parity with the proof of concept**, measured. `parts.py` carries the backup's cut scripts over line by line,
+    and run on the backup's own inputs it writes the backup's layers with a difference of 0:
+    - m hair 1, m beard 1, m hair under hat 1, m hat 4 with its hide, m glasses 1;
+    - all 81 face variants of M and of F;
+    - the head and tall grids of M and F;
+    - the split of a hair grid.
+  - **Three things found on the way to that parity:**
+    - The face variants keep 6 pixels from the head's outline for the brows and 9 for eyes, nose and mouth. The
+      backup ran its brows with an override that no script records, and 6 is the value that reproduces all 18 of
+      them. So `edge` is now a value per part.
+    - The variant cut reads its aligned drawing in 8 bits, as the backup stored it.
+    - Grid cells all have the size of the first cell (341), and the uncovered line at 682 takes the color of the
+      still at the box's top left corner. `HeadPartsService.cell` follows that.
+  - **A third green still:** glasses and hats are cut against the accessory variant of the green still, which keeps
+    skin fringes at the features (4.5k to 5k pixels differ). It comes in as a source beside the other two, under the
+    same decision (sheet `pix78-plan` F2).
+  - **Where the sources go:** the figure sources (open, blank, mask, default parts) already lie in the local renders
+    folder `renders/figures/<n>/`, outside git. The green stills go there too, not into `apps/asset-pipeline/data/`.
+  - **Smaller changes:**
+    - The kernel sizes of the cuts stay named in `parts.py`, where they are part of the algorithm. The thresholds a
+      change would tune are in `headCutConfig`.
+    - A new key `figure.cut_failed` gets exit code 27.

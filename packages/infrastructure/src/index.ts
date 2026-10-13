@@ -15,3 +15,4 @@ export { AssetStoreFilesAdapter, type AssetStoreConfig } from './adapter/Asset/a
 export { MotionWorkFilesAdapter } from './adapter/Work/motionWork-files.adapter.ts';
 export { ImageEditorCodexAdapter } from './adapter/Draw/imageEditor-codex.adapter.ts';
 export { codexBinary } from './adapter/Draw/codexBinary.ts';
+export { PartCutterOpencvAdapter } from './adapter/Parts/partCutter-opencv.adapter.ts';

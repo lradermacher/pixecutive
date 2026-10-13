@@ -108,7 +108,10 @@ const variantCutSchema = z.object({
 	fine: refineSchema.default({ scale: 0.008, scaleStep: 0.002, shift: 3, shiftStep: 0.5 }),
 	/** Pixels a default part reaches ahead of its own lines. */
 	reach: pixels.default(8),
-	edge: pixels.default(9),
+	/** Pixels a variant keeps away from the head's outline, per part: the brows lie closest to it. */
+	edge: z
+		.object({ brows: pixels, eyes: pixels, nose: pixels, mouth: pixels })
+		.default({ brows: 6, eyes: 9, nose: 9, mouth: 9 }),
 	/** Darkness that counts as a drawn line. */
 	line: sum.default(150),
 	/** Change at which a pixel starts to show, and the change over which it becomes opaque. */

@@ -99,3 +99,9 @@ dgrauet
 asarray
 napi
 unrs
+lanczos
+inpaint
+telea
+mgrid
+getbbox
+getpixel

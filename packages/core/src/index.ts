@@ -63,3 +63,15 @@ export { headCutConfigSchema, type HeadCutConfig } from './domain/Figure/headCut
 export { HeadPartsService } from './application/service/headParts.service.ts';
 export type { ImageEditJob } from './domain/Figure/imageEditJob.interface.ts';
 export type { IImageEditor } from './port/outgoing/imageEditor.interface.ts';
+export type {
+	FitJob,
+	GlassesCutJob,
+	GridJob,
+	HatCutJob,
+	KeyCutJob,
+	PartCutResult,
+	SplitJob,
+	UnderHatJob,
+	VariantCutJob,
+} from './domain/Figure/partCutJob.interface.ts';
+export type { IPartCutter } from './port/outgoing/partCutter.interface.ts';

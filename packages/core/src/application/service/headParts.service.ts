@@ -6,15 +6,18 @@ import type { StillBox } from '../../domain/Figure/stillBox.schema.ts';
 /** The pure decisions of the head-part commands. */
 export class HeadPartsService {
 	/**
-	 * The box of cell `index` in the grid image, left to right, then top to bottom; the image's width and height are
-	 * split evenly and rounded, so three cells of a 1024 image start at 0, 341 and 683.
+	 * The box of cell `index` in the grid image, left to right, then top to bottom: cells start at the evenly split,
+	 * rounded positions and all have the same size, so three cells of a 1024 image start at 0, 341 and 683 and are
+	 * 341 wide, and the line at 682 belongs to none.
 	 */
 	cell(grid: GridLayout, index: number): StillBox {
 		const column = index % grid.columns;
 		const row = Math.floor(index / grid.columns);
-		const across = (n: number): number => Math.round((n * grid.width) / grid.columns);
-		const down = (n: number): number => Math.round((n * grid.height) / grid.rows);
-		return { left: across(column), top: down(row), right: across(column + 1), bottom: down(row + 1) };
+		const left = Math.round((column * grid.width) / grid.columns);
+		const top = Math.round((row * grid.height) / grid.rows);
+		const width = Math.floor(grid.width / grid.columns);
+		const height = Math.floor(grid.height / grid.rows);
+		return { left, top, right: left + width, bottom: top + height };
 	}
 
 	/** How many cells the grid holds. */

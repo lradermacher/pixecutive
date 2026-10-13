@@ -21,4 +21,5 @@ export const figureExitCode: Readonly<Record<FigureExceptionKey, ExitAnswer>> = 
 	[FigureExceptionKey.StorageFailed]: { code: 24, message: 'The renders or asset folder cannot be written or read' },
 	[FigureExceptionKey.DrawFailed]: { code: 25, message: 'The image model delivered no drawing' },
 	[FigureExceptionKey.DrawQuota]: { code: 26, message: "The image model's quota is used up; try again later" },
+	[FigureExceptionKey.CutFailed]: { code: 27, message: 'A part could not be cut out of its drawing' },
 });

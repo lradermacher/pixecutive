@@ -18,4 +18,5 @@ export enum FigureExceptionKey {
 	StorageFailed = 'figure.storage_failed',
 	DrawFailed = 'figure.draw_failed',
 	DrawQuota = 'figure.draw_quota',
+	CutFailed = 'figure.cut_failed',
 }

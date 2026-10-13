@@ -11,7 +11,7 @@ describe('headCutConfigSchema', () => {
 			config.key.smallest,
 			[config.hat.changed, config.hat.green, config.hat.hide, config.hat.hideReach],
 			[config.glasses.coarse.shift, config.glasses.fine.shift, config.glasses.changed],
-			[config.variant.coarse.scaleTo, config.variant.fine.scale, config.variant.opacityFrom],
+			[config.variant.coarse.scaleTo, config.variant.fine.scale, config.variant.opacityFrom, config.variant.edge],
 			[config.skull, config.lift],
 		]).toEqual([
 			{ scaleFrom: 0.95, scaleTo: 1.05, scaleStep: 0.01, shift: 8, shiftStep: 2 },
@@ -20,7 +20,7 @@ describe('headCutConfigSchema', () => {
 			{ hair: 400, beard: 40, hairUnderHat: 80 },
 			[60, 40, 12, 75],
 			[16, 3, 70],
-			[1.05, 0.008, 45],
+			[1.05, 0.008, 45, { brows: 6, eyes: 9, nose: 9, mouth: 9 }],
 			[60, 30],
 		]);
 	});
