@@ -8,7 +8,7 @@ maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 
 ## Acceptance
 
-- [ ] Talk, wave, sit and type exist for M and F front-left, each made by the video model from the approved still
+- [ ] Wave, sit and type exist for M and F front-left, each made by the video model from the approved still; talk is the idle body with drawn mouth states
 - [ ] Each gesture's definition stands in this card before its first render, and its check is measured before it is shown
 - [ ] Front-right exists for every animation by mirroring
 - [ ] Every face, hair, garment and accessory layer follows each gesture by the per-frame head origin
@@ -42,8 +42,10 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Behavior
 
-- **talk** (loop): standing as in idle; the mouth opens and closes in a speaking rhythm; small hand gestures at waist
-  height; no step. Check: feet constant, head top within 2 px.
+- **talk** (idle body with a speaking mouth): the body plays idle; the mouth switches between closed, half open and
+  open in a speaking rhythm; no hand gesture. The half and open mouth states of M and F are drawn to match the closed
+  mouth and go to the maintainer as one PNG first. Check: each state compared zoomed with the closed mouth and placed
+  on every idle frame by the head origin.
 - **wave** (loop): the near arm rises to shoulder height, the hand waves three times, the arm lowers; everything else
   as idle. Check: torso and legs within 1.5/255 of an idle frame.
 - **sit** (loop on a seated still): sitting upright on an office chair, breathing and blinking as idle. The seated
@@ -66,6 +68,18 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 - Real-time blending between gestures.
 
 ## Changed on the way
+
+- 2026-10-13, decided by the maintainer (sheet `pix58-hands`): F1 = a, talk is the idle body with drawn mouth states,
+  not a clip; a hand gesture while speaking becomes its own motion later. F2 = a, the head track's ear limit is 2 px
+  for every motion (33066ed). The talk candidates left the working tree and `figures.json`.
+- 2026-10-13, measured: fingers melt in the video model wherever a hand moves fast, at 768 and at 1024 px alike
+  (talk try 4 rendered at both sizes into a scratch folder); a still hand keeps them. The wave is rendered slowly
+  (prompt says slowly, 97 frames) so the hand travels less per frame: M keeps its fingers in every frame. F's slow
+  tries painted a face on the blank head (try 2) and swung the hand out of the clip (try 3); the cut now refuses a
+  figure that leaves the clip, naming edge and frame, instead of failing in OpenCV (60d6e7a).
+- 2026-10-13, measured: no wave so far meets its check "torso and legs within 1.5/255 of an idle frame": M's slow wave
+  reaches 2.8 at the torso and 2.5 at the legs (the body follows the raised arm slightly), the fast try 3.4; the
+  accepted idle stays within 1.3. The check was written before any wave was measured; the maintainer decides it.
 
 - 2026-10-13, night: talk and wave for M and F rendered through the commands (8 clips, about 3.5 min each, one at a
   time under the guard). Talk try 1 froze, because its prompt said mostly what stays still; try 2 made one wide
@@ -108,7 +122,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
-| 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | candidates checked (M try 3, F try 2); verdict on sheet `pix58-talk-wave` F2 |
+| 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | redefined on sheet `pix58-hands` F1 = a; the clip candidates rejected |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | rendered; ear limit and verdict on sheet `pix58-talk-wave` F1, F3; ear search fixed in 4ab91d4 |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
