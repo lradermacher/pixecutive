@@ -79,3 +79,6 @@ Zdun
 zgrep
 zod
 keyframed
+despill
+LFS
+pyproject
