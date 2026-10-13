@@ -64,6 +64,10 @@
         "still": "m/type-start.png",
         "range": { "first": 0, "last": 47 },
         "height": 177,
+        "hands": {
+          "box": { "left": 387, "top": 372, "right": 566, "bottom": 450 },
+          "states": ["m/type-lifted.png", "m/type-pressed.png"]
+        },
         "step": 1,
         "forward": true,
         "trackStill": "m/blank2.png"
@@ -136,6 +140,10 @@
         "still": "f/type-start.png",
         "range": { "first": 0, "last": 47 },
         "height": 193,
+        "hands": {
+          "box": { "left": 215, "top": 367, "right": 362, "bottom": 442 },
+          "states": ["f/type-lifted.png", "f/type-pressed.png"]
+        },
         "step": 1,
         "forward": true,
         "trackStill": "f/blank2.png"
