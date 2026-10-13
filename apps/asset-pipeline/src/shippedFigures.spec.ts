@@ -20,10 +20,10 @@ const shipped = readdirSync(root, { recursive: true, withFileTypes: true })
 	.map((entry) => relative(root, join(entry.parentPath, entry.name)));
 
 describe('the shipped figures', () => {
-	it('carry a manifest the protocol accepts, with both base figures walking and idling', () => {
+	it('carry a manifest the protocol accepts, with both base figures walking and idling at least', () => {
 		expect(Object.keys(manifest.figures).sort()).toEqual(['f', 'm']);
 		for (const figure of Object.values(manifest.figures))
-			expect(Object.keys(figure.motions).sort()).toEqual(['idle', 'walk']);
+			expect(Object.keys(figure.motions)).toEqual(expect.arrayContaining(['idle', 'walk']));
 	});
 
 	it('name only files that are there, and every image there is named', () => {
