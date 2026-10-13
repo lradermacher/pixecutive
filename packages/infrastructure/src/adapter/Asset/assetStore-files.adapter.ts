@@ -232,7 +232,7 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 			FigureExceptionKey.StorageFailed,
 		);
 		for (const file of this.files()) {
-			const size = statSync(file).size;
+			const size = onDisk(`measure ${this.within(file)}`, () => statSync(file).size);
 			if (size > fileLimitBytes) {
 				throw new FigureException(FigureExceptionKey.StorageFailed, `${this.within(file)} has ${String(size)} bytes`);
 			}

@@ -1,4 +1,10 @@
-import { FigureException, FigureExceptionKey, type IRenderMachine } from '@pixecutive/core';
+import {
+	FigureException,
+	FigureExceptionKey,
+	type IRenderMachine,
+	RenderException,
+	RenderExceptionKey,
+} from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
 import { figureConfig } from './figureConfig.ts';
 
@@ -19,6 +25,8 @@ class InMemoryRenderMachine implements IRenderMachine {
 	}
 
 	cachedVideoModel(): string | undefined {
+		if (this.videoModel === 'unreadable')
+			throw new RenderException(RenderExceptionKey.InvalidConfig, 'the video model cache: EACCES');
 		return this.videoModel ?? undefined;
 	}
 
@@ -80,6 +88,12 @@ describe('figureConfig', () => {
 	it('names the variable to set when the clip command finds the video model nowhere', () => {
 		expect(failure(() => figureConfig({}, new InMemoryRenderMachine(null), read).clip())).toMatch(
 			/^model \(PIX_LTX_MODEL\): /,
+		);
+	});
+
+	it('answers an unreadable model cache with the figure key, as every other wrong setting', () => {
+		expect(failure(() => figureConfig({}, new InMemoryRenderMachine('unreadable'), read).clip())).toBe(
+			'the video model cache: EACCES',
 		);
 	});
 

@@ -18,19 +18,24 @@ import {
 	type HeadTrackConfig,
 	headTrackConfigSchema,
 	type IRenderMachine,
+	RenderException,
 } from '@pixecutive/core';
 import type { PythonEnvironment } from '@pixecutive/infrastructure';
 
 /** Everything the motion chain's commands need. */
 export interface FigureSetup {
 	/**
-	 * Parses where the video model lives; only the clip command needs it.
+	 * Parses where the video model lives; only the clip command needs it. `PIX_LTX_MODEL` sets the weights (default:
+	 * the model in the local model cache), `PIX_LTX_PROJECT` the model's checkout (default: `~/deps/ltx-2-mlx`).
 	 * @throws {FigureException} the invalid configuration key, each wrong field named with its variable.
 	 */
 	readonly clip: () => ClipConfig;
-	/** The renders folder: clips, work and staged exports. */
+	/** The renders folder: clips, work and staged exports. `PIX_RENDERS_DIR`, default `renders` in the repo. */
 	readonly rendersDir: string;
-	/** Where the figures' stills and face parts lie (not in the repo: images live only in the office's asset folder). */
+	/**
+	 * Where the figures' stills and face parts lie (not in the repo: images live only in the office's asset folder).
+	 * `PIX_FIGURE_SOURCES`, default `figures` in the renders folder.
+	 */
 	readonly sources: string;
 	/** `apps/office-ui/assets/figures` of the repo. */
 	readonly assets: string;
@@ -40,6 +45,7 @@ export interface FigureSetup {
 	readonly staging: string;
 	/** `apps/asset-pipeline/data`: the figures' specs and the prompts. */
 	readonly data: string;
+	/** The pixel steps' Python environment; `PIX_UV` names the uv command (default `uv` on the path). */
 	readonly python: PythonEnvironment;
 	readonly scripts: { readonly frames: string; readonly head: string; readonly assets: string };
 	readonly figures: FiguresSpec;
@@ -57,8 +63,22 @@ const variableOf: Readonly<Record<string, string>> = Object.freeze({
 });
 
 /**
+ * The video model the machine's cache holds, if any.
+ * @throws {FigureException} the invalid configuration key when the cache cannot be read.
+ */
+function cachedVideoModel(machine: IRenderMachine): string | undefined {
+	try {
+		return machine.cachedVideoModel();
+	} catch (failure) {
+		if (failure instanceof RenderException) throw new FigureException(FigureExceptionKey.InvalidConfig, failure.detail);
+		throw failure;
+	}
+}
+
+/**
  * Parses the clip's part of the configuration.
- * @throws {FigureException} the invalid configuration key, each wrong field named with its variable.
+ * @throws {FigureException} the invalid configuration key, each wrong field named with its variable, or the
+ * unreadable model cache.
  */
 function clipConfig(
 	env: Readonly<Record<string, string | undefined>>,
@@ -70,7 +90,7 @@ function clipConfig(
 		rendersDir,
 		uv,
 		ltxProject: env['PIX_LTX_PROJECT'] ?? join(env['HOME'] ?? homedir(), 'deps', 'ltx-2-mlx'),
-		model: env['PIX_LTX_MODEL'] ?? machine.cachedVideoModel() ?? '',
+		model: env['PIX_LTX_MODEL'] ?? cachedVideoModel(machine) ?? '',
 	});
 	if (!clip.success) {
 		const fields = clip.error.issues.map((issue) => {

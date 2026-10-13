@@ -3,9 +3,13 @@
 // with its own key.
 import { spawn } from 'node:child_process';
 
-/** What a Python step answered: its exit code (null when it never started), its output and its complaint. */
+/**
+ * What a Python step answered: its exit code (null when it never started or was killed), the signal that killed it,
+ * its output and its complaint.
+ */
 export interface PythonStepAnswer {
 	code: number | null;
+	signal: NodeJS.Signals | null;
 	stdout: string;
 	stderr: string;
 }
@@ -40,10 +44,11 @@ export function runPythonStep(
 		child.stdout.on('data', (chunk: Buffer) => out.push(chunk));
 		child.stderr.on('data', (chunk: Buffer) => err.push(chunk));
 		child.on('error', (failure) => {
-			resolve({ code: null, stdout: '', stderr: failure.message });
+			resolve({ code: null, signal: null, stdout: '', stderr: failure.message });
 		});
-		child.on('close', (code) => {
-			resolve({ code, stdout: Buffer.concat(out).toString('utf8'), stderr: Buffer.concat(err).toString('utf8') });
+		child.on('close', (code, signal) => {
+			const [stdout, stderr] = [out, err].map((chunks) => Buffer.concat(chunks).toString('utf8'));
+			resolve({ code, signal, stdout: stdout ?? '', stderr: stderr ?? '' });
 		});
 	});
 }

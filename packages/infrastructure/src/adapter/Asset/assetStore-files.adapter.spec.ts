@@ -151,6 +151,14 @@ describe('AssetStoreFilesAdapter', () => {
 		expect(manifest.figures['m']?.motions['walk']?.face['mouth']?.x).toBe(1);
 	});
 
+	it('keeps a shipped folder nothing new was staged for', async () => {
+		const { adapter, root, staging } = store();
+		place(root, 'm/face/idle/mouth.png', 'shipped');
+		place(staging, 'm/body/idle/00.png');
+		await adapter.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png']));
+		expect(readFileSync(join(root, 'm/face/idle/mouth.png'), 'utf8')).toBe('shipped');
+	});
+
 	it('refuses a manifest that would name a file that is not there', async () => {
 		const { adapter, root } = store();
 		const failure: unknown = await adapter

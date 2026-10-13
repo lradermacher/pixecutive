@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { cutResultSchema, FigureException, FigureExceptionKey } from '@pixecutive/core';
@@ -68,6 +68,15 @@ describe('pixelStep', () => {
 		},
 		PYTHON_START_MS,
 	);
+
+	it('names a step that was killed, apart from one that never started', async () => {
+		const killer = step('#!/bin/sh\nkill -9 $$\n');
+		chmodSync(killer, 0o755);
+		const result = await failure(
+			pixelStep({ ...env, uv: killer }, step(''), [], cutResultSchema, FigureExceptionKey.FramesFailed),
+		);
+		expect(result?.[1]).toBe('killed by SIGKILL: ');
+	});
 
 	it('names a step that cannot start', async () => {
 		const result = await failure(

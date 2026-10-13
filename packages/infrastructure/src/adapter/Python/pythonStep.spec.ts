@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -59,9 +59,16 @@ describe('runPythonStep', () => {
 		PYTHON_START_MS,
 	);
 
-	it('answers code null with the reason when uv cannot start', async () => {
+	it('answers code and signal null with the reason when uv cannot start', async () => {
 		const answer = await runPythonStep({ uv: join(tmpdir(), 'no-such-uv'), project }, script('print(1)\n'), []);
-		expect(answer.code).toBeNull();
+		expect([answer.code, answer.signal]).toEqual([null, null]);
 		expect(answer.stderr).toMatch(/ENOENT/);
+	});
+
+	it('answers the signal of a step that was killed', async () => {
+		const killer = script('#!/bin/sh\nkill -9 $$\n');
+		chmodSync(killer, 0o755);
+		const answer = await runPythonStep({ uv: killer, project }, script(''), []);
+		expect([answer.code, answer.signal]).toEqual([null, 'SIGKILL']);
 	});
 });

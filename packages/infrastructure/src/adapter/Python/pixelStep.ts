@@ -14,7 +14,7 @@ export interface AnswerSchema<T> {
 
 /**
  * Runs `script` with `args` and parses its standard output as JSON by `schema`.
- * @throws {FigureException} with `key` when the step does not start, ends with an error, or answers
+ * @throws {FigureException} with `key` when the step does not start, is killed, ends with an error, or answers
  * something the schema refuses.
  */
 export async function pixelStep<T>(
@@ -26,7 +26,12 @@ export async function pixelStep<T>(
 ): Promise<T> {
 	const answer = await runPythonStep(env, script, args);
 	if (answer.code !== 0) {
-		const ended = answer.code === null ? 'did not start' : `exit ${String(answer.code)}`;
+		const ended =
+			answer.code !== null
+				? `exit ${String(answer.code)}`
+				: answer.signal !== null
+					? `killed by ${answer.signal}`
+					: 'did not start';
 		throw new FigureException(key, `${ended}: ${answer.stderr.trim()}`);
 	}
 	let json: unknown;
