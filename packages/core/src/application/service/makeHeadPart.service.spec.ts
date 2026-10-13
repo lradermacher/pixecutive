@@ -178,4 +178,29 @@ describe('MakeHeadPartService', () => {
 			['fit', { part: 'm/glasses-1.png', scale: 0.98, dx: -20.5, dy: -10.5, out: 'f/glasses-1.png' }],
 		]);
 	});
+
+	it('draws a hat on the open green still, glasses on the accessory still and every other kind on the green still', () => {
+		const service = new MakeHeadPartService(new InMemoryImageEditor(), new InMemoryPartCutter());
+		const stills = { green: 'g.png', greenAccessory: 'a.png', greenOpen: 'o.png' };
+		expect(
+			[HeadPartKind.Hat, HeadPartKind.Glasses, HeadPartKind.Beard].map((k) => service.template(k, stills)),
+		).toEqual(['o.png', 'a.png', 'g.png']);
+	});
+
+	it('offers every variant but the hidden ones, a hat with its hide, and lifts each offered hairstyle', async () => {
+		const cutter = new InMemoryPartCutter({ 'hair-1.png': 95 });
+		const service = new MakeHeadPartService(new InMemoryImageEditor(), cutter);
+		const offered = service.offered(
+			{ [HeadPartKind.Hair]: { ids: [1, 2], hidden: [2] }, [HeadPartKind.Hat]: { ids: [4] } },
+			(kind, id) => `${kind}-${String(id)}.png`,
+			(id) => `hat-${String(id)}-hide.png`,
+		);
+		expect([offered, await service.figureHead('open.png', { skull: 60, lift: 30 }, offered, [12])]).toEqual([
+			[
+				{ kind: HeadPartKind.Hair, id: 1, image: 'hair-1.png' },
+				{ kind: HeadPartKind.Hat, id: 4, image: 'hat-4.png', hide: 'hat-4-hide.png' },
+			],
+			{ lift: { '1': 12 }, openTop: [12] },
+		]);
+	});
 });

@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { FigureException, FigureExceptionKey } from '@pixecutive/core';
@@ -82,6 +82,14 @@ describe('ImageEditorCodexAdapter', () => {
 	it('answers the quota key when codex says the usage limit is reached', async () => {
 		const codex = fakeCodex('echo "ERROR: You\'ve hit your usage limit." >&2; exit 1');
 		expect(await failureKey(new ImageEditorCodexAdapter(codex.binary).edit(job()))).toBe(FigureExceptionKey.DrawQuota);
+	});
+
+	it('takes a drawing left from an earlier call for none, so a used-up quota is still named', async () => {
+		const codex = fakeCodex('echo "ERROR: You\'ve hit your usage limit." >&2; exit 1');
+		const edit = job();
+		writeFileSync(edit.output, 'an earlier drawing');
+		utimesSync(edit.output, new Date(Date.now() - 60_000), new Date(Date.now() - 60_000));
+		expect(await failureKey(new ImageEditorCodexAdapter(codex.binary).edit(edit))).toBe(FigureExceptionKey.DrawQuota);
 	});
 
 	it('answers the draw-failed key when codex ends without the drawing, also with exit 0', async () => {

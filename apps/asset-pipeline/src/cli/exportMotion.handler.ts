@@ -6,31 +6,12 @@ import {
 	FacePart,
 	type FaceSource,
 	HeadPartKind,
-	type HeadPartSource,
 	type IMotionWork,
 	type MakeHeadPartService,
 } from '@pixecutive/core';
 import type { FigureSetup } from '../figureConfig.ts';
-import type { HeadSpec } from './figureHead.ts';
 import { figureMotion } from './figureMotion.ts';
 import { headPaths } from './headPaths.ts';
-
-/** Every offered variant of every kind as its cut layer, a hat with its hide; hidden variants are left out. */
-function headSources(setup: FigureSetup, figure: Parameters<typeof headPaths>[1], head: HeadSpec): HeadPartSource[] {
-	const paths = headPaths(setup.rendersDir, figure);
-	return Object.values(HeadPartKind).flatMap((kind) => {
-		const spec = head.kinds[kind];
-		if (!spec) return [];
-		return spec.ids
-			.filter((id) => !(spec.hidden ?? []).includes(id))
-			.map((id) => ({
-				kind,
-				id,
-				image: paths.layer(kind, id),
-				...(kind === HeadPartKind.Hat ? { hide: paths.hide(id) } : {}),
-			}));
-	});
-}
 
 /**
  * Exports the used sprites, the face and the head parts at the track's scale and the manifest entry; for a figure
@@ -55,16 +36,22 @@ export async function exportMotionHandler(
 		return [{ part, image: join(setup.sources, source.image), ...mask }];
 	});
 	const head = figureSpec.head;
-	const parts = head ? headSources(setup, figure, head) : [];
-	const hair = Object.fromEntries(
-		parts.filter((p) => p.kind === HeadPartKind.Hair).map((p): [string, string] => [String(p.id), p.image]),
-	);
+	const paths = head ? headPaths(setup.rendersDir, figure) : undefined;
+	const parts =
+		head && paths
+			? headParts.offered(
+					head.kinds,
+					(kind, id) => paths.layer(kind, id),
+					(id) => paths.hide(id),
+				)
+			: [];
 	const figureHead = head
-		? {
-				lift: (await headParts.lifts(join(setup.sources, head.open), setup.headCut.skull, setup.headCut.lift, hair))
-					.lift,
-				openTop: head.kinds[HeadPartKind.Hat]?.openTop ?? [],
-			}
+		? await headParts.figureHead(
+				join(setup.sources, head.open),
+				setup.headCut,
+				parts,
+				head.kinds[HeadPartKind.Hat]?.openTop ?? [],
+			)
 		: undefined;
 	const asset = await service.export({
 		figure,

@@ -79,7 +79,7 @@ export async function startPlayground(win: Window): Promise<void> {
 	const layout = (): void => {
 		shown = playground.tiles().map((tile) => {
 			const canvas = element(doc, 'canvas', 'tile');
-			const room = headroom(tile.motion);
+			const room = headroom(tile.motion, tile.head);
 			const width = tile.motion.width + room.left + room.right;
 			const height = tile.motion.height + room.top;
 			canvas.width = width * playground.zoom;
@@ -106,7 +106,7 @@ export async function startPlayground(win: Window): Promise<void> {
 			const spriteCanvas = place?.sprite.getContext('2d');
 			const tileCanvas = place?.canvas.getContext('2d');
 			if (!place || !spriteCanvas || !tileCanvas) return;
-			const room = headroom(tile.motion);
+			const room = headroom(tile.motion, tile.head);
 			drawFigure(spriteCanvas, image, tile.name, tile.motion, tile.frame, tile.mouth, tile.look, tile.head, room);
 			tileCanvas.setTransform(1, 0, 0, 1, 0, 0);
 			tileCanvas.clearRect(0, 0, place.canvas.width, place.canvas.height);

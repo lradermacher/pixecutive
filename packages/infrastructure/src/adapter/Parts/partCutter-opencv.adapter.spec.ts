@@ -12,13 +12,32 @@ const values = headCutConfigSchema.parse({});
 /** A real Python start loads OpenCV; under a full parallel test run that takes longer than 5 s. */
 const PYTHON_START_MS = 30_000;
 
+/** The files of the synthetic scene. */
+interface Scene {
+	readonly dir: string;
+	readonly green: string;
+	readonly open: string;
+	readonly mask: string;
+	readonly hair: string;
+	readonly cap: string;
+	readonly glasses: string;
+	readonly empty: string;
+	readonly blank: string;
+	readonly eyes: string;
+	readonly brows: string;
+	readonly nose: string;
+	readonly mouth: string;
+	readonly browsDrawn: string;
+	readonly beard: string;
+}
+
 /**
  * A bald head on the light blue background, its skin flat key green, two dark eyes as its features, and three
  * drawings of the image model on it: brown hair over the skull, a red cap over the skull, dark frames around the
  * eyes. Drawn by Python into a temp folder, so no image enters the repo; `measure` answers per layer the pixels with
  * opacity inside and outside the shape that was drawn.
  */
-async function scene(): Promise<Record<string, string>> {
+async function scene(): Promise<Scene> {
 	const dir = mkdtempSync(join(tmpdir(), 'parts-'));
 	const maker = join(dir, 'make.py');
 	writeFileSync(
@@ -47,6 +66,14 @@ async function scene(): Promise<Record<string, string>> {
 			'for x in (85, 115): cv2.rectangle(glasses, (x - 10, 92), (x + 10, 106), (20, 20, 20), 2)',
 			'cv2.line(glasses, (95, 96), (105, 96), (20, 20, 20), 2); Image.fromarray(glasses).save(f"{d}/glasses.png")',
 			'Image.fromarray(np.zeros((200, 200, 4), np.uint8)).save(f"{d}/empty.png")',
+			'blank = head((230, 170, 130)); Image.fromarray(blank).save(f"{d}/blank.png")',
+			'def part(box, name):',
+			'    a = np.zeros((200, 200, 4), np.uint8); l, t, r, b = box; a[t:b, l:r] = (20, 20, 20, 255)',
+			'    Image.fromarray(a).save(f"{d}/{name}.png")',
+			'part((80, 96, 90, 103), "eyes"); part((80, 88, 90, 91), "brows"); part((98, 106, 102, 114), "nose"); part((92, 122, 108, 125), "mouth")',
+			'thick = head((230, 170, 130)); thick[86:92, 78:92] = (20, 20, 20); Image.fromarray(thick).save(f"{d}/brows-drawn.png")',
+			'beard = green.copy(); cv2.ellipse(beard, (100, 128), (30, 12), 0, 0, 180, (70, 45, 25), -1)',
+			'Image.fromarray(beard).save(f"{d}/beard.png")',
 		].join('\n'),
 	);
 	await runPythonStep(python, maker, [dir]);
@@ -60,6 +87,13 @@ async function scene(): Promise<Record<string, string>> {
 		cap: at('cap.png'),
 		glasses: at('glasses.png'),
 		empty: at('empty.png'),
+		blank: at('blank.png'),
+		eyes: at('eyes.png'),
+		brows: at('brows.png'),
+		nose: at('nose.png'),
+		mouth: at('mouth.png'),
+		browsDrawn: at('brows-drawn.png'),
+		beard: at('beard.png'),
 	};
 }
 
@@ -87,7 +121,7 @@ const failureKey = (running: Promise<unknown>): Promise<unknown> =>
 		(failure: unknown) => (failure instanceof FigureException ? failure.key : failure),
 	);
 
-describe('PartCutterOpencvAdapter', () => {
+describe('PartCutterOpencvAdapter cutting', () => {
 	it(
 		'puts the still box into every grid cell and splits a drawn grid back into stills, in folders it makes',
 		async () => {
@@ -103,10 +137,10 @@ describe('PartCutterOpencvAdapter', () => {
 				{ left: 0, top: 0, right: 128, bottom: 128 },
 				{ left: 128, top: 0, right: 256, bottom: 128 },
 			];
-			const grid = join(s.dir ?? '', 'new', 'grid.png');
-			const outs = [join(s.dir ?? '', 'stills', 'one.png'), join(s.dir ?? '', 'stills', 'two.png')];
-			await cutter.grid({ still: s.green ?? '', layout, cells, out: grid });
-			await cutter.split({ grid, layout, cells, base: s.green ?? '', outs });
+			const grid = join(s.dir, 'new', 'grid.png');
+			const outs = [join(s.dir, 'stills', 'one.png'), join(s.dir, 'stills', 'two.png')];
+			await cutter.grid({ still: s.green, layout, cells, out: grid });
+			await cutter.split({ grid, layout, cells, base: s.green, outs });
 			expect(outs.map((path) => existsSync(path))).toEqual([true, true]);
 		},
 		PYTHON_START_MS,
@@ -116,13 +150,13 @@ describe('PartCutterOpencvAdapter', () => {
 		'keys hair out of its drawing over the skull, none of the green skin or the background',
 		async () => {
 			const s = await scene();
-			const out = join(s.dir ?? '', 'hair-1.png');
+			const out = join(s.dir, 'hair-1.png');
 			const result = await cutter.keyCut({
 				kind: HeadPartKind.Hair,
 				values: values.key,
-				green: s.green ?? '',
-				mask: s.mask ?? '',
-				drawing: s.hair ?? '',
+				green: s.green,
+				mask: s.mask,
+				drawing: s.hair,
 				out,
 			});
 			const seen = await opacity(out, [54, 48, 146, 74]);
@@ -135,14 +169,14 @@ describe('PartCutterOpencvAdapter', () => {
 		'cuts a cap and writes its hide',
 		async () => {
 			const s = await scene();
-			const out = join(s.dir ?? '', 'hat-1.png');
-			const hide = join(s.dir ?? '', 'hat-1-hide.png');
+			const out = join(s.dir, 'hat-1.png');
+			const hide = join(s.dir, 'hat-1-hide.png');
 			const result = await cutter.hatCut({
 				values: values.hat,
-				greenOpen: s.green ?? '',
-				green: s.green ?? '',
-				mask: s.mask ?? '',
-				drawing: s.cap ?? '',
+				greenOpen: s.green,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.cap,
 				out,
 				hide,
 			});
@@ -161,30 +195,32 @@ describe('PartCutterOpencvAdapter', () => {
 		'cuts glasses around the eyes and nothing elsewhere',
 		async () => {
 			const s = await scene();
-			const out = join(s.dir ?? '', 'glasses-1.png');
-			await cutter.glassesCut({ values: values.glasses, green: s.green ?? '', drawing: s.glasses ?? '', out });
+			const out = join(s.dir, 'glasses-1.png');
+			await cutter.glassesCut({ values: values.glasses, green: s.green, drawing: s.glasses, out });
 			const seen = await opacity(out, [72, 88, 128, 110]);
 			expect([seen.inside > 100, seen.outside]).toEqual([true, 0]);
 		},
 		PYTHON_START_MS,
 	);
+});
 
+describe('PartCutterOpencvAdapter measuring and preparing', () => {
 	it(
 		'measures the skull top on the open still and the first row of each layer, none for an empty one',
 		async () => {
 			const s = await scene();
-			const out = join(s.dir ?? '', 'hair-1.png');
+			const out = join(s.dir, 'hair-1.png');
 			await cutter.keyCut({
 				kind: HeadPartKind.Hair,
 				values: values.key,
-				green: s.green ?? '',
-				mask: s.mask ?? '',
-				drawing: s.hair ?? '',
+				green: s.green,
+				mask: s.mask,
+				drawing: s.hair,
 				out,
 			});
 			const [skull, [first, empty]] = await Promise.all([
-				cutter.skullTop(s.open ?? '', 60),
-				cutter.firstRows([out, s.empty ?? '']),
+				cutter.skullTop(s.open, 60),
+				cutter.firstRows([out, s.empty]),
 			]);
 			expect([
 				skull >= 58 && skull <= 61,
@@ -201,11 +237,121 @@ describe('PartCutterOpencvAdapter', () => {
 			const s = await scene();
 			const missing = cutter.glassesCut({
 				values: values.glasses,
-				green: s.green ?? '',
-				drawing: join(s.dir ?? '', 'none.png'),
-				out: join(s.dir ?? '', 'x.png'),
+				green: s.green,
+				drawing: join(s.dir, 'none.png'),
+				out: join(s.dir, 'x.png'),
 			});
 			expect(await failureKey(missing)).toBe(FigureExceptionKey.CutFailed);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'keys a beard out of the lower face only, never over the eyes, brows or nose',
+		async () => {
+			const s = await scene();
+			const out = join(s.dir, 'beard-1.png');
+			await cutter.keyCut({
+				kind: HeadPartKind.Beard,
+				values: values.key,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.beard,
+				out,
+				features: [s.eyes, s.brows, s.nose],
+			});
+			// the beard drawn at rows 116 to 140, with its outline and soft ring
+			const seen = await opacity(out, [66, 112, 136, 146]);
+			expect([seen.inside > 300, seen.outside]).toEqual([true, 0]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'cuts hair under a hat only where the hairstyle without the hat lies',
+		async () => {
+			const s = await scene();
+			const hair = join(s.dir, 'hair-1.png');
+			const hat = join(s.dir, 'hat-4.png');
+			await cutter.keyCut({
+				kind: HeadPartKind.Hair,
+				values: values.key,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.hair,
+				out: hair,
+			});
+			await cutter.hatCut({
+				values: values.hat,
+				greenOpen: s.green,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.cap,
+				out: hat,
+				hide: join(s.dir, 'hide.png'),
+			});
+			const out = join(s.dir, 'hair-under-hat-1.png');
+			await cutter.keyCut({
+				kind: HeadPartKind.HairUnderHat,
+				values: values.key,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.hair,
+				out,
+				hairless: hair,
+				hat,
+				open: s.open,
+			});
+			// the hairstyle's own area grown by 7 pixels, and the band just below the hat
+			const seen = await opacity(out, [48, 42, 154, 86]);
+			expect([seen.inside > 1000, seen.outside]).toEqual([true, 0]);
+		},
+		PYTHON_START_MS,
+	);
+});
+
+describe('PartCutterOpencvAdapter on face variants and fits', () => {
+	it(
+		'cuts a face variant as the features nearest the wanted default part, the thicker brows here',
+		async () => {
+			const s = await scene();
+			const out = join(s.dir, 'brows-1.png');
+			const result = await cutter.variantCut({
+				part: HeadPartKind.Brows,
+				values: values.variant,
+				open: s.open,
+				blank: s.blank,
+				mask: s.mask,
+				defaults: { brows: s.brows, eyes: s.eyes, nose: s.nose, mouth: s.mouth },
+				drawing: s.browsDrawn,
+				out,
+			});
+			const seen = await opacity(out, [74, 82, 96, 95]);
+			expect([result.pixels > 20, seen.inside > 20, seen.outside]).toEqual([true, true, 0]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'lays the shrunk hat flat magenta on a hairstyle, and fits a layer of another figure by scale and shift',
+		async () => {
+			const s = await scene();
+			const hat = join(s.dir, 'hat-4.png');
+			await cutter.hatCut({
+				values: values.hat,
+				greenOpen: s.green,
+				green: s.green,
+				mask: s.mask,
+				drawing: s.cap,
+				out: hat,
+				hide: join(s.dir, 'hide.png'),
+			});
+			const input = join(s.dir, 'input.png');
+			const fitted = join(s.dir, 'fitted.png');
+			await cutter.underHat({ hair: s.hair, hat, shrink: 5, out: input });
+			await cutter.fit({ part: hat, scale: 0.5, dx: 0, dy: 40, out: fitted });
+			const moved = await opacity(fitted, [0, 0, 200, 60]);
+			expect([existsSync(input), moved.inside, moved.outside > 100]).toEqual([true, 0, true]);
 		},
 		PYTHON_START_MS,
 	);

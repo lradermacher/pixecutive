@@ -1,4 +1,4 @@
-import { HeadPartKind } from '@pixecutive/protocol';
+import { HeadLayer, HeadPartKind } from '@pixecutive/protocol';
 import { describe, expect, it } from 'vitest';
 import { headPlaced } from './headPlaced.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
@@ -76,5 +76,13 @@ describe('headPlaced', () => {
 
 	it('cuts the hide of a hat on a bald head and leaves out a variant the motion lacks', () => {
 		expect([files({ hat: 4 }), files({ hair: 7 })]).toEqual([['hat-4-hide.png cut', 'hat-4.png'], []]);
+	});
+
+	it('draws in the order of the protocol head layers: beard, hide, hair, glasses, hat', () => {
+		const kinds = headPlaced(motion, 0, { lift: {}, openTop: [] }, { beard: 1, hair: 1, glasses: 1, hat: 4 }).map(
+			(p) => (p.cut ? HeadLayer.HatHide : p.file.split('-')[0]),
+		);
+		expect(kinds).toEqual(['beard', HeadLayer.HatHide, 'hair', 'glasses', 'hat']);
+		expect(Object.values(HeadLayer)).toEqual(['beard', 'hat-hide', 'hair', 'glasses', 'hat']);
 	});
 });

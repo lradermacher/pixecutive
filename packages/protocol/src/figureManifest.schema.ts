@@ -40,7 +40,7 @@ const motionSchema = z
 
 /**
  * What holds for a figure's head parts in every motion: how far a hat rises above the bald head for each hair, in
- * still pixels before the head's scale, and the hats open on top, which neither hide the head nor rise.
+ * still pixels before the head's scale, and the hats open on top, which over hair neither hide the head nor rise.
  */
 const headSchema = z.object({
 	lift: z.record(z.string().regex(/^[1-9][0-9]*$/), z.int().min(0)),

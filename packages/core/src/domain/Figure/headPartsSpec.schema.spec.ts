@@ -51,6 +51,7 @@ describe('headPartsSpecSchema', () => {
 			'two variants in one drawing without a grid',
 			{ ...spec, kinds: { hat: { ids: [1, 2], draws: [{ prompt: 'head/hat.txt', ids: [1, 2] }] } } },
 		],
+		['hair under a hat without its hat', { ...spec, kinds: { 'hair-under-hat': { ids: [1], shrink: 17 } } }],
 		[
 			'a prompt that is no text file',
 			{ ...spec, kinds: { hat: { ids: [1], draws: [{ prompt: 'head/hat.md', ids: [1] }] } } },

@@ -1,5 +1,6 @@
-# parts.py — the pixel work of the part cutter (ADR 0019: Python only as an adapter's internals). It decides nothing:
-# the thresholds, the grids and the fits come from the core; every subcommand takes one job as JSON and answers JSON.
+# parts.py — the pixel work of the part cutter (ADR 0019: Python only as an adapter's internals). The thresholds a cut
+# is tuned by, the grids and the fits come from the core; the kernel sizes and fixed steps are the algorithm's own.
+# Every subcommand takes one job as JSON and answers JSON.
 #   parts.py <grid|split|key_cut|hat_cut|glasses_cut|variant_cut|under_hat|fit|skull|first_rows> <job json>
 import json
 import os
@@ -11,7 +12,7 @@ from PIL import Image
 
 
 def rgb(path, size=None):
-    """An image as float RGB, resized with LANCZOS to `size` (width, height) when given: the model may answer in another size."""
+    """An image as float RGB, resized with LANCZOS to `size` (width, height) when given: a model may answer in any size."""
     image = Image.open(path).convert("RGB")
     if size is not None and image.size != tuple(size):
         image = image.resize(tuple(size), Image.LANCZOS)
@@ -237,7 +238,7 @@ def key_cut(job):
         keep |= gap
     if kind == "hair-under-hat":
         # the body drawn a few pixels off: up to 4 px of background between hair and body outline become outline
-        still_background = np.abs(G - bg).sum(2) < 45
+        still_background = np.abs(G - bg).sum(2) < v["background"]
         seam = still_background & ~keep & dilate(keep, 9) & dilate(G.sum(2) < 200, 9)
         V = np.where(seam[..., None], erode_color(V, 7), V)
         keep |= seam
@@ -476,7 +477,7 @@ def align_head(S, V0, v):
         return float((np.abs(W - Sc).sum(2) * weight_crop).sum() / weight_crop.sum() / 3)
 
     _, sc, dx, dy = search(err, v["coarse"], v["fine"])
-    # the aligned drawing is kept in 8 bits, as the cut has always read it
+    # the aligned drawing is kept in 8 bits: its pixels are compared with the 8-bit still
     return np.clip(warp_about(V, sc, dx, dy, centre, S.shape[1::-1]), 0, 255).astype(np.uint8).astype(np.float32)
 
 

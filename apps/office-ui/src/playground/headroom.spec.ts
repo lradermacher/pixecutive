@@ -38,8 +38,8 @@ describe('headroom', () => {
 		expect(headroom(motion(hair))).toEqual({ top: 0, left: 6, right: 7 });
 	});
 
-	it('counts a hat as raised by the most lift and grown with it', () => {
+	it('counts a hat as raised by the figure largest lift and grown with it', () => {
 		const hat = { hat: { '4': { file: 'c.png', x: 0, y: -10, width: 30, height: 30 } } };
-		expect(headroom(motion(hat))).toEqual({ top: 17, left: 0, right: 0 });
+		expect(headroom(motion(hat), { lift: { '1': 30, '2': 12 }, openTop: [] })).toEqual({ top: 17, left: 0, right: 0 });
 	});
 });

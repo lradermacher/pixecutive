@@ -8,12 +8,13 @@ import { type FigureHeadKind, figureHeadKind } from './figureHeadKind.ts';
 import { headPaths } from './headPaths.ts';
 
 /**
- * The image the model edits and where its drawing lands: a drawing in a grid edits the grid and lands numbered; else the still its
- * kind is drawn on (the open green still for a hat, the accessory green still for glasses, the hairstyle's input for
- * hair under a hat) and the variant's own still, `first` being the variant drawn.
+ * The image the model edits and where its drawing lands: a drawing in a grid edits the grid and lands numbered; else
+ * the still its kind is drawn on, as the core decides, or for hair under a hat the hairstyle's input, and it lands as
+ * the variant's own still, `first` being the variant drawn.
  */
 function drawingFiles(
 	setup: FigureSetup,
+	service: MakeHeadPartService,
 	named: FigureHeadKind,
 	grid: string | undefined,
 	first: number,
@@ -21,9 +22,8 @@ function drawingFiles(
 	const { figure, head, kind, number } = named;
 	const paths = headPaths(setup.rendersDir, figure);
 	if (grid !== undefined) return { input: paths.grid(grid), output: paths.drawing(kind, number) };
-	const still =
-		kind === HeadPartKind.Hat ? head.greenOpen : kind === HeadPartKind.Glasses ? head.greenAccessory : head.green;
-	const input = kind === HeadPartKind.HairUnderHat ? paths.underHatInput(first) : join(setup.sources, still);
+	const input =
+		kind === HeadPartKind.HairUnderHat ? paths.underHatInput(first) : join(setup.sources, service.template(kind, head));
 	return { input, output: paths.still(kind, first) };
 }
 
@@ -39,7 +39,8 @@ export async function drawPartHandler(
 	service: MakeHeadPartService,
 	read: (path: string) => string = (path) => readFileSync(path, 'utf8'),
 ): Promise<string[]> {
-	const { figure, kind, kindSpec, number } = figureHeadKind(args, setup.figures);
+	const named = figureHeadKind(args, setup.figures);
+	const { figure, kind, kindSpec, number } = named;
 	const draw = kindSpec.draws?.[number - 1];
 	if (draw === undefined) {
 		throw new FigureException(
@@ -47,7 +48,7 @@ export async function drawPartHandler(
 			`${figure} ${kind} has ${String(kindSpec.draws?.length ?? 0)} drawings, not ${String(number)}`,
 		);
 	}
-	const { input, output } = drawingFiles(setup, figureHeadKind(args, setup.figures), draw.grid, draw.ids[0] ?? number);
+	const { input, output } = drawingFiles(setup, service, named, draw.grid, draw.ids[0] ?? number);
 	let prompt: string;
 	try {
 		prompt = read(join(setup.data, draw.prompt));

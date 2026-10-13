@@ -235,3 +235,28 @@ folder, which is not in git.
     too.
   - **For PIX-70:** garments placed per frame would pass the limit again. That card has to keep the parts per figure,
     or split the manifest.
+- 2026-10-13, review run 1 (17 findings: 1 blocker, 6 should, 3 minor, 7 notes):
+  - **Blocker, fixed:** a drawing left at the output by an earlier call counted as a new one, so a used-up quota read as
+    "drew". The editor now takes only a drawing written after it started, and a spec covers it.
+  - **Placement, fixed:** three decisions moved from the handlers into `MakeHeadPartService`: the still a kind is drawn
+    on (`template`), the offered variants (`offered`), and the figure's lifts and open hats (`figureHead`).
+  - **The order of the head layers:**
+    - The manifest carries neither an order nor the skull top. The order is the protocol's `HeadLayer` enum, which the
+      playground now draws by.
+    - The skull top is only used for the lifts, which the export computes, so the manifest does not carry it.
+    - The core's own `HeadLayer` enum, unused and added by this card, is gone again.
+  - **Reconnects:** the Codex CLI retries a reconnect itself (its logs show "Reconnecting n/5"), so the adapter does
+    not repeat it. This replaces the plan's retry.
+  - **`parts.py`:**
+    - Its header says what it is: the tuned thresholds come from the core, and the kernel sizes and fixed steps are the
+      algorithm's.
+    - One literal that copied `key.background` now reads it.
+  - **Cutter specs added:** beard, hair under a hat, face variant, the hair-under-hat input and the fit.
+  - **The UI's lift cap of 30 is gone:** the export already clamps, and the headroom takes the figure's largest lift.
+  - **Smaller fixes:**
+    - Hair under a hat must name its hat and shrink in the schema.
+    - F's hats and glasses no longer carry `fittedFrom`, since their own drawings are exact.
+    - The comments on open hats and on the first row now say what the code does.
+    - Long comment lines are rewrapped.
+  - **Note, not changed:** `pnpm assets export` needs the offered head layers in the renders folder, as it needs the face
+    sources. Exporting a body motion on a fresh machine needs both.

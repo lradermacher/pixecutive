@@ -24,6 +24,6 @@ export interface IPartCutter {
 	fit(job: FitJob): Promise<void>;
 	/** The first row of the open still that differs from its background by more than `threshold`: the skull's top. */
 	skullTop(open: string, threshold: number): Promise<number>;
-	/** Per layer the first row with any opacity, or null for an empty layer, in one pass. */
+	/** Per layer the first row with an opacity above 3 (of 255), or null for an empty layer, in one pass. */
 	firstRows(layers: readonly string[]): Promise<(number | null)[]>;
 }

@@ -16,6 +16,9 @@ class RecordingHeadParts {
 		this.calls.push([name, args]);
 		return Promise.resolve();
 	}
+	template(kind: string, stills: { green: string; greenAccessory: string; greenOpen: string }): string {
+		return kind === 'hat' ? stills.greenOpen : kind === 'glasses' ? stills.greenAccessory : stills.green;
+	}
 	grid(...args: unknown[]): Promise<void> {
 		return this.keep('grid', args);
 	}

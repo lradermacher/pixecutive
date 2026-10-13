@@ -1,4 +1,4 @@
-// headPartKind.enum.ts — the kinds of parts drawn on a figure's head, each in variants; the values are the protocol's.
+// headPartKind.enum.ts — the kinds of parts drawn on a figure's head, in variants; the values are the protocol's.
 
 /** A kind of head part; its value names the part's asset files. */
 export enum HeadPartKind {

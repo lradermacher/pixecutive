@@ -206,12 +206,13 @@ describe('exportMotionHandler', () => {
 			new InMemoryMotionWork(),
 			headParts,
 		);
-		expect([store.heads[0]?.[2], store.figureHeads]).toEqual([
+		expect([store.heads[0]?.[2], store.figureHeads, store.heads.length]).toEqual([
 			[
 				{ kind: 'hair', id: 1, image: '/r/head/m/layers/hair-1.png' },
 				{ kind: 'hat', id: 4, image: '/r/head/m/layers/hat-4.png', hide: '/r/head/m/layers/hat-4-hide.png' },
 			],
 			[['m', { lift: { '1': 12 }, openTop: [4] }]],
+			1,
 		]);
 	});
 });

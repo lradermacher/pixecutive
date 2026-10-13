@@ -1,7 +1,7 @@
 // headPlaced.ts — where the head layers of a figure's look are drawn in one frame, in sprite pixels, back to front:
 // beard, the hat's hide, the hair (or the hair drawn under the hat), glasses, hat. A hide cuts the figure instead of
 // covering it.
-import { type FigureManifest, HeadPartKind } from '@pixecutive/protocol';
+import { type FigureManifest, HeadLayer, HeadPartKind } from '@pixecutive/protocol';
 import type { PlacedPart } from './facePlaced.ts';
 import type { Look } from './look.interface.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
@@ -13,9 +13,6 @@ export interface PlacedLayer extends PlacedPart {
 
 /** What holds for a figure's head parts in every motion. */
 type FigureHead = NonNullable<FigureManifest['figures'][string]['head']>;
-
-/** The most a hat rises for the hair under it, in still pixels. */
-const mostLift = 30;
 
 /** The variant `id` of `kind` in the motion, or nothing when no variant is chosen or the motion lacks it. */
 function variant(
@@ -38,10 +35,9 @@ function raised(hat: PlacedLayer, lift: number): PlacedLayer {
 	};
 }
 
-/** How far a hat rises for `hair`, in sprite pixels: the hair's lift, at most the most, at the motion's scale. */
+/** How far a hat rises for `hair`, in sprite pixels: the hair's lift, clamped by the export, at the motion's scale. */
 function liftFor(motion: ManifestMotion, head: FigureHead | undefined, hair: number): number {
-	const lift = head?.lift[String(hair)] ?? 0;
-	return Math.max(0, Math.min(mostLift, lift)) * motion.head.scale;
+	return (head?.lift[String(hair)] ?? 0) * motion.head.scale;
 }
 
 /** The hat of the look: its layer, the hide it cuts, the hairstyle drawn under it, and how far it rises. */
@@ -82,13 +78,20 @@ export function headPlaced(
 		height: p.height,
 	});
 	const { hat, hide, pressed, lift } = hatOf(motion, head, look);
-	const layers = [
-		variant(motion, HeadPartKind.Beard, look[HeadPartKind.Beard]),
-		hide,
-		pressed ?? variant(motion, HeadPartKind.Hair, look[HeadPartKind.Hair]),
-		variant(motion, HeadPartKind.Glasses, look[HeadPartKind.Glasses]),
-	];
-	return layers
-		.flatMap((p): PlacedLayer[] => (p === undefined ? [] : [p === hide ? { ...on(p), cut: true } : on(p)]))
-		.concat(hat ? [raised(on(hat), lift)] : []);
+	const byLayer: Readonly<Record<HeadLayer, PlacedLayer | undefined>> = {
+		[HeadLayer.Beard]: variantOn(variant(motion, HeadPartKind.Beard, look[HeadPartKind.Beard])),
+		[HeadLayer.HatHide]: hide ? { ...on(hide), cut: true } : undefined,
+		[HeadLayer.Hair]: variantOn(pressed ?? variant(motion, HeadPartKind.Hair, look[HeadPartKind.Hair])),
+		[HeadLayer.Glasses]: variantOn(variant(motion, HeadPartKind.Glasses, look[HeadPartKind.Glasses])),
+		[HeadLayer.Hat]: hat ? raised(on(hat), lift) : undefined,
+	};
+	// the protocol's order of the layers is the order they are drawn in
+	return Object.values(HeadLayer).flatMap((layer) => {
+		const placed = byLayer[layer];
+		return placed ? [placed] : [];
+	});
+
+	function variantOn(p: PlacedPart | undefined): PlacedLayer | undefined {
+		return p === undefined ? undefined : on(p);
+	}
 }

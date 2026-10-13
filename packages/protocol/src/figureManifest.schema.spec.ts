@@ -62,6 +62,10 @@ describe('figureManifestSchema', () => {
 			{ version: 1, figures: { m: { motions: { idle: { ...idle, parts: { cape: {} } } } } } },
 		],
 		[
+			'an open hat that is no whole number',
+			{ version: 1, figures: { m: { head: { lift: {}, openTop: [1.5] }, motions: { idle } } } },
+		],
+		[
 			'a negative lift',
 			{ version: 1, figures: { m: { head: { lift: { '1': -3 }, openTop: [] }, motions: { idle } } } },
 		],

@@ -1,7 +1,7 @@
 // imageEditor-codex.adapter.ts — draws through the local Codex CLI's image generation (Astra): it hands the CLI our
 // template and the prompt, the model saves the drawing beside the output, and a missing file is a failure.
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { basename, dirname } from 'node:path';
 import { FigureException, FigureExceptionKey, type IImageEditor, type ImageEditJob } from '@pixecutive/core';
 
@@ -30,6 +30,7 @@ export class ImageEditorCodexAdapter implements IImageEditor {
 		const folder = dirname(job.output);
 		const reply = `${job.output}.reply.txt`;
 		const args = ['exec', '--skip-git-repo-check', '--ephemeral', '-s', 'workspace-write', '-C', folder];
+		const started = Math.floor(Date.now() / 1000) * 1000;
 		return new Promise((resolve, reject) => {
 			// codex starts in the output's folder, which a first drawing of a kind has not made yet
 			try {
@@ -51,7 +52,8 @@ export class ImageEditorCodexAdapter implements IImageEditor {
 				reject(new FigureException(FigureExceptionKey.DrawFailed, `${this.binary}: ${failure.message}`));
 			});
 			child.on('close', (code) => {
-				if (existsSync(job.output)) {
+				// a drawing left from an earlier call is no answer to this one
+				if (existsSync(job.output) && statSync(job.output).mtimeMs >= started) {
 					resolve();
 					return;
 				}

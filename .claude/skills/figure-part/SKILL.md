@@ -25,9 +25,9 @@ parts are drawn and not built or clipped by code is decided in
    input shows only what the drawing may keep.*
 3. **Draw the part** — the image model draws it on every pose of the grid. A part with two sides (eyes, brows,
    shoes) is asked for as one matching pair. A mark such as our logo is drawn into the part from its source file,
-   never stamped by code. Head parts: `pnpm assets draw <figure> <kind> <drawing>` makes one call with the prompt from
-   [the head prompts](../../../apps/asset-pipeline/data/head/), and `pnpm assets split <figure> <kind> <drawing>` splits a drawn grid into one
-   still per variant. *Done when every pose carries the part.*
+   never stamped by code. Head parts: `pnpm assets draw <figure> <kind> <drawing>` makes one call with its prompt from
+   [the head prompts](../../../apps/asset-pipeline/data/head/), and `pnpm assets split <figure> <kind> <drawing>`
+   splits a drawn grid into one still per variant. *Done when every pose carries the part.*
 4. **Compare with the approved neighbor** — the new drawing whole, next to an approved part of the same figure;
    pairs zoomed side by side. Drift in line, shading or proportion is redrawn. *Done when nothing drifts.*
 5. **Cut it by key** — keyed on the green only, with the green spill removed; the silhouette is checked against the

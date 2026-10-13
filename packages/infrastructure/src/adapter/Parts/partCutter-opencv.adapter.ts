@@ -1,4 +1,4 @@
-// partCutter-opencv.adapter.ts — the head parts' pixel work with OpenCV in the pinned Python environment (`parts.py`):
+// partCutter-opencv.adapter.ts — the head parts' pixel work with OpenCV in the pinned Python environment (parts.py):
 // grids for the image model, the cuts of its drawings and the rows the lift is measured by.
 import {
 	FigureExceptionKey,

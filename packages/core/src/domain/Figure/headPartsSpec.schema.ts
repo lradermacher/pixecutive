@@ -97,6 +97,10 @@ export const headPartsSpecSchema = z
 			),
 		'a drawing draws no more variants than its grid has cells, one without a grid one',
 	)
+	.refine((spec) => {
+		const under = spec.kinds[HeadPartKind.HairUnderHat];
+		return under === undefined || (under.hat !== undefined && under.shrink !== undefined);
+	}, 'hair under a hat names its hat and how far that hat shrinks for the drawing')
 	.refine(
 		(spec) =>
 			Object.values(HeadPartKind).every((kind) => kind === HeadPartKind.Hat || spec.kinds[kind]?.openTop === undefined),

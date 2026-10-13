@@ -1,10 +1,11 @@
-// makeHeadPart.service.ts — the use cases of the head parts: a grid for the image model, a drawing, its split, the cut
+// makeHeadPart.service.ts — the use cases of the head parts: a grid for the image model, a drawing, its split, a cut
 // of each variant and the lifts of the hair. The core decides which cells, which prompt and which cut; the ports draw
 // and cut.
 import { FigureException } from '../exception/figure.exception.ts';
 import { FigureExceptionKey } from '../exception/figureExceptionKey.enum.ts';
 import type { GridLayout } from '../../domain/Figure/gridLayout.schema.ts';
 import { HeadPartKind } from '../../domain/Figure/headPartKind.enum.ts';
+import type { HeadPartSource } from '../../domain/Figure/headPartSource.interface.ts';
 import type { PartCutResult } from '../../domain/Figure/partCutJob.interface.ts';
 import type { IImageEditor } from '../../port/outgoing/imageEditor.interface.ts';
 import type { IPartCutter } from '../../port/outgoing/partCutter.interface.ts';
@@ -31,6 +32,41 @@ export class MakeHeadPartService {
 		private readonly editor: IImageEditor,
 		private readonly cutter: IPartCutter,
 	) {}
+
+	/** The still a kind is drawn on when it draws no grid: a hat on the open green still, glasses on the accessory one. */
+	template(kind: HeadPartKind, stills: { green: string; greenAccessory: string; greenOpen: string }): string {
+		if (kind === HeadPartKind.Hat) return stills.greenOpen;
+		return kind === HeadPartKind.Glasses ? stills.greenAccessory : stills.green;
+	}
+
+	/** Every offered variant of every kind as its layer, a hat with its hide; hidden variants are not offered. */
+	offered(
+		kinds: Readonly<Partial<Record<HeadPartKind, { ids: readonly number[]; hidden?: readonly number[] }>>>,
+		layer: (kind: HeadPartKind, id: number) => string,
+		hide: (id: number) => string,
+	): HeadPartSource[] {
+		return Object.values(HeadPartKind).flatMap((kind) => {
+			const spec = kinds[kind];
+			if (!spec) return [];
+			return spec.ids
+				.filter((id) => !(spec.hidden ?? []).includes(id))
+				.map((id) => ({ kind, id, image: layer(kind, id), ...(kind === HeadPartKind.Hat ? { hide: hide(id) } : {}) }));
+		});
+	}
+
+	/** What holds for the figure in every motion: the lift of each offered hairstyle and the hats open on top. */
+	async figureHead(
+		open: string,
+		values: { skull: number; lift: number },
+		offered: readonly HeadPartSource[],
+		openTop: readonly number[],
+	): Promise<{ lift: Record<string, number>; openTop: number[] }> {
+		const hair = Object.fromEntries(
+			offered.filter((p) => p.kind === HeadPartKind.Hair).map((p): [string, string] => [String(p.id), p.image]),
+		);
+		const { lift } = await this.lifts(open, values.skull, values.lift, hair);
+		return { lift, openTop: [...openTop] };
+	}
 
 	/** The prompt with every `{name}` filled. */
 	prompt(text: string, fill: Readonly<Record<string, string>>): string {
@@ -134,7 +170,7 @@ export class MakeHeadPartService {
 		}
 	}
 
-	/** The input for hair under a hat: the hairstyle's still with the hat shrunk by `shrink` pixels on top, flat magenta. */
+	/** The input for hair under a hat: the hairstyle's still with the hat shrunk by `shrink` pixels, flat magenta. */
 	async underHat(hair: string, hat: string, shrink: number, out: string): Promise<void> {
 		await this.cutter.underHat({ hair, hat, shrink, out });
 	}

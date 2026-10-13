@@ -214,7 +214,9 @@ describe('startPlayground', () => {
 		const figures = body.all().filter((node) => node.className === 'figure');
 		expect(figures.map((figure) => figure.style.width)).toEqual(['178px', '188px']);
 	});
+});
 
+describe('startPlayground with head parts', () => {
 	it('draws the head part a figure is made to wear, from the served asset folder, after its face', async () => {
 		const manifest = copy() as { figures: { m: { motions: Record<string, { parts?: unknown }> } } };
 		const hair = { '1': { file: 'm/head/idle/hair-1.png', x: 0, y: 0, width: 10, height: 6 } };
@@ -237,5 +239,27 @@ describe('startPlayground', () => {
 		await startPlayground(win);
 		const tiles = body.all().filter((node) => node.tag === 'canvas' && node.className === 'tile');
 		expect([tiles.length, tiles.every((tile) => tile.height > 402)]).toEqual([2, true]);
+	});
+
+	it('grows a tile further for a figure whose hair lifts its hats', async () => {
+		const build = (lift: Record<string, number>): unknown => {
+			const manifest = copy() as {
+				figures: { m: { head?: unknown; motions: Record<string, { parts?: unknown }> } };
+			};
+			const hat = { '4': { file: 'm/head/idle/hat-4.png', x: 0, y: -100, width: 10, height: 6 } };
+			for (const motion of Object.values(manifest.figures.m.motions)) motion.parts = { hat };
+			manifest.figures.m.head = { lift, openTop: [] };
+			return manifest;
+		};
+		const heights = async (lift: Record<string, number>): Promise<number[]> => {
+			const { win, body } = fakeWindow(build(lift));
+			await startPlayground(win);
+			return body
+				.all()
+				.filter((node) => node.className === 'tile')
+				.map((tile) => tile.height);
+		};
+		const [flat, lifted] = [await heights({}), await heights({ '1': 30 })];
+		expect(lifted.every((height, k) => height > (flat[k] ?? Infinity))).toBe(true);
 	});
 });

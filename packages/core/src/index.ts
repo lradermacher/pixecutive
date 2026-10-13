@@ -56,7 +56,6 @@ export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figuresSpec
 export { figurePathsSchema } from './domain/Figure/figurePaths.schema.ts';
 export type { IMotionWork } from './port/outgoing/motionWork.interface.ts';
 export { HeadPartKind } from './domain/Figure/headPartKind.enum.ts';
-export { HeadLayer } from './domain/Figure/headLayer.enum.ts';
 export { gridLayoutSchema, type GridLayout } from './domain/Figure/gridLayout.schema.ts';
 export { headPartsSpecSchema, type HeadPartsSpec } from './domain/Figure/headPartsSpec.schema.ts';
 export { headCutConfigSchema, type HeadCutConfig } from './domain/Figure/headCutConfig.schema.ts';
