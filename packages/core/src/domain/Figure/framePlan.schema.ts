@@ -1,5 +1,6 @@
 // framePlan.schema.ts — what the core decided for a clip: which video frames become sprites, how long each holds,
-// how each is shifted, and the box and scale every sprite is cut to.
+// how each is shifted, the margin around the figure and the sprite height. The cutter measures the shifted frames
+// and applies these values; the geometry it measures is its own, the decisions are here.
 import { z } from 'zod';
 
 const row = z.int().min(0);
@@ -12,14 +13,12 @@ const spriteSchema = z.object({
 	shiftY: z.int(),
 });
 
-/** The sprites of a motion in play order, the common crop box in video pixels and the scale to sprite size. */
+/** The sprites of a motion in play order, the margin kept around the figure (video px) and the sprite height (px). */
 export const framePlanSchema = z.object({
 	sprites: z.array(spriteSchema).min(1),
-	crop: z
-		.object({ top: row, bottom: row, left: row, right: row })
-		.refine((c) => c.bottom > c.top && c.right > c.left, 'a crop box has an area'),
-	scale: z.number().positive(),
-	advancePerVideoFrame: z.number(),
+	margin: z.object({ top: row, bottom: row, left: row, right: row }),
+	height: z.int().min(16).max(1024),
+	driftPerVideoFrame: z.number(),
 });
 
 export type FramePlan = z.infer<typeof framePlanSchema>;

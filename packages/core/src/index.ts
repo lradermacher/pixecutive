@@ -20,3 +20,7 @@ export { frameMeasureSchema, type FrameMeasure } from './domain/Figure/frameMeas
 export { framePlanSchema, type FramePlan } from './domain/Figure/framePlan.schema.ts';
 export { headTrackSchema, type HeadTrack } from './domain/Figure/headTrack.schema.ts';
 export { Motion } from './domain/Figure/motion.enum.ts';
+export { frameCutConfigSchema, type FrameCutConfig } from './domain/Figure/frameCutConfig.schema.ts';
+export { FigureException } from './application/exception/figure.exception.ts';
+export { FigureExceptionKey } from './application/exception/figureExceptionKey.enum.ts';
+export { PlanFramesService, type FrameRange } from './application/service/planFrames.service.ts';

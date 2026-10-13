@@ -1,0 +1,651 @@
+[
+  { "top": 108, "bottom": 678, "left": 144, "right": 379, "legSpread": 176.0, "headCenterX": 253.5, "change": 0.0 },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.4377170138888889
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.3688942238136574
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.11950005425347222
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.18807926884403936
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.16089997468171297
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.10111829969618055
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 144,
+    "right": 379,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.11758705421730324
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 145,
+    "right": 380,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.16151484736689814
+  },
+  {
+    "top": 108,
+    "bottom": 678,
+    "left": 145,
+    "right": 380,
+    "legSpread": 176.0,
+    "headCenterX": 253.5,
+    "change": 0.28660979094328703
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 163,
+    "right": 404,
+    "legSpread": 152.0,
+    "headCenterX": 274.0,
+    "change": 11.161536322699654
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 163,
+    "right": 404,
+    "legSpread": 151.0,
+    "headCenterX": 274.5,
+    "change": 0.6716020372178819
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 163,
+    "right": 404,
+    "legSpread": 149.0,
+    "headCenterX": 274.5,
+    "change": 0.6900137442129629
+  },
+  {
+    "top": 105,
+    "bottom": 670,
+    "left": 177,
+    "right": 437,
+    "legSpread": 95.0,
+    "headCenterX": 298.0,
+    "change": 10.706589310257524
+  },
+  {
+    "top": 106,
+    "bottom": 670,
+    "left": 177,
+    "right": 437,
+    "legSpread": 95.0,
+    "headCenterX": 298.5,
+    "change": 0.5910904495804398
+  },
+  {
+    "top": 106,
+    "bottom": 670,
+    "left": 177,
+    "right": 437,
+    "legSpread": 97.0,
+    "headCenterX": 298.5,
+    "change": 0.5599930374710648
+  },
+  {
+    "top": 112,
+    "bottom": 672,
+    "left": 188,
+    "right": 463,
+    "legSpread": 138.0,
+    "headCenterX": 318.0,
+    "change": 10.22764417860243
+  },
+  {
+    "top": 112,
+    "bottom": 672,
+    "left": 188,
+    "right": 463,
+    "legSpread": 138.0,
+    "headCenterX": 318.0,
+    "change": 0.9779742205584491
+  },
+  {
+    "top": 112,
+    "bottom": 673,
+    "left": 189,
+    "right": 464,
+    "legSpread": 138.0,
+    "headCenterX": 318.5,
+    "change": 1.1592192473234955
+  },
+  {
+    "top": 113,
+    "bottom": 678,
+    "left": 217,
+    "right": 471,
+    "legSpread": 118.0,
+    "headCenterX": 337.0,
+    "change": 9.871158175998264
+  },
+  {
+    "top": 112,
+    "bottom": 678,
+    "left": 218,
+    "right": 471,
+    "legSpread": 118.0,
+    "headCenterX": 337.0,
+    "change": 0.9052553530092593
+  },
+  {
+    "top": 112,
+    "bottom": 678,
+    "left": 218,
+    "right": 471,
+    "legSpread": 119.0,
+    "headCenterX": 337.5,
+    "change": 0.9074221010561343
+  },
+  {
+    "top": 104,
+    "bottom": 678,
+    "left": 262,
+    "right": 473,
+    "legSpread": 134.0,
+    "headCenterX": 357.5,
+    "change": 9.394832469798901
+  },
+  {
+    "top": 104,
+    "bottom": 678,
+    "left": 263,
+    "right": 473,
+    "legSpread": 134.0,
+    "headCenterX": 357.5,
+    "change": 0.5429953115957754
+  },
+  {
+    "top": 104,
+    "bottom": 678,
+    "left": 262,
+    "right": 473,
+    "legSpread": 134.0,
+    "headCenterX": 357.5,
+    "change": 0.5082668728298612
+  },
+  {
+    "top": 103,
+    "bottom": 677,
+    "left": 294,
+    "right": 479,
+    "legSpread": 172.0,
+    "headCenterX": 379.5,
+    "change": 9.897120157877604
+  },
+  {
+    "top": 104,
+    "bottom": 677,
+    "left": 295,
+    "right": 479,
+    "legSpread": 171.0,
+    "headCenterX": 380.0,
+    "change": 1.0542902063440394
+  },
+  {
+    "top": 104,
+    "bottom": 677,
+    "left": 296,
+    "right": 481,
+    "legSpread": 173.0,
+    "headCenterX": 381.0,
+    "change": 0.5766432020399306
+  },
+  {
+    "top": 112,
+    "bottom": 677,
+    "left": 308,
+    "right": 533,
+    "legSpread": 225.0,
+    "headCenterX": 400.0,
+    "change": 9.490983185944733
+  },
+  {
+    "top": 112,
+    "bottom": 677,
+    "left": 308,
+    "right": 534,
+    "legSpread": 226.0,
+    "headCenterX": 400.0,
+    "change": 0.6957391809534144
+  },
+  {
+    "top": 112,
+    "bottom": 677,
+    "left": 308,
+    "right": 534,
+    "legSpread": 226.0,
+    "headCenterX": 400.5,
+    "change": 0.7288812707971644
+  },
+  {
+    "top": 114,
+    "bottom": 674,
+    "left": 312,
+    "right": 531,
+    "legSpread": 219.0,
+    "headCenterX": 418.0,
+    "change": 8.371038931387442
+  },
+  {
+    "top": 114,
+    "bottom": 675,
+    "left": 312,
+    "right": 531,
+    "legSpread": 219.0,
+    "headCenterX": 418.0,
+    "change": 0.7524154097945602
+  },
+  {
+    "top": 114,
+    "bottom": 675,
+    "left": 312,
+    "right": 531,
+    "legSpread": 219.0,
+    "headCenterX": 418.0,
+    "change": 1.0196691442418981
+  },
+  {
+    "top": 106,
+    "bottom": 670,
+    "left": 350,
+    "right": 547,
+    "legSpread": 169.0,
+    "headCenterX": 440.0,
+    "change": 10.005995008680555
+  },
+  {
+    "top": 106,
+    "bottom": 670,
+    "left": 350,
+    "right": 547,
+    "legSpread": 168.0,
+    "headCenterX": 440.5,
+    "change": 0.8426038953993056
+  },
+  {
+    "top": 106,
+    "bottom": 670,
+    "left": 351,
+    "right": 547,
+    "legSpread": 167.0,
+    "headCenterX": 441.0,
+    "change": 0.738199304651331
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 353,
+    "right": 593,
+    "legSpread": 105.0,
+    "headCenterX": 462.0,
+    "change": 9.969250714337385
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 353,
+    "right": 593,
+    "legSpread": 104.0,
+    "headCenterX": 462.0,
+    "change": 0.8082518400969328
+  },
+  {
+    "top": 103,
+    "bottom": 670,
+    "left": 353,
+    "right": 593,
+    "legSpread": 104.0,
+    "headCenterX": 462.5,
+    "change": 0.6987355550130209
+  },
+  {
+    "top": 110,
+    "bottom": 671,
+    "left": 356,
+    "right": 626,
+    "legSpread": 136.0,
+    "headCenterX": 480.5,
+    "change": 9.725956104419849
+  },
+  {
+    "top": 110,
+    "bottom": 671,
+    "left": 357,
+    "right": 626,
+    "legSpread": 136.0,
+    "headCenterX": 481.0,
+    "change": 1.3308987087673612
+  },
+  {
+    "top": 110,
+    "bottom": 671,
+    "left": 357,
+    "right": 626,
+    "legSpread": 136.0,
+    "headCenterX": 481.5,
+    "change": 1.3194438793041088
+  },
+  {
+    "top": 114,
+    "bottom": 677,
+    "left": 365,
+    "right": 645,
+    "legSpread": 134.0,
+    "headCenterX": 496.5,
+    "change": 9.576372499819156
+  },
+  {
+    "top": 114,
+    "bottom": 677,
+    "left": 365,
+    "right": 646,
+    "legSpread": 133.0,
+    "headCenterX": 497.0,
+    "change": 0.849142003942419
+  },
+  {
+    "top": 113,
+    "bottom": 677,
+    "left": 365,
+    "right": 646,
+    "legSpread": 133.0,
+    "headCenterX": 498.0,
+    "change": 1.0729217529296875
+  },
+  {
+    "top": 109,
+    "bottom": 678,
+    "left": 404,
+    "right": 648,
+    "legSpread": 113.0,
+    "headCenterX": 516.5,
+    "change": 9.921742192021123
+  },
+  {
+    "top": 109,
+    "bottom": 678,
+    "left": 404,
+    "right": 648,
+    "legSpread": 113.0,
+    "headCenterX": 517.0,
+    "change": 0.6756817853009259
+  },
+  {
+    "top": 109,
+    "bottom": 678,
+    "left": 404,
+    "right": 648,
+    "legSpread": 112.0,
+    "headCenterX": 517.0,
+    "change": 0.5526597764756944
+  },
+  {
+    "top": 102,
+    "bottom": 677,
+    "left": 454,
+    "right": 649,
+    "legSpread": 153.0,
+    "headCenterX": 540.0,
+    "change": 10.15354636863426
+  },
+  {
+    "top": 102,
+    "bottom": 677,
+    "left": 456,
+    "right": 649,
+    "legSpread": 153.0,
+    "headCenterX": 541.0,
+    "change": 1.0780628345630787
+  },
+  {
+    "top": 102,
+    "bottom": 677,
+    "left": 456,
+    "right": 649,
+    "legSpread": 152.0,
+    "headCenterX": 541.5,
+    "change": 0.7024626555266203
+  },
+  {
+    "top": 108,
+    "bottom": 677,
+    "left": 474,
+    "right": 690,
+    "legSpread": 213.0,
+    "headCenterX": 559.0,
+    "change": 9.573187368887442
+  },
+  {
+    "top": 108,
+    "bottom": 677,
+    "left": 474,
+    "right": 690,
+    "legSpread": 212.0,
+    "headCenterX": 559.0,
+    "change": 0.6044611047815394
+  },
+  {
+    "top": 108,
+    "bottom": 677,
+    "left": 474,
+    "right": 690,
+    "legSpread": 212.0,
+    "headCenterX": 559.5,
+    "change": 0.7028492115162037
+  },
+  {
+    "top": 113,
+    "bottom": 675,
+    "left": 477,
+    "right": 704,
+    "legSpread": 227.0,
+    "headCenterX": 575.0,
+    "change": 8.24933652524595
+  },
+  {
+    "top": 113,
+    "bottom": 675,
+    "left": 477,
+    "right": 704,
+    "legSpread": 227.0,
+    "headCenterX": 575.0,
+    "change": 0.7874733253761574
+  },
+  {
+    "top": 113,
+    "bottom": 675,
+    "left": 478,
+    "right": 704,
+    "legSpread": 226.0,
+    "headCenterX": 575.5,
+    "change": 0.7377432364004629
+  },
+  {
+    "top": 109,
+    "bottom": 671,
+    "left": 496,
+    "right": 695,
+    "legSpread": 197.0,
+    "headCenterX": 596.0,
+    "change": 9.638553760669849
+  },
+  {
+    "top": 109,
+    "bottom": 671,
+    "left": 496,
+    "right": 695,
+    "legSpread": 197.0,
+    "headCenterX": 596.0,
+    "change": 0.5919291178385416
+  },
+  {
+    "top": 109,
+    "bottom": 671,
+    "left": 496,
+    "right": 695,
+    "legSpread": 197.0,
+    "headCenterX": 596.0,
+    "change": 0.6387272587528935
+  },
+  {
+    "top": 102,
+    "bottom": 671,
+    "left": 524,
+    "right": 743,
+    "legSpread": 135.0,
+    "headCenterX": 619.5,
+    "change": 9.688824123806423
+  },
+  {
+    "top": 102,
+    "bottom": 671,
+    "left": 524,
+    "right": 743,
+    "legSpread": 133.0,
+    "headCenterX": 619.5,
+    "change": 0.7709746184172453
+  },
+  {
+    "top": 103,
+    "bottom": 671,
+    "left": 525,
+    "right": 743,
+    "legSpread": 133.0,
+    "headCenterX": 619.5,
+    "change": 0.64935302734375
+  },
+  {
+    "top": 107,
+    "bottom": 670,
+    "left": 525,
+    "right": 767,
+    "legSpread": 104.0,
+    "headCenterX": 637.5,
+    "change": 9.086943449797454
+  },
+  {
+    "top": 107,
+    "bottom": 671,
+    "left": 525,
+    "right": 767,
+    "legSpread": 105.0,
+    "headCenterX": 638.5,
+    "change": 1.0913221571180556
+  },
+  {
+    "top": 107,
+    "bottom": 671,
+    "left": 525,
+    "right": 767,
+    "legSpread": 106.0,
+    "headCenterX": 638.5,
+    "change": 1.186926382559317
+  },
+  {
+    "top": 113,
+    "bottom": 672,
+    "left": 528,
+    "right": 767,
+    "legSpread": 153.0,
+    "headCenterX": 654.5,
+    "change": 8.843011926721644
+  },
+  {
+    "top": 113,
+    "bottom": 672,
+    "left": 528,
+    "right": 767,
+    "legSpread": 153.0,
+    "headCenterX": 655.0,
+    "change": 0.8153290925202547
+  },
+  {
+    "top": 113,
+    "bottom": 672,
+    "left": 529,
+    "right": 767,
+    "legSpread": 153.0,
+    "headCenterX": 655.5,
+    "change": 0.7174258761935763
+  },
+  {
+    "top": 112,
+    "bottom": 677,
+    "left": 550,
+    "right": 767,
+    "legSpread": 136.0,
+    "headCenterX": 673.5,
+    "change": 9.390684339735243
+  },
+  {
+    "top": 112,
+    "bottom": 677,
+    "left": 550,
+    "right": 767,
+    "legSpread": 136.0,
+    "headCenterX": 674.0,
+    "change": 0.5031048810040509
+  },
+  {
+    "top": 111,
+    "bottom": 677,
+    "left": 550,
+    "right": 767,
+    "legSpread": 137.0,
+    "headCenterX": 674.0,
+    "change": 0.41340015552662035
+  }
+]
