@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Draws the walkable office and opens every function as a window over its object or person. It stands outside the hexagon and knows the rest only through the protocol messages.
+Draws the walkable office and opens every function as a window over its object or person. It stands outside the hexagon and knows the rest only through the protocol messages. Until the office engine exists, `pnpm playground` serves `playground.html`, where every motion the asset pipeline exports is looked at.
 
 ## Owner
 

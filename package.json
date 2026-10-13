@@ -13,6 +13,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -p tsconfig.json && tsc -p packages/core && tsc -p packages/infrastructure && tsc -p packages/protocol && tsc -p apps/company-server && tsc -p apps/companion && tsc -p apps/office-ui && tsc -p apps/asset-pipeline",
     "test": "vitest run",
+    "playground": "vite apps/office-ui --open /playground.html",
     "assets": "vite build --ssr apps/asset-pipeline/src/main.ts --outDir apps/asset-pipeline/dist --emptyOutDir --logLevel warn && node apps/asset-pipeline/dist/main.js"
   },
   "devDependencies": {
