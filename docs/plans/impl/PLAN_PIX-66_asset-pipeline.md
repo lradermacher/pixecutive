@@ -8,12 +8,12 @@ figures reach `apps/office-ui/assets/` through it. The scratchpad scripts were t
 
 ## Acceptance
 
-- [ ] Each step of the motion chain (clip, frames, head track, export) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters
-- [ ] Every core decision has unit tests with in-memory fakes, every adapter its own spec
+- [x] Each step of the motion chain (clip, frames, head track, export) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters — `apps/asset-pipeline/src/runFigureCommand.ts` wires `pnpm assets clip|frames|track|export` to `RenderClipService`, `CutFramesService`, `TrackHeadService`, `ExportMotionService` (core `application/service/`) and the adapters `Video/`, `Frames/`, `Head/`, `Asset/`, `Work/`; frames, track and export measured end to end (steps 12, 15, 16)
+- [x] Every core decision has unit tests with in-memory fakes, every adapter its own spec — check-tests green on 44 units; every service spec uses `InMemory<Port>` fakes, every adapter in `Video/`, `Frames/`, `Head/`, `Asset/`, `Work/`, `Guard/`, `Python/` has its spec (review runs 1 to 3)
 - [x] The asset layout under `apps/office-ui/assets/` is decided with the maintainer as one PNG of the folder tree before the first asset lands — sheet `pix66-layout` F1 = yes (2026-10-13), PIX-66 comment 14084
 - [ ] The base figures M and F with idle and walk reach `apps/office-ui/assets/` through the commands, and the maintainer compares them with the room page
 - [x] The skill `animate-figure` names the commands — `.claude/skills/animate-figure/SKILL.md` steps 4 and 5 name `pnpm assets clip`, `frames`, `track` and `export` (step 13)
-- [ ] Every gate and verify-full is green, and an independent review checked the diff
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full STAGE 2 GREEN; review runs 1 (a80fb53, 14 findings), 2 (254c294, 6), 3 (468495e, green, 5 notes), all fixed
 
 ## Inventory
 
@@ -101,6 +101,8 @@ frames numbered with two digits from 00.
   OpenCV comes as its headless build of the same version (4.14.0.94); `frames`, `track` and `export` rebuilt every
   shipped file of M and F byte for byte with it. Outside this card: check-comments skips Python and TOML (PIX-72),
   and `pnpm install` stops on the ignored build script of unrs-resolver (PIX-73).
+- 2026-10-13, acceptance line 4 waits for the maintainer: the commands produce the base figures (rebuilt byte for
+  byte), the comparison with the room page is the maintainer's; the work package closes with that line open.
 - 2026-10-13, review run 2 (6 findings, all kept): every command parses the renders folder, the figure sources and
   uv by a core schema at its start, not only `clip`; an export checks only the files it staged for its motion, names
   them by their staged path, and ships nothing before every file the manifest names is there. `export` takes the
@@ -171,6 +173,7 @@ frames numbered with two digits from 00.
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, 6880a57 |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | 3d54265, 5f62ab0 |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | a80fb53 |
-| 14 | Full gate and independent review | verify-full; review record | open |
+| 14 | Full gate and independent review | verify-full; review record | verify-full green; review records a80fb53, 254c294, 468495e |
 | 15 | Review run 1: the 14 findings, and OpenCV's headless build for a CI machine without a display library | the touched specs; the shipped figures rebuilt byte for byte | 1de8723, cc6e39b, 7754341, 973f193, 11ec57d, 49866f5, 1bcae7a, e2f54a2, a7c7ddb |
 | 16 | Review run 2: the 6 findings | the touched specs; the shipped figures exported again without a byte's difference | 98834e4, 6ea3250, 309e0ae |
+| 17 | Review run 3: the 5 notes (blank paths, variable docs, an unused type export) | the touched specs | 6647d54 |
