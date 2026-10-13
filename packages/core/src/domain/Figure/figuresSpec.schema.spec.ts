@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { figuresSpecSchema } from './figureSpec.schema.ts';
+import { figuresSpecSchema } from './figuresSpec.schema.ts';
 
 const idle = {
 	mode: 'loop',

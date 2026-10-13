@@ -18,10 +18,12 @@ export async function trackHeadHandler(
 	const { result } = await work.loadCut(figure, motion);
 	const use = motionSpec.use ?? { first: 0, last: result.frames.length - 1 };
 	const frames = result.frames.slice(use.first, use.last + 1);
-	const track = await service.track(
-		{ still: join(setup.sources, motionSpec.trackStill), frames, ear: figureSpec.ear },
-		setup.track,
-	);
+	const track = await service.track({
+		still: join(setup.sources, motionSpec.trackStill),
+		frames,
+		ear: figureSpec.ear,
+		values: setup.track,
+	});
 	await work.saveTrack(figure, motion, track);
 	const ear = Math.max(...track.earOffset);
 	return [

@@ -12,14 +12,12 @@ const job = {
 };
 
 describe('clipJobSchema', () => {
-	it.each([49, 73, 9, 257])('accepts a clip of %i frames', (frames) => {
-		expect(clipJobSchema.parse({ ...job, frames }).frames).toBe(frames);
+	it('accepts a clip job', () => {
+		expect(clipJobSchema.parse(job)).toEqual(job);
 	});
 
 	it.each([
-		['a frame count off 8k + 1', { ...job, frames: 48 }],
-		['a clip shorter than 9 frames', { ...job, frames: 1 }],
-		['a clip longer than 257 frames', { ...job, frames: 265 }],
+		['a frame count the video model cannot render', { ...job, frames: 48 }],
 		['an unknown figure', { ...job, figure: 'x' }],
 		['an unknown motion', { ...job, motion: 'dance' }],
 		['an unknown mode', { ...job, mode: 'free' }],

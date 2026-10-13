@@ -37,7 +37,7 @@ const failureOf = (promise: Promise<unknown>): Promise<unknown> => promise.catch
 describe('TrackHeadService', () => {
 	it('answers the track when every ear stays within 1 px of the head', async () => {
 		const tracker = new InMemoryHeadTracker([0.4, 1]);
-		const track = await new TrackHeadService(tracker).track(job, values);
+		const track = await new TrackHeadService(tracker).track({ ...job, values });
 		expect(tracker.borders).toEqual([12]);
 		expect(track.origin).toEqual([
 			[0, 2],
@@ -46,7 +46,9 @@ describe('TrackHeadService', () => {
 	});
 
 	it('names every frame whose ear strayed more than 1 px with the head drift key', async () => {
-		const failure = await failureOf(new TrackHeadService(new InMemoryHeadTracker([0.4, 1.01])).track(job, values));
+		const failure = await failureOf(
+			new TrackHeadService(new InMemoryHeadTracker([0.4, 1.01])).track({ ...job, values }),
+		);
 		expect(failure instanceof FigureException && [failure.key, failure.detail]).toEqual([
 			FigureExceptionKey.HeadDrift,
 			'frame 1: 1.01 px',
@@ -55,14 +57,17 @@ describe('TrackHeadService', () => {
 
 	it('takes the ear limit from the values', async () => {
 		const service = new TrackHeadService(new InMemoryHeadTracker([1.5]));
-		const strict = await failureOf(service.track(job, values));
-		const loose = await service.track(job, { ...values, earLimit: 2 });
-		expect([strict instanceof FigureException && strict.key, loose.earOffset]).toEqual([FigureExceptionKey.HeadDrift, [1.5]]);
+		const strict = await failureOf(service.track({ ...job, values }));
+		const loose = await service.track({ ...job, values: { ...values, earLimit: 2 } });
+		expect([strict instanceof FigureException && strict.key, loose.earOffset]).toEqual([
+			FigureExceptionKey.HeadDrift,
+			[1.5],
+		]);
 	});
 
 	it('refuses a wrong job with the invalid job key and never starts the tracker', async () => {
 		const tracker = new InMemoryHeadTracker([0]);
-		const failure = await failureOf(new TrackHeadService(tracker).track({ ...job, frames: [] }, values));
+		const failure = await failureOf(new TrackHeadService(tracker).track({ ...job, frames: [], values }));
 		expect([failure instanceof FigureException && failure.key, tracker.jobs]).toEqual([
 			FigureExceptionKey.InvalidJob,
 			[],

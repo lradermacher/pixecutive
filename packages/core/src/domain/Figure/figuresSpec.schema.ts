@@ -1,10 +1,12 @@
-// figureSpec.schema.ts — how each base figure's motions are made: per figure the ear box that checks the head track
+// figuresSpec.schema.ts — how each base figure's motions are made: per figure the ear box that checks the head track
 // and the face parts on the still, per motion the clip, its cut, the sprites the office uses and the still the head is
 // tracked against. Images are named relative to the figure sources folder, prompts relative to the data folder.
 import { z } from 'zod';
 import { ClipMode } from './clipMode.enum.ts';
+import { earBoxSchema } from './earBox.schema.ts';
 import { FacePart } from './facePart.enum.ts';
 import { FigureName } from './figureName.enum.ts';
+import { frameCountSchema } from './frameCount.schema.ts';
 import { Motion } from './motion.enum.ts';
 
 const png = z.string().endsWith('.png');
@@ -16,11 +18,7 @@ const range = z
 /** One motion: its clip (mode, frames, strength of the end anchor, prompt, still), its cut and the sprites used. */
 const motionSpecSchema = z.object({
 	mode: z.enum(ClipMode),
-	frames: z
-		.int()
-		.min(9)
-		.max(257)
-		.refine((n) => (n - 1) % 8 === 0, 'a clip has 8k + 1 frames'),
+	frames: frameCountSchema,
 	endStrength: z.number().min(0).max(1),
 	prompt: z.string().endsWith('.txt'),
 	still: png,
@@ -36,9 +34,7 @@ const motionSpecSchema = z.object({
 
 /** One figure: the ear box on its stills, its face parts and its motions. */
 const figureSpecSchema = z.object({
-	ear: z
-		.object({ left: row, top: row, right: row, bottom: row })
-		.refine((e) => e.right > e.left && e.bottom > e.top, 'an ear box has an area'),
+	ear: earBoxSchema,
 	face: z.partialRecord(z.enum(FacePart), z.object({ image: png, mask: png.optional() })),
 	motions: z.partialRecord(z.enum(Motion), motionSpecSchema),
 });

@@ -32,6 +32,7 @@ export type { CutFramesCommand } from './application/service/cutFramesCommand.ts
 export { RenderClipService } from './application/service/renderClip.service.ts';
 export type { RenderClipCommand } from './application/service/renderClipCommand.ts';
 export { TrackHeadService } from './application/service/trackHead.service.ts';
+export type { TrackHeadCommand } from './application/service/trackHeadCommand.ts';
 export type { IFrameCutter } from './port/outgoing/frameCutter.interface.ts';
 export type { IFrameMeasurer } from './port/outgoing/frameMeasurer.interface.ts';
 export type { IHeadTracker } from './port/outgoing/headTracker.interface.ts';
@@ -45,5 +46,5 @@ export type { FacePlacement, MotionAsset } from './domain/Figure/motionAsset.int
 export { ExportMotionService } from './application/service/exportMotion.service.ts';
 export type { ExportMotionCommand } from './application/service/exportMotionCommand.ts';
 export type { IAssetStore } from './port/outgoing/assetStore.interface.ts';
-export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figureSpec.schema.ts';
+export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figuresSpec.schema.ts';
 export type { IMotionWork } from './port/outgoing/motionWork.interface.ts';

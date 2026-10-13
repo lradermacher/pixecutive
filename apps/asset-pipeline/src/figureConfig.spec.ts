@@ -55,11 +55,7 @@ describe('figureConfig', () => {
 	it('builds the paths from the repo and the renders folder, and reads the data file there', () => {
 		const setup = figureConfig({ HOME: '/h' }, new InMemoryRenderMachine(), read);
 		const clip = setup.clip();
-		expect([clip.rendersDir, clip.ltxProject, clip.model]).toEqual([
-			'/repo/renders',
-			'/h/deps/ltx-2-mlx',
-			'/hub/ltx',
-		]);
+		expect([clip.rendersDir, clip.ltxProject, clip.model]).toEqual(['/repo/renders', '/h/deps/ltx-2-mlx', '/hub/ltx']);
 		expect([setup.sources, setup.assets, setup.work, setup.staging]).toEqual([
 			'/repo/renders/figures',
 			'/repo/apps/office-ui/assets/figures',

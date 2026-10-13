@@ -17,14 +17,16 @@ import { describe, expect, it } from 'vitest';
 import type { FigureSetup } from '../figureConfig.ts';
 import { trackHeadHandler } from './trackHead.handler.ts';
 
-/** Keeps every job and answers one origin per frame, the ear within `ear` px. */
+/** Keeps every job and its values and answers one origin per frame, the ear within `ear` px. */
 class InMemoryHeadTracker implements IHeadTracker {
 	readonly jobs: HeadTrackJob[] = [];
+	readonly values: HeadTrackConfig[] = [];
 	constructor(private readonly ear: number) {}
 	track(job: HeadTrackJob, values: HeadTrackConfig): Promise<HeadTrack> {
 		this.jobs.push(job);
+		this.values.push(values);
 		return Promise.resolve({
-			scale: 0.345 + values.border * 0,
+			scale: 0.345,
 			origin: job.frames.map((): [number, number] => [-48, -36]),
 			earOffset: job.frames.map(() => this.ear),
 		});
@@ -78,7 +80,7 @@ describe('trackHeadHandler', () => {
 				ear: { left: 184, top: 215, right: 216, bottom: 260 },
 			},
 		]);
-		expect(work.tracks).toHaveLength(1);
+		expect([tracker.values, work.tracks.length]).toEqual([[setup.track], 1]);
 		expect(lines).toEqual(['tracked m idle: 3 frames at scale 0.3450, ear within 0.50 px']);
 	});
 

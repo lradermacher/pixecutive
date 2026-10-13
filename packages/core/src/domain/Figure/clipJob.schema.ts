@@ -2,14 +2,8 @@
 import { z } from 'zod';
 import { ClipMode } from './clipMode.enum.ts';
 import { FigureName } from './figureName.enum.ts';
+import { frameCountSchema } from './frameCount.schema.ts';
 import { Motion } from './motion.enum.ts';
-
-/** The video model renders 8k + 1 frames; 9 is its shortest clip, 257 the longest that fits the memory. */
-const frameCount = z
-	.int()
-	.min(9)
-	.max(257)
-	.refine((n) => (n - 1) % 8 === 0, 'a clip has 8k + 1 frames');
 
 /** A clip job as the command line hands it in; every field is checked before the model starts. */
 export const clipJobSchema = z.object({
@@ -18,7 +12,7 @@ export const clipJobSchema = z.object({
 	mode: z.enum(ClipMode),
 	still: z.string().endsWith('.png'),
 	promptFile: z.string().endsWith('.txt'),
-	frames: frameCount,
+	frames: frameCountSchema,
 	endStrength: z.number().min(0).max(1),
 });
 
