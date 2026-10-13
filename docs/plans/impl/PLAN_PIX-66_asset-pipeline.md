@@ -98,6 +98,9 @@ frames numbered with two digits from 00.
   assets; only `clip` needs the video model. The inventory named the head tracker's folder, the Python environment's
   place and who computes the face scale and offsets wrong; corrected above. The environment variables are documented
   on `FigureSetup`, because the unit README's four sections are fixed.
+  OpenCV comes as its headless build of the same version (4.14.0.94); `frames`, `track` and `export` rebuilt every
+  shipped file of M and F byte for byte with it. Outside this card: check-comments skips Python and TOML (PIX-72),
+  and `pnpm install` stops on the ignored build script of unrs-resolver (PIX-73).
 
 - 2026-10-13, decided by the maintainer: the card joins the series on `feat/pix-7-skeleton-toolchain`; no pull request
   before something is properly implemented and tested in the hexagon. The finished figure assets (about 15 MB of PNG,
@@ -165,3 +168,4 @@ frames numbered with two digits from 00.
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | 3d54265, 5f62ab0 |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | a80fb53 |
 | 14 | Full gate and independent review | verify-full; review record | open |
+| 15 | Review run 1: the 14 findings, and OpenCV's headless build for a CI machine without a display library | the touched specs; the shipped figures rebuilt byte for byte | 1de8723, cc6e39b, 7754341, 973f193, 11ec57d, 49866f5, 1bcae7a, e2f54a2, a7c7ddb |
