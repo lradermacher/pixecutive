@@ -102,7 +102,7 @@ export async function startPlayground(win: Window): Promise<void> {
 			const spriteCanvas = place?.sprite.getContext('2d');
 			const tileCanvas = place?.canvas.getContext('2d');
 			if (!place || !spriteCanvas || !tileCanvas) return;
-			drawFigure(spriteCanvas, image, tile.name, tile.motion, tile.frame, tile.mouth);
+			drawFigure(spriteCanvas, image, tile.name, tile.motion, tile.frame, tile.mouth, tile.look, tile.head);
 			tileCanvas.setTransform(1, 0, 0, 1, 0, 0);
 			tileCanvas.clearRect(0, 0, place.canvas.width, place.canvas.height);
 			tileCanvas.imageSmoothingEnabled = false;

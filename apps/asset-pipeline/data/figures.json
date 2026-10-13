@@ -1156,8 +1156,8 @@
         },
         "hair-under-hat": {
           "ids": [
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-            30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48
+            1, 2, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 17, 19, 20, 21, 22, 23, 24, 27, 29, 31, 32, 33, 37, 38, 39, 40,
+            41, 44, 45, 46, 47, 48
           ],
           "hat": 4,
           "shrink": 17,
@@ -1172,13 +1172,6 @@
             {
               "prompt": "head/hair-under-hat.txt",
               "ids": [2],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [3],
               "fill": {
                 "who": "woman"
               }
@@ -1234,13 +1227,6 @@
             },
             {
               "prompt": "head/hair-under-hat.txt",
-              "ids": [11],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
               "ids": [12],
               "fill": {
                 "who": "woman"
@@ -1269,21 +1255,7 @@
             },
             {
               "prompt": "head/hair-under-hat.txt",
-              "ids": [16],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
               "ids": [17],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [18],
               "fill": {
                 "who": "woman"
               }
@@ -1332,20 +1304,6 @@
             },
             {
               "prompt": "head/hair-under-hat.txt",
-              "ids": [25],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [26],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
               "ids": [27],
               "fill": {
                 "who": "woman"
@@ -1353,21 +1311,7 @@
             },
             {
               "prompt": "head/hair-under-hat.txt",
-              "ids": [28],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
               "ids": [29],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [30],
               "fill": {
                 "who": "woman"
               }
@@ -1389,27 +1333,6 @@
             {
               "prompt": "head/hair-under-hat.txt",
               "ids": [33],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [34],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [35],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [36],
               "fill": {
                 "who": "woman"
               }
@@ -1451,20 +1374,6 @@
             },
             {
               "prompt": "head/hair-under-hat.txt",
-              "ids": [42],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
-              "ids": [43],
-              "fill": {
-                "who": "woman"
-              }
-            },
-            {
-              "prompt": "head/hair-under-hat.txt",
               "ids": [44],
               "fill": {
                 "who": "woman"
@@ -1499,7 +1408,7 @@
               }
             }
           ],
-          "hidden": [3, 11, 16, 18, 25, 26, 28, 30, 34, 35, 36, 41, 42, 43]
+          "hidden": [41]
         },
         "brows": {
           "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],

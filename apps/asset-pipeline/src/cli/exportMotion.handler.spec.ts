@@ -5,12 +5,18 @@ import {
 	ExportMotionService,
 	exportConfigSchema,
 	FacePart,
+	headCutConfigSchema,
 	type FacePlacement,
 	type FaceSource,
 	type FigureName,
+	type HeadPartSource,
+	type HeadPlacement,
 	type HeadTrack,
 	type IAssetStore,
+	type IImageEditor,
 	type IMotionWork,
+	type IPartCutter,
+	MakeHeadPartService,
 	type Motion,
 	type MotionAsset,
 } from '@pixecutive/core';
@@ -51,6 +57,36 @@ class InMemoryAssetStore implements IAssetStore {
 		this.motions.push(asset);
 		return Promise.resolve();
 	}
+	readonly heads: [FigureName, Motion, HeadPartSource[], number][] = [];
+	readonly figureHeads: [FigureName, { lift: Readonly<Record<string, number>>; openTop: readonly number[] }][] = [];
+
+	putHead(
+		figure: FigureName,
+		motion: Motion,
+		sources: readonly HeadPartSource[],
+		scale: number,
+	): Promise<HeadPlacement[]> {
+		this.heads.push([figure, motion, [...sources], scale]);
+		return Promise.resolve(
+			sources.map((s) => ({
+				kind: s.kind,
+				id: s.id,
+				file: `${figure}/head/${motion}/${s.kind}-${String(s.id)}.png`,
+				x: 1,
+				y: 2,
+				width: 3,
+				height: 4,
+			})),
+		);
+	}
+
+	putFigureHead(
+		figure: FigureName,
+		head: { lift: Readonly<Record<string, number>>; openTop: readonly number[] },
+	): Promise<void> {
+		this.figureHeads.push([figure, head]);
+		return Promise.resolve();
+	}
 }
 
 /** Holds a cut of three sprites and the track of the two used ones. */
@@ -84,6 +120,22 @@ class InMemoryMotionWork implements IMotionWork {
 	}
 }
 
+/** A cutter that measures the skull at 107 and every hairstyle's first row at 95; nothing else is asked of it here. */
+const cutter: IPartCutter = {
+	grid: () => Promise.resolve(),
+	split: () => Promise.resolve(),
+	keyCut: () => Promise.resolve({ pixels: 0 }),
+	hatCut: () => Promise.resolve({ pixels: 0 }),
+	glassesCut: () => Promise.resolve({ pixels: 0 }),
+	variantCut: () => Promise.resolve({ pixels: 0 }),
+	underHat: () => Promise.resolve(),
+	fit: () => Promise.resolve(),
+	skullTop: () => Promise.resolve(107),
+	firstRows: (layers) => Promise.resolve(layers.map(() => 95)),
+};
+const editor: IImageEditor = { edit: () => Promise.resolve() };
+const headParts = new MakeHeadPartService(editor, cutter);
+
 const walk = {
 	mode: ClipMode.Cycle,
 	frames: 49,
@@ -114,6 +166,7 @@ describe('exportMotionHandler', () => {
 			setup,
 			new ExportMotionService(store),
 			new InMemoryMotionWork(),
+			headParts,
 		);
 		expect(store.faces).toEqual([
 			[
@@ -123,6 +176,42 @@ describe('exportMotionHandler', () => {
 		]);
 		expect(store.motions[0]?.frames.map((f) => f.hold)).toEqual([2, 3]);
 		expect(store.motions[0]?.advance).toBe(3);
-		expect(lines).toEqual(['exported m walk: 2 frames, 2 face parts', '/repo/apps/office-ui/assets/figures']);
+		expect(lines).toEqual([
+			'exported m walk: 2 frames, 2 face parts, 0 head parts',
+			'/repo/apps/office-ui/assets/figures',
+		]);
+		expect([store.heads, store.figureHeads]).toEqual([[], []]);
+	});
+
+	it('exports every offered head part with a hat hide, leaves hidden ones out and records lifts and open hats', async () => {
+		const store = new InMemoryAssetStore();
+		const head = {
+			open: 'm/open.png',
+			green: 'm/green.png',
+			greenAccessory: 'm/green-accessory.png',
+			greenOpen: 'm/green-open.png',
+			grids: {},
+			kinds: { hair: { ids: [1, 2], hidden: [2] }, hat: { ids: [4], openTop: [4] } },
+		};
+		const dressed = {
+			...setup,
+			rendersDir: '/r',
+			headCut: headCutConfigSchema.parse({}),
+			figures: { m: { ...setup.figures.m, head } },
+		} as unknown as FigureSetup;
+		await exportMotionHandler(
+			['m', 'walk'],
+			dressed,
+			new ExportMotionService(store),
+			new InMemoryMotionWork(),
+			headParts,
+		);
+		expect([store.heads[0]?.[2], store.figureHeads]).toEqual([
+			[
+				{ kind: 'hair', id: 1, image: '/r/head/m/layers/hair-1.png' },
+				{ kind: 'hat', id: 4, image: '/r/head/m/layers/hat-4.png', hide: '/r/head/m/layers/hat-4-hide.png' },
+			],
+			[['m', { lift: { '1': 12 }, openTop: [4] }]],
+		]);
 	});
 });

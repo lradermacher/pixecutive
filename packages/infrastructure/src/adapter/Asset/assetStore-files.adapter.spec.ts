@@ -7,6 +7,7 @@ import {
 	FigureException,
 	FigureExceptionKey,
 	FigureName,
+	HeadPartKind,
 	Motion,
 	type MotionAsset,
 } from '@pixecutive/core';
@@ -158,6 +159,39 @@ describe('AssetStoreFilesAdapter staging a motion', () => {
 	);
 });
 
+describe('AssetStoreFilesAdapter staging head parts', () => {
+	it(
+		'writes each head part and a hat hide scaled to the motion, and answers where each is drawn',
+		async () => {
+			const src = await sources();
+			const { adapter, staging } = store();
+			const placed = await adapter.putHead(
+				FigureName.M,
+				Motion.Idle,
+				[
+					{ kind: HeadPartKind.Hair, id: 1, image: join(src.dir, 'mouth.png') },
+					{ kind: HeadPartKind.Hat, id: 4, image: join(src.dir, 'mouth.png'), hide: join(src.dir, 'mouth.png') },
+				],
+				0.5,
+				values,
+			);
+			expect([
+				placed.map((p) => [p.kind, p.id, p.file, p.hide?.file]),
+				existsSync(join(staging, 'm/head/idle/hat-4-hide.png')),
+				(placed[0]?.width ?? 0) > 0,
+			]).toEqual([
+				[
+					[HeadPartKind.Hair, 1, 'm/head/idle/hair-1.png', undefined],
+					[HeadPartKind.Hat, 4, 'm/head/idle/hat-4.png', 'm/head/idle/hat-4-hide.png'],
+				],
+				true,
+				true,
+			]);
+		},
+		PYTHON_START_MS,
+	);
+});
+
 describe('AssetStoreFilesAdapter shipping a motion', () => {
 	it('records motions in the manifest, keeping the others, in a form the protocol accepts', async () => {
 		const { adapter, root, staging } = store();
@@ -228,5 +262,44 @@ describe('AssetStoreFilesAdapter shipping a motion', () => {
 			.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png']))
 			.catch((error: unknown) => error);
 		expect(failure instanceof FigureException && failure.key).toBe(FigureExceptionKey.StorageFailed);
+	});
+
+	it('ships the head parts with the motion and keeps the figure head the motions do not carry', async () => {
+		const { adapter, root, staging } = store();
+		for (const file of ['m/body/idle/00.png', 'm/head/idle/hat-4.png', 'm/head/idle/hat-4-hide.png'])
+			place(staging, file);
+		await adapter.putFigureHead(FigureName.M, { lift: { '1': 12 }, openTop: [12] });
+		const at = { x: 1, y: 2, width: 3, height: 4 };
+		await adapter.putMotion(FigureName.M, Motion.Idle, {
+			...asset(['m/body/idle/00.png']),
+			face: [],
+			parts: [
+				{
+					kind: HeadPartKind.Hat,
+					id: 4,
+					file: 'm/head/idle/hat-4.png',
+					...at,
+					hide: { file: 'm/head/idle/hat-4-hide.png', ...at },
+				},
+			],
+		});
+		const manifest = figureManifestSchema.parse(JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8')));
+		expect([
+			manifest.figures['m']?.head,
+			manifest.figures['m']?.motions['idle']?.parts?.['hat']?.['4']?.hide?.file,
+			existsSync(join(root, 'm/head/idle/hat-4.png')),
+		]).toEqual([{ lift: { '1': 12 }, openTop: [12] }, 'm/head/idle/hat-4-hide.png', true]);
+	});
+
+	it('refuses a motion whose head part names a file that is not there', async () => {
+		const { adapter, root, staging } = store();
+		place(staging, 'm/body/idle/00.png');
+		const shipped = adapter.putMotion(FigureName.M, Motion.Idle, {
+			...asset(['m/body/idle/00.png']),
+			face: [],
+			parts: [{ kind: HeadPartKind.Hair, id: 1, file: 'm/head/idle/hair-1.png', x: 1, y: 2, width: 3, height: 4 }],
+		});
+		await expect(shipped).rejects.toThrow(/missing m\/head\/idle\/hair-1\.png/);
+		expect(existsSync(join(root, 'manifest.json'))).toBe(false);
 	});
 });

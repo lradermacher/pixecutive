@@ -1,4 +1,4 @@
-// assetStore-files.adapter.ts — writes a figure's office assets: sprites with cleaned edges and face parts at a
+// assetStore-files.adapter.ts — writes a figure's office assets: sprites with cleaned edges, face and head parts at a
 // motion's scale (by the Python pixel step beside it), staged outside the asset folder and shipped only with the
 // manifest the protocol's schema accepts, so a failed export leaves the office's assets as they were.
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -11,11 +11,20 @@ import {
 	FigureException,
 	FigureExceptionKey,
 	type FigureName,
+	HeadPartKind,
+	type HeadPartSource,
+	type HeadPlacement,
 	type IAssetStore,
 	type Motion,
 	type MotionAsset,
+	type Placement,
 } from '@pixecutive/core';
-import { FacePart as WireFacePart, type FigureManifest, figureManifestSchema } from '@pixecutive/protocol';
+import {
+	FacePart as WireFacePart,
+	type FigureManifest,
+	figureManifestSchema,
+	HeadPartKind as WireHeadPartKind,
+} from '@pixecutive/protocol';
 import { type AnswerSchema, pixelStep } from '../Python/pixelStep.ts';
 import type { PythonScriptConfig } from '../Python/pythonStep.ts';
 
@@ -35,6 +44,19 @@ const wirePart: Readonly<Record<FacePart, WireFacePart>> = Object.freeze({
 	[FacePart.MouthOpen]: WireFacePart.MouthOpen,
 });
 
+/** The head part kinds as the wire names them; a new kind fails the type check until it has its wire name. */
+const wireKind: Readonly<Record<HeadPartKind, WireHeadPartKind>> = Object.freeze({
+	[HeadPartKind.Hair]: WireHeadPartKind.Hair,
+	[HeadPartKind.Beard]: WireHeadPartKind.Beard,
+	[HeadPartKind.Hat]: WireHeadPartKind.Hat,
+	[HeadPartKind.Glasses]: WireHeadPartKind.Glasses,
+	[HeadPartKind.HairUnderHat]: WireHeadPartKind.HairUnderHat,
+	[HeadPartKind.Brows]: WireHeadPartKind.Brows,
+	[HeadPartKind.Eyes]: WireHeadPartKind.Eyes,
+	[HeadPartKind.Nose]: WireHeadPartKind.Nose,
+	[HeadPartKind.Mouth]: WireHeadPartKind.Mouth,
+});
+
 /** Where the figures' assets go and the Python step that cleans and scales them. */
 export interface AssetStoreConfig extends PythonScriptConfig {
 	/** `apps/office-ui/assets/figures` of the repo. */
@@ -43,11 +65,35 @@ export interface AssetStoreConfig extends PythonScriptConfig {
 	readonly staging: string;
 }
 
-/** The two folders one motion of one figure fills: its sprites and its face parts. */
+/** The folders one motion of one figure fills: its sprites, its face parts and its head parts. */
 const motionFolders = (figure: FigureName, motion: Motion): string[] => [
 	join(figure, 'body', motion),
 	join(figure, 'face', motion),
+	join(figure, 'head', motion),
 ];
+
+/** A placement as the manifest holds it. */
+const placed = (p: Placement): Placement => ({ file: p.file, x: p.x, y: p.y, width: p.width, height: p.height });
+
+/** One motion as the manifest holds it: the face parts and head parts under their wire names. */
+function manifestEntry(asset: MotionAsset): FigureManifest['figures'][string]['motions'][string] {
+	const face: FigureManifest['figures'][string]['motions'][string]['face'] = {};
+	for (const p of asset.face) face[wirePart[p.part]] = placed(p);
+	const parts: NonNullable<FigureManifest['figures'][string]['motions'][string]['parts']> = {};
+	for (const p of asset.parts ?? []) {
+		const kind = (parts[wireKind[p.kind]] ??= {});
+		kind[String(p.id)] = { ...placed(p), ...(p.hide ? { hide: placed(p.hide) } : {}) };
+	}
+	return {
+		frames: asset.frames.map((f) => ({ file: f.file, hold: f.hold })),
+		width: asset.width,
+		height: asset.height,
+		advance: asset.advance,
+		head: { scale: asset.head.scale, origin: asset.head.origin.map(([x, y]): [number, number] => [x, y]) },
+		face,
+		...(asset.parts && asset.parts.length > 0 ? { parts } : {}),
+	};
+}
 
 /** The pixel step's answer to `clean`: the files it wrote. */
 const writtenFiles: AnswerSchema<string[]> = {
@@ -155,8 +201,72 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		}));
 	}
 
+	/** Writes `<figure>/head/<motion>/<kind>-<id>.png`, and a hat's `hat-<id>-hide.png`, scaled by `scale`. */
+	async putHead(
+		figure: FigureName,
+		motion: Motion,
+		sources: readonly HeadPartSource[],
+		scale: number,
+		values: ExportConfig,
+	): Promise<HeadPlacement[]> {
+		const folder = this.fresh(join(figure, 'head', motion));
+		const entries = sources.flatMap((source) => {
+			const name = `${source.kind}-${String(source.id)}`;
+			return [
+				{ part: name, image: source.image, out: join(folder, `${name}.png`) },
+				...(source.hide === undefined
+					? []
+					: [{ part: `${name}-hide`, image: source.hide, out: join(folder, `${name}-hide.png`) }]),
+			];
+		});
+		const answers = await this.step(
+			['face', JSON.stringify(entries), String(scale), JSON.stringify(values.face)],
+			placedParts,
+			folder,
+		);
+		const at = (out: string): Placement => {
+			const p = answers[entries.findIndex((entry) => entry.out === out)];
+			if (p === undefined) throw new FigureException(FigureExceptionKey.StorageFailed, `no placement for ${out}`);
+			return { file: this.within(p.file), x: p.x, y: p.y, width: p.width, height: p.height };
+		};
+		return sources.map((source) => {
+			const base = join(folder, `${source.kind}-${String(source.id)}`);
+			return {
+				kind: source.kind,
+				id: source.id,
+				...at(`${base}.png`),
+				...(source.hide === undefined ? {} : { hide: at(`${base}-hide.png`) }),
+			};
+		});
+	}
+
+	/** Puts the lift per hairstyle and the open hats under the figure in `manifest.json`, keeping its motions. */
+	putFigureHead(
+		figure: FigureName,
+		head: { lift: Readonly<Record<string, number>>; openTop: readonly number[] },
+	): Promise<void> {
+		return new Promise((resolve) => {
+			const path = join(this.config.root, 'manifest.json');
+			const before: FigureManifest = existsSync(path) ? this.read(path) : { version: 1, figures: {} };
+			const motions = before.figures[figure]?.motions ?? {};
+			const after = figureManifestSchema.safeParse({
+				...before,
+				figures: {
+					...before.figures,
+					[figure]: { head: { lift: { ...head.lift }, openTop: [...head.openTop] }, motions },
+				},
+			});
+			if (!after.success)
+				throw new FigureException(FigureExceptionKey.StorageFailed, `manifest: ${after.error.message}`);
+			onDisk('write the manifest', () => {
+				writeFileSync(path, `${JSON.stringify(after.data, null, '\t')}\n`);
+			});
+			resolve();
+		});
+	}
+
 	/**
-	 * Replaces the motion's shipped sprites and face parts with the staged ones and puts the motion into
+	 * Replaces the motion's shipped sprites, face and head parts with the staged ones and puts the motion into
 	 * `manifest.json`, keeping every other figure and motion; the result must pass the schema and name only files
 	 * that are there.
 	 */
@@ -165,26 +275,18 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return new Promise((resolve) => {
 			const path = join(this.config.root, 'manifest.json');
 			const before: FigureManifest = existsSync(path) ? this.read(path) : { version: 1, figures: {} };
-			const face: FigureManifest['figures'][string]['motions'][string]['face'] = {};
-			for (const p of asset.face)
-				face[wirePart[p.part]] = { file: p.file, x: p.x, y: p.y, width: p.width, height: p.height };
-			const entry = {
-				frames: asset.frames.map((f) => ({ file: f.file, hold: f.hold })),
-				width: asset.width,
-				height: asset.height,
-				advance: asset.advance,
-				head: { scale: asset.head.scale, origin: asset.head.origin.map(([x, y]): [number, number] => [x, y]) },
-				face,
-			};
-			const motions = { ...(before.figures[figure]?.motions ?? {}), [motion]: entry };
+			const entry = manifestEntry(asset);
+			const kept = before.figures[figure];
+			const motions = { ...(kept?.motions ?? {}), [motion]: entry };
 			const after = figureManifestSchema.safeParse({
 				...before,
-				figures: { ...before.figures, [figure]: { motions } },
+				figures: { ...before.figures, [figure]: { ...(kept?.head ? { head: kept.head } : {}), motions } },
 			});
 			if (!after.success)
 				throw new FigureException(FigureExceptionKey.StorageFailed, `manifest: ${after.error.message}`);
 			const staged = motionFolders(figure, motion).filter((sub) => existsSync(join(this.config.staging, sub)));
-			const missing = [...asset.frames, ...asset.face]
+			const heads = (asset.parts ?? []).flatMap((p) => [p, ...(p.hide ? [p.hide] : [])]);
+			const missing = [...asset.frames, ...asset.face, ...heads]
 				.map((f) => f.file)
 				.filter((file) => !existsSync(join(this.after(file, staged), file)));
 			if (missing.length > 0)

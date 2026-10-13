@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FacePart } from '@pixecutive/protocol';
+import { FacePart, HeadPartKind } from '@pixecutive/protocol';
 import { facePlaced } from './facePlaced.ts';
 import { fixtureManifest } from './fixtureManifest.ts';
 
@@ -37,5 +37,18 @@ describe('facePlaced', () => {
 			{ file: 'm/face/idle/mouth-open.png', x: 49, y: 24, width: 10, height: 11 },
 			['m/face/walk/eyes.png', 'm/face/walk/mouth.png'],
 		]);
+	});
+
+	it('puts the variant the look chooses in place of the default part, and the default where the motion lacks it', () => {
+		const idle = motions['idle'];
+		if (!idle) return;
+		const brows = { file: 'm/head/idle/brows-3.png', x: 1, y: 1, width: 10, height: 4 };
+		const withVariant = { ...idle, parts: { [HeadPartKind.Brows]: { '3': brows } } };
+		const files = (look: Parameters<typeof facePlaced>[4]): string[] =>
+			facePlaced('walk', withVariant, 1, FacePart.Mouth, look).map((part) => part.file);
+		expect([
+			files({ [HeadPartKind.Brows]: 3 }).includes('m/head/idle/brows-3.png'),
+			files({ [HeadPartKind.Brows]: 9 }),
+		]).toEqual([true, files({})]);
 	});
 });

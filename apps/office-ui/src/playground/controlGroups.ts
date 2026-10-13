@@ -1,5 +1,6 @@
 // controlGroups.ts — the playground's controls as data: per group its title and options, each saying whether it is
 // chosen and what choosing it does to the playground. The page only renders them.
+import { HeadPartKind } from '@pixecutive/protocol';
 import { Facing } from './facing.enum.ts';
 import { Playback } from './playback.enum.ts';
 import { Playground } from './playground.ts';
@@ -17,7 +18,34 @@ export interface ControlGroup {
 	readonly options: readonly ControlOption[];
 }
 
-/** Motion (all, then each motion of the manifest), facing, mouth, playback on the spot, zoom and clock. */
+/** The kinds a look picks from; hair under a hat is chosen with the hair. */
+const wearable: readonly HeadPartKind[] = Object.values(HeadPartKind).filter(
+	(kind) => kind !== HeadPartKind.HairUnderHat,
+);
+
+/** Per figure and kind a row: none, then every variant the figure has; a figure without the kind gets no row. */
+function lookGroups(playground: Playground): ControlGroup[] {
+	return Object.keys(playground.manifest.figures).flatMap((figure) =>
+		wearable.flatMap((kind) => {
+			const ids = playground.variants(figure, kind);
+			if (ids.length === 0) return [];
+			return [
+				{
+					title: `${figure.toUpperCase()} ${kind}`,
+					options: [null, ...ids].map((id) => ({
+						text: id === null ? 'none' : String(id),
+						chosen: (): boolean => playground.looks[figure]?.[kind] === (id ?? undefined),
+						choose: (): void => {
+							playground.wear(figure, kind, id);
+						},
+					})),
+				},
+			];
+		}),
+	);
+}
+
+/** Motion (all, then each motion of the manifest), facing, mouth, playback on the spot, zoom, clock, then the looks. */
 export function controlGroups(playground: Playground): ControlGroup[] {
 	const motion = (name: string | null): ControlOption => ({
 		text: name ?? 'all',
@@ -87,5 +115,6 @@ export function controlGroups(playground: Playground): ControlGroup[] {
 				},
 			],
 		},
+		...lookGroups(playground),
 	];
 }

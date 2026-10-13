@@ -1,4 +1,4 @@
-import { FacePart } from '@pixecutive/protocol';
+import { FacePart, HeadPartKind } from '@pixecutive/protocol';
 import { describe, expect, it } from 'vitest';
 import { drawFigure, type SpriteCanvas } from './drawFigure.ts';
 import { fixtureManifest } from './fixtureManifest.ts';
@@ -7,6 +7,16 @@ import { fixtureManifest } from './fixtureManifest.ts';
 class RecordingCanvas implements SpriteCanvas<string> {
 	readonly calls: string[] = [];
 	private smoothing = false;
+	private composite = 'source-over';
+
+	get globalCompositeOperation(): string {
+		return this.composite;
+	}
+
+	set globalCompositeOperation(mode: string) {
+		if (mode !== this.composite) this.calls.push(`composite ${mode}`);
+		this.composite = mode;
+	}
 
 	get imageSmoothingEnabled(): boolean {
 		return this.smoothing;
@@ -71,5 +81,29 @@ describe('drawFigure', () => {
 		const canvas = new RecordingCanvas();
 		if (idle) drawFigure(canvas, (file) => file, 'idle', idle, 0, FacePart.MouthHalf);
 		expect(canvas.calls.at(-1)).toBe('m/face/idle/mouth-half.png 49 24 10 9');
+	});
+
+	it('draws the head parts of the look after the face, cutting the hat hide out of the figure', () => {
+		const canvas = new RecordingCanvas();
+		const box = { x: 0, y: 0, width: 10, height: 5 };
+		const parts = {
+			[HeadPartKind.Hair]: { '1': { file: 'm/head/idle/hair-1.png', ...box } },
+			[HeadPartKind.Hat]: {
+				'4': { file: 'm/head/idle/hat-4.png', ...box, hide: { file: 'm/head/idle/hat-4-hide.png', ...box } },
+			},
+		};
+		const look = { [HeadPartKind.Hair]: 1, [HeadPartKind.Hat]: 4 };
+		if (idle)
+			drawFigure(canvas, (file) => file, 'walk', { ...idle, parts }, 0, FacePart.Mouth, look, {
+				lift: {},
+				openTop: [],
+			});
+		expect(canvas.calls.slice(-5)).toEqual([
+			'composite destination-out',
+			'm/head/idle/hat-4-hide.png -48 -36 10 5',
+			'composite source-over',
+			'm/head/idle/hair-1.png -48 -36 10 5',
+			'm/head/idle/hat-4.png -48 -36 10 5',
+		]);
 	});
 });

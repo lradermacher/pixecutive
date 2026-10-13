@@ -89,8 +89,10 @@ export class PartCutterOpencvAdapter implements IPartCutter {
 		return typeof row === 'number' ? row : 0;
 	}
 
-	async firstRow(layer: string): Promise<number | null> {
-		const row = (await this.step('first_row', { layer }))['row'];
-		return typeof row === 'number' ? row : null;
+	async firstRows(layers: readonly string[]): Promise<(number | null)[]> {
+		const rows = (await this.step('first_rows', { layers }))['rows'];
+		return Array.isArray(rows)
+			? rows.map((row: unknown) => (typeof row === 'number' ? row : null))
+			: layers.map(() => null);
 	}
 }

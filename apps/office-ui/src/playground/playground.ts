@@ -1,8 +1,9 @@
 // playground.ts — the playground's state: which motion, facing, zoom and playback are chosen, the clock of 24 ticks
 // per second, and the tiles that follow from them. Drawing is the page's.
-import { FacePart, type FigureManifest } from '@pixecutive/protocol';
+import { FacePart, type FigureManifest, HeadPartKind } from '@pixecutive/protocol';
 import { Facing } from './facing.enum.ts';
 import { frameAt } from './frameAt.ts';
+import type { Look } from './look.interface.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
 import { Playback } from './playback.enum.ts';
 import { speakingMouth } from './speakingMouth.ts';
@@ -14,6 +15,8 @@ export interface Tile {
 	readonly motion: ManifestMotion;
 	readonly frame: number;
 	readonly mouth: FacePart;
+	readonly look: Look;
+	readonly head?: FigureManifest['figures'][string]['head'];
 	readonly label: string;
 }
 
@@ -32,6 +35,8 @@ export class Playground {
 	paused = false;
 	/** Whether the figures speak: the mouth then follows the speaking rhythm on every motion. */
 	speaking = false;
+	/** Per figure the head parts it wears. */
+	looks: Record<string, Look> = {};
 	tick = 0;
 	private elapsedMs = 0;
 
@@ -52,9 +57,30 @@ export class Playground {
 				const frame = this.frameOf(motion, this.tick);
 				const hold = motion.frames[frame]?.hold ?? 1;
 				const label = `${figure.toUpperCase()} · ${name} · ${this.facing} · frame ${String(frame)} / ${String(motion.frames.length)} · hold ${String(hold)}`;
-				return [{ figure, name, motion, frame, mouth: this.mouthAt(this.tick), label }];
+				const look = this.looks[figure] ?? {};
+				const head = this.manifest.figures[figure]?.head;
+				return [
+					{ figure, name, motion, frame, mouth: this.mouthAt(this.tick), look, ...(head ? { head } : {}), label },
+				];
 			}),
 		);
+	}
+
+	/** The variants of `kind` a figure has, by their ids in the manifest's order. */
+	variants(figure: string, kind: HeadPartKind): number[] {
+		const motions = Object.values(this.manifest.figures[figure]?.motions ?? {});
+		return Object.keys(motions[0]?.parts?.[kind] ?? {}).map(Number);
+	}
+
+	/** Puts variant `id` of `kind` on the figure, or takes the kind off with null. */
+	wear(figure: string, kind: HeadPartKind, id: number | null): void {
+		const worn = this.looks[figure] ?? {};
+		const rest: Partial<Record<HeadPartKind, number>> = {};
+		for (const other of Object.values(HeadPartKind)) {
+			const value = worn[other];
+			if (other !== kind && value !== undefined) rest[other] = value;
+		}
+		this.looks[figure] = id === null ? rest : { ...rest, [kind]: id };
 	}
 
 	/** Moves the clock on by `ms` of real time, unless paused. */

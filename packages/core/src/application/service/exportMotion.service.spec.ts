@@ -4,8 +4,10 @@ import { FacePart } from '../../domain/Figure/facePart.enum.ts';
 import type { FaceSource } from '../../domain/Figure/faceSource.interface.ts';
 import { FigureName } from '../../domain/Figure/figureName.enum.ts';
 import type { FramePlan } from '../../domain/Figure/framePlan.schema.ts';
+import { HeadPartKind } from '../../domain/Figure/headPartKind.enum.ts';
+import type { HeadPartSource } from '../../domain/Figure/headPartSource.interface.ts';
 import { Motion } from '../../domain/Figure/motion.enum.ts';
-import type { FacePlacement, MotionAsset } from '../../domain/Figure/motionAsset.interface.ts';
+import type { FacePlacement, HeadPlacement, MotionAsset } from '../../domain/Figure/motionAsset.interface.ts';
 import type { IAssetStore } from '../../port/outgoing/assetStore.interface.ts';
 import { FigureException } from '../exception/figure.exception.ts';
 import { FigureExceptionKey } from '../exception/figureExceptionKey.enum.ts';
@@ -54,6 +56,36 @@ class InMemoryAssetStore implements IAssetStore {
 
 	putMotion(figure: FigureName, motion: Motion, asset: MotionAsset): Promise<void> {
 		this.motions.push([figure, motion, asset]);
+		return Promise.resolve();
+	}
+	readonly heads: [FigureName, Motion, HeadPartSource[], number][] = [];
+	readonly figureHeads: [FigureName, { lift: Readonly<Record<string, number>>; openTop: readonly number[] }][] = [];
+
+	putHead(
+		figure: FigureName,
+		motion: Motion,
+		sources: readonly HeadPartSource[],
+		scale: number,
+	): Promise<HeadPlacement[]> {
+		this.heads.push([figure, motion, [...sources], scale]);
+		return Promise.resolve(
+			sources.map((s) => ({
+				kind: s.kind,
+				id: s.id,
+				file: `${figure}/head/${motion}/${s.kind}-${String(s.id)}.png`,
+				x: 1,
+				y: 2,
+				width: 3,
+				height: 4,
+			})),
+		);
+	}
+
+	putFigureHead(
+		figure: FigureName,
+		head: { lift: Readonly<Record<string, number>>; openTop: readonly number[] },
+	): Promise<void> {
+		this.figureHeads.push([figure, head]);
 		return Promise.resolve();
 	}
 }
@@ -127,5 +159,27 @@ describe('ExportMotionService', () => {
 		const store = new InMemoryAssetStore();
 		expect(await failureKey(new ExportMotionService(store).export(invalid))).toBe(FigureExceptionKey.InvalidJob);
 		expect(store.frames).toEqual([]);
+	});
+
+	it('stores the head parts at the track scale, puts them into the motion and records the figure head', async () => {
+		const store = new InMemoryAssetStore();
+		const head: HeadPartSource[] = [
+			{ kind: HeadPartKind.Hair, id: 1, image: 'layers/hair-1.png' },
+			{ kind: HeadPartKind.Hat, id: 4, image: 'layers/hat-4.png', hide: 'layers/hat-4-hide.png' },
+		];
+		const figureHead = { lift: { '1': 12 }, openTop: [12] };
+		const asset = await new ExportMotionService(store).export({ ...command, head, figureHead });
+		expect([
+			store.heads[0]?.[2],
+			store.heads[0]?.[3],
+			asset.parts?.map((p) => `${p.kind}-${String(p.id)}`),
+			store.figureHeads,
+		]).toEqual([head, command.track.scale, ['hair-1', 'hat-4'], [[command.figure, figureHead]]]);
+	});
+
+	it('leaves the head parts out for a figure without them', async () => {
+		const store = new InMemoryAssetStore();
+		const asset = await new ExportMotionService(store).export(command);
+		expect([store.heads, asset.parts, store.figureHeads]).toEqual([[], undefined, []]);
 	});
 });

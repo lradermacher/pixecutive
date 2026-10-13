@@ -101,6 +101,7 @@ export async function runFigureCommand(
 					}),
 				),
 				work,
+				head,
 			);
 		case PipelineCommand.Grid:
 			return buildGridHandler(args, setup, head);

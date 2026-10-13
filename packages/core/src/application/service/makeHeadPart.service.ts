@@ -152,11 +152,14 @@ export class MakeHeadPartService {
 		hair: Readonly<Record<string, string>>,
 	): Promise<{ skullTop: number; lift: Record<string, number> }> {
 		const skullTop = await this.cutter.skullTop(open, threshold);
-		const lift: Record<string, number> = {};
-		for (const [id, layer] of Object.entries(hair)) {
-			const first = await this.cutter.firstRow(layer);
-			lift[id] = first === null ? 0 : this.decide.lift(skullTop, first, most);
-		}
+		const ids = Object.keys(hair);
+		const rows = await this.cutter.firstRows(ids.map((id) => hair[id] ?? ''));
+		const lift = Object.fromEntries(
+			ids.map((id, k) => {
+				const first = rows[k] ?? null;
+				return [id, first === null ? 0 : this.decide.lift(skullTop, first, most)];
+			}),
+		);
 		return { skullTop, lift };
 	}
 }

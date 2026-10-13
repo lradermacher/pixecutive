@@ -82,3 +82,5 @@ export type {
 	HeadSources,
 	SplitHeadPartCommand,
 } from './application/service/makeHeadPartCommand.ts';
+export type { HeadPartSource } from './domain/Figure/headPartSource.interface.ts';
+export type { HeadPlacement, Placement } from './domain/Figure/motionAsset.interface.ts';

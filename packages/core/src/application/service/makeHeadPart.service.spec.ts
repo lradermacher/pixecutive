@@ -53,8 +53,8 @@ class InMemoryPartCutter implements IPartCutter {
 	skullTop(): Promise<number> {
 		return Promise.resolve(107);
 	}
-	firstRow(layer: string): Promise<number | null> {
-		return Promise.resolve(this.rows[layer] ?? null);
+	firstRows(layers: readonly string[]): Promise<(number | null)[]> {
+		return Promise.resolve(layers.map((layer) => this.rows[layer] ?? null));
 	}
 }
 

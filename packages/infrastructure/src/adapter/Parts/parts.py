@@ -1,6 +1,6 @@
 # parts.py — the pixel work of the part cutter (ADR 0019: Python only as an adapter's internals). It decides nothing:
 # the thresholds, the grids and the fits come from the core; every subcommand takes one job as JSON and answers JSON.
-#   parts.py <grid|split|key_cut|hat_cut|glasses_cut|variant_cut|under_hat|fit|skull|first_row> <job json>
+#   parts.py <grid|split|key_cut|hat_cut|glasses_cut|variant_cut|under_hat|fit|skull|first_rows> <job json>
 import json
 import os
 import sys
@@ -567,10 +567,13 @@ def skull(job):
     return {"row": int(rows.min())}
 
 
-def first_row(job):
-    """The first row of a layer with an opacity above 3."""
-    rows = np.where((alpha(job["layer"]) > 3).any(1))[0]
-    return {"row": int(rows.min()) if rows.size else None}
+def first_rows(job):
+    """Per layer the first row with an opacity above 3, or None for an empty layer."""
+    found = []
+    for layer in job["layers"]:
+        rows = np.where((alpha(layer) > 3).any(1))[0]
+        found.append(int(rows.min()) if rows.size else None)
+    return {"rows": found}
 
 
 COMMANDS = {
@@ -583,7 +586,7 @@ COMMANDS = {
     "under_hat": under_hat,
     "fit": fit,
     "skull": skull,
-    "first_row": first_row,
+    "first_rows": first_rows,
 }
 
 if __name__ == "__main__":

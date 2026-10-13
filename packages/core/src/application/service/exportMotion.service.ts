@@ -1,5 +1,5 @@
 // exportMotion.service.ts — the use case "export a motion": the sprites the office uses go into the asset store with
-// their edges cleaned, the face parts at the motion's scale, and the motion's entry into the manifest.
+// their edges cleaned, the face and head parts at the motion's scale, and the motion's entry into the manifest.
 import type { MotionAsset } from '../../domain/Figure/motionAsset.interface.ts';
 import type { IAssetStore } from '../../port/outgoing/assetStore.interface.ts';
 import { FigureException } from '../exception/figure.exception.ts';
@@ -14,7 +14,7 @@ import type { ExportMotionCommand } from './exportMotionCommand.ts';
 export class ExportMotionService {
 	constructor(private readonly store: IAssetStore) {}
 
-	/** Selects the used sprites, stores them and the face, records the motion and answers its manifest entry. */
+	/** Selects the used sprites, stores them, the face and the head parts, records the motion and answers its entry. */
 	async export(command: ExportMotionCommand): Promise<MotionAsset> {
 		const { figure, motion, plan, cut, track, values } = command;
 		const use = command.use ?? { first: 0, last: cut.frames.length - 1 };
@@ -33,6 +33,8 @@ export class ExportMotionService {
 		}
 		const stored = await this.store.putFrames(figure, motion, used, values);
 		const face = await this.store.putFace(figure, motion, command.face, track.scale, values);
+		const head = command.head ?? [];
+		const parts = head.length > 0 ? await this.store.putHead(figure, motion, head, track.scale, values) : undefined;
 		const asset: MotionAsset = {
 			frames: stored.files.map((file, k) => ({ file, hold: plan.sprites[use.first + k]?.hold ?? 1 })),
 			width: stored.width,
@@ -40,8 +42,10 @@ export class ExportMotionService {
 			advance: plan.driftPerVideoFrame * cut.scale,
 			head: { scale: track.scale, origin: track.origin },
 			face,
+			...(parts ? { parts } : {}),
 		};
 		await this.store.putMotion(figure, motion, asset);
+		if (command.figureHead) await this.store.putFigureHead(figure, command.figureHead);
 		return asset;
 	}
 }

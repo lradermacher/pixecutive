@@ -1,6 +1,7 @@
 // facePlaced.ts — where the face parts of a motion are drawn in one frame, in sprite pixels: the frame's head origin
 // plus the part's offset, back to front, with the eyes open and the mouth in the state asked for.
-import { FacePart } from '@pixecutive/protocol';
+import { FacePart, HeadPartKind } from '@pixecutive/protocol';
+import type { Look } from './look.interface.ts';
 import type { ManifestMotion } from './manifestMotion.interface.ts';
 
 /** One face part to draw: its file and its box in the sprite. */
@@ -19,19 +20,31 @@ export interface PlacedPart {
 const layers: readonly FacePart[] = [FacePart.Blank, FacePart.Brows, FacePart.Eyes, FacePart.Nose];
 const blankHeadMotion = 'idle';
 
+/** The face parts a look can replace by a variant of the kind of the same name; the mouth only while closed. */
+const variantOf: Readonly<Partial<Record<FacePart, HeadPartKind>>> = Object.freeze({
+	[FacePart.Brows]: HeadPartKind.Brows,
+	[FacePart.Eyes]: HeadPartKind.Eyes,
+	[FacePart.Nose]: HeadPartKind.Nose,
+	[FacePart.Mouth]: HeadPartKind.Mouth,
+});
+
 /**
  * The parts the motion has, placed on the head origin of `frame`, the mouth as `mouth` (the closed mouth where the
- * motion has no such state).
+ * motion has no such state), and the brows, eyes, nose and closed mouth the look chooses a variant of replaced by it.
  */
 export function facePlaced(
 	name: string,
 	motion: ManifestMotion,
 	frame: number,
 	mouth: FacePart = FacePart.Mouth,
+	look: Look = {},
 ): PlacedPart[] {
 	const [x, y] = motion.head.origin[frame] ?? [0, 0];
 	return [...layers, motion.face[mouth] ? mouth : FacePart.Mouth].flatMap((part) => {
-		const placement = motion.face[part];
+		const kind = variantOf[part];
+		const id = kind === undefined ? undefined : look[kind];
+		const variant = kind === undefined || id === undefined ? undefined : motion.parts?.[kind]?.[String(id)];
+		const placement = variant ?? motion.face[part];
 		if (!placement || (part === FacePart.Blank && name !== blankHeadMotion)) return [];
 		return [{ ...placement, x: x + placement.x, y: y + placement.y }];
 	});

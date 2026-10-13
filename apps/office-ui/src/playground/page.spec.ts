@@ -6,6 +6,14 @@ import { startPlayground } from './page.ts';
 class FakeContext {
 	readonly calls: string[] = [];
 	imageSmoothingEnabled = true;
+	private composite = 'source-over';
+	get globalCompositeOperation(): string {
+		return this.composite;
+	}
+	set globalCompositeOperation(mode: string) {
+		if (mode !== this.composite) this.calls.push(`composite ${mode}`);
+		this.composite = mode;
+	}
 	setTransform(...values: number[]): void {
 		this.calls.push(`transform ${values.join(' ')}`);
 	}
@@ -205,5 +213,19 @@ describe('startPlayground', () => {
 		await startPlayground(win);
 		const figures = body.all().filter((node) => node.className === 'figure');
 		expect(figures.map((figure) => figure.style.width)).toEqual(['178px', '188px']);
+	});
+
+	it('draws the head part a figure is made to wear, from the served asset folder, after its face', async () => {
+		const manifest = copy() as { figures: { m: { motions: Record<string, { parts?: unknown }> } } };
+		const hair = { '1': { file: 'm/head/idle/hair-1.png', x: 0, y: 0, width: 10, height: 6 } };
+		for (const motion of Object.values(manifest.figures.m.motions)) motion.parts = { hair };
+		const { win, body, created, frame } = fakeWindow(manifest);
+		await startPlayground(win);
+		button(body, '1')?.click();
+		frame(0);
+		const drawn = created
+			.filter((node) => node.tag === 'canvas' && node.className === '')
+			.flatMap((c) => c.context.calls);
+		expect(drawn.some((call) => call.startsWith('draw smooth img assets/figures/m/head/idle/hair-1.png'))).toBe(true);
 	});
 });

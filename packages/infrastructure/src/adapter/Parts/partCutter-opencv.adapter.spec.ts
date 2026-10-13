@@ -46,6 +46,7 @@ async function scene(): Promise<Record<string, string>> {
 			'glasses = green.copy()',
 			'for x in (85, 115): cv2.rectangle(glasses, (x - 10, 92), (x + 10, 106), (20, 20, 20), 2)',
 			'cv2.line(glasses, (95, 96), (105, 96), (20, 20, 20), 2); Image.fromarray(glasses).save(f"{d}/glasses.png")',
+			'Image.fromarray(np.zeros((200, 200, 4), np.uint8)).save(f"{d}/empty.png")',
 		].join('\n'),
 	);
 	await runPythonStep(python, maker, [dir]);
@@ -58,6 +59,7 @@ async function scene(): Promise<Record<string, string>> {
 		hair: at('hair.png'),
 		cap: at('cap.png'),
 		glasses: at('glasses.png'),
+		empty: at('empty.png'),
 	};
 }
 
@@ -168,7 +170,7 @@ describe('PartCutterOpencvAdapter', () => {
 	);
 
 	it(
-		'measures the skull top on the open still and the first row of a layer',
+		'measures the skull top on the open still and the first row of each layer, none for an empty one',
 		async () => {
 			const s = await scene();
 			const out = join(s.dir ?? '', 'hair-1.png');
@@ -180,8 +182,15 @@ describe('PartCutterOpencvAdapter', () => {
 				drawing: s.hair ?? '',
 				out,
 			});
-			const [skull, first] = await Promise.all([cutter.skullTop(s.open ?? '', 60), cutter.firstRow(out)]);
-			expect([skull >= 58 && skull <= 61, first !== null && first >= 48 && first <= 52]).toEqual([true, true]);
+			const [skull, [first, empty]] = await Promise.all([
+				cutter.skullTop(s.open ?? '', 60),
+				cutter.firstRows([out, s.empty ?? '']),
+			]);
+			expect([
+				skull >= 58 && skull <= 61,
+				first !== null && first !== undefined && first >= 48 && first <= 52,
+				empty,
+			]).toEqual([true, true, null]);
 		},
 		PYTHON_START_MS,
 	);

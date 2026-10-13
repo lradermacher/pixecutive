@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { mkdtempSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { FigureException, FigureExceptionKey } from '@pixecutive/core';
@@ -93,6 +93,39 @@ describe('runFigureCommand', () => {
 				await failure(PipelineCommand.Draw, ['m', 'glasses', '1'], '/hub/ltx'),
 			];
 			expect([cut?.[0], draw?.[0]]).toEqual([FigureExceptionKey.CutFailed, FigureExceptionKey.DrawFailed]);
+		},
+		PYTHON_START_MS,
+	);
+
+	it(
+		'wires export to the part cutter, which measures the lifts once the cut and the track are there',
+		async () => {
+			const renders = mkdtempSync(join(tmpdir(), 'figure-command-'));
+			const work = join(renders, 'work', 'm-walk');
+			mkdirSync(work, { recursive: true });
+			const plan = {
+				sprites: [{ source: 0, hold: 1, shiftX: 0, shiftY: 0 }],
+				margin: { top: 0, bottom: 0, left: 0, right: 0 },
+				height: 200,
+				driftPerVideoFrame: 0,
+			};
+			writeFileSync(
+				join(work, 'cut.json'),
+				JSON.stringify({ plan, result: { frames: [join(work, '00.png')], scale: 0.3, width: 90, height: 200 } }),
+			);
+			writeFileSync(join(work, 'track.json'), JSON.stringify({ scale: 0.345, origin: [[-48, -36]], earOffset: [0] }));
+			const env = { PIX_RENDERS_DIR: renders, PIX_FIGURE_SOURCES: join(renders, 'none') };
+			const error: unknown = await runFigureCommand(
+				PipelineCommand.Export,
+				['m', 'walk'],
+				env,
+				new RenderMachineLocalAdapter(),
+				guard,
+			).then(
+				() => null,
+				(caught: unknown) => caught,
+			);
+			expect(error instanceof FigureException && error.key).toBe(FigureExceptionKey.CutFailed);
 		},
 		PYTHON_START_MS,
 	);

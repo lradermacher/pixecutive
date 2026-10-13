@@ -1,9 +1,35 @@
+import { HeadPartKind } from '@pixecutive/protocol';
 import { describe, expect, it } from 'vitest';
 import { controlGroups } from './controlGroups.ts';
 import { Facing } from './facing.enum.ts';
 import { fixtureManifest } from './fixtureManifest.ts';
 import { Playback } from './playback.enum.ts';
 import { Playground } from './playground.ts';
+
+/** The fixture with hair 1 and 2 and brows 3 on every motion of M, the lift of hair 1, and a hat open on top. */
+function dressed(): typeof fixtureManifest {
+	const box = { x: 0, y: 0, width: 10, height: 5 };
+	const m = fixtureManifest.figures['m'];
+	const motions = Object.fromEntries(
+		Object.entries(m?.motions ?? {}).map(([name, motion]) => [
+			name,
+			{
+				...motion,
+				parts: {
+					[HeadPartKind.Hair]: {
+						'1': { file: 'm/head/hair-1.png', ...box },
+						'2': { file: 'm/head/hair-2.png', ...box },
+					},
+					[HeadPartKind.Brows]: { '3': { file: 'm/head/brows-3.png', ...box } },
+				},
+			},
+		]),
+	);
+	return {
+		...fixtureManifest,
+		figures: { ...fixtureManifest.figures, m: { head: { lift: { '1': 12 }, openTop: [12] }, motions } },
+	};
+}
 
 /** The option of `title` named `text`. */
 function option(
@@ -62,5 +88,18 @@ describe('controlGroups', () => {
 		const stepped = [playground.paused, playground.tick];
 		option(playground, 'Clock', 'play').choose();
 		expect([stepped, playground.paused]).toEqual([[true, 1], false]);
+	});
+
+	it('offers a row per figure and kind it has, with none first, and wearing a variant chooses it', () => {
+		const playground = new Playground(dressed());
+		const rows = controlGroups(playground).filter((group) => group.title.startsWith('M '));
+		const hair = rows.find((group) => group.title === 'M hair');
+		hair?.options[2]?.choose();
+		expect([
+			rows.map((group) => group.title),
+			hair?.options.map((o) => o.text),
+			playground.looks['m'],
+			hair?.options.map((o) => o.chosen()),
+		]).toEqual([['M hair', 'M brows'], ['none', '1', '2'], { [HeadPartKind.Hair]: 2 }, [false, false, true]]);
 	});
 });
