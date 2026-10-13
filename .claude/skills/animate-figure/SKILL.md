@@ -21,7 +21,7 @@ there. Why motion comes only from the video model is decided in
    is shown, on a [decision sheet](../decision-sheet/SKILL.md). *Done when the definition stands in the card with
    the maintainer's yes.*
 2. **Choose the mode** — `cycle` for a motion that repeats a stride or a stroke (walk, run, type): a free clip, one
-   cycle cut out of it. `loop` for a motion on the spot (idle, talk, wave, sit): the same approved still anchors the
+   cycle cut out of it. `loop` for a motion on the spot (idle, wave, sit): the same approved still anchors the
    first and the last frame, so the loop closes and the figure cannot drift. *Done when the mode stands in the card.*
 3. **Write the prompt** — it states how little moves and what stays still, in the definition's words. A word that
    turns the body, a head motion next to a blink, or a shifting weight each start a motion nobody asked for.
