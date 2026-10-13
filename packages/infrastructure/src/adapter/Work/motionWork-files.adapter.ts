@@ -1,6 +1,6 @@
 // motionWork-files.adapter.ts — keeps the motion chain's work between its commands as JSON files in the renders folder:
 // the cut sprites with their plan, and the head track; each read back is checked by the core's schemas.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
 	type CutFrames,
@@ -35,8 +35,12 @@ function onDisk<T>(what: string, step: () => T): T {
 export class MotionWorkFilesAdapter implements IMotionWork {
 	constructor(private readonly work: string) {}
 
-	saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void> {
-		return this.write(figure, motion, 'cut', cut);
+	/** Keeps the cut and drops the motion's head track: a track of the sprites before would not fit the new ones. */
+	async saveCut(figure: FigureName, motion: Motion, cut: CutFrames): Promise<void> {
+		await this.write(figure, motion, 'cut', cut);
+		onDisk('drop the old track', () => {
+			rmSync(this.file(figure, motion, 'track'), { force: true });
+		});
 	}
 
 	loadCut(figure: FigureName, motion: Motion): Promise<CutFrames> {

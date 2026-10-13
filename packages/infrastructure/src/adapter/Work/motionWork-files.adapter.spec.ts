@@ -35,6 +35,17 @@ describe('MotionWorkFilesAdapter', () => {
 		]);
 	});
 
+	it('drops the head track when a new cut is kept, so an export cannot pair them', async () => {
+		const work = new MotionWorkFilesAdapter(mkdtempSync(join(tmpdir(), 'work-')));
+		await work.saveCut(FigureName.M, Motion.Idle, cut);
+		await work.saveTrack(FigureName.M, Motion.Idle, track);
+		await work.saveCut(FigureName.M, Motion.Idle, cut);
+		expect(await failure(work.loadTrack(FigureName.M, Motion.Idle))).toEqual([
+			FigureExceptionKey.InvalidJob,
+			'no track of m idle: run `pnpm assets track m idle` first',
+		]);
+	});
+
 	it('names the command to run first when its step is missing', async () => {
 		const work = new MotionWorkFilesAdapter(mkdtempSync(join(tmpdir(), 'work-')));
 		expect(await failure(work.loadCut(FigureName.F, Motion.Idle))).toEqual([
