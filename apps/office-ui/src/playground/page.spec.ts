@@ -30,6 +30,7 @@ class FakeElement {
 	readonly naturalWidth = 1;
 	readonly context = new FakeContext();
 	private readonly listeners: (() => void)[] = [];
+	readonly style: { width?: string } = {};
 	readonly classList = {
 		toggle: (name: string, on: boolean): void => {
 			const names = this.className.split(' ').filter((n) => n !== '' && n !== name);
@@ -197,5 +198,12 @@ describe('startPlayground', () => {
 		frame(50);
 		const sprite = created.filter((node) => node.tag === 'canvas' && node.className === '' && node.width === 89).at(-1);
 		expect(sprite?.context.calls.at(-1)).toBe('draw smooth img assets/figures/m/face/idle/mouth-open.png 49 24 10 11');
+	});
+
+	it('makes each tile as wide as its canvas, so a changing caption never moves the figure', async () => {
+		const { win, body } = fakeWindow(copy());
+		await startPlayground(win);
+		const figures = body.all().filter((node) => node.className === 'figure');
+		expect(figures.map((figure) => figure.style.width)).toEqual(['178px', '188px']);
 	});
 });

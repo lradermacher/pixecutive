@@ -88,6 +88,8 @@ export async function startPlayground(win: Window): Promise<void> {
 		stage.replaceChildren(
 			...shown.map(({ canvas, caption }) => {
 				const figure = element(doc, 'figure', 'figure');
+				// the tile is as wide as its canvas, so a caption that grows with the frame number never moves the figure
+				figure.style.width = `${String(canvas.width)}px`;
 				figure.append(canvas, caption);
 				return figure;
 			}),
