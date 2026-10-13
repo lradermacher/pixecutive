@@ -10,3 +10,4 @@ export { FrameCutterOpencvAdapter } from './adapter/Frames/frameCutter-opencv.ad
 export { FrameMeasurerOpencvAdapter } from './adapter/Frames/frameMeasurer-opencv.adapter.ts';
 export { HeadTrackerOpencvAdapter } from './adapter/Head/headTracker-opencv.adapter.ts';
 export type { PythonEnvironment, PythonScriptConfig } from './adapter/Python/pythonStep.ts';
+export { AssetStoreFilesAdapter, type AssetStoreConfig } from './adapter/Asset/assetStore-files.adapter.ts';

@@ -99,6 +99,11 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 10: the edge clean-up and the face parts reproduce the room page's body frames and face parts of
+  M and F, idle and walk, pixel for pixel, the face placements exactly; the clean-up computes the background color in
+  double precision as the proof of concept did (single precision moved two alpha values by one). The asset store
+  checks the manifest with the protocol's schema before it writes it and holds every file to 256 KB. The
+  infrastructure package depends on the protocol, as its lint zone allows.
 - 2026-10-13, step 9: the head tracker reproduces the shipped head origins and scales of M and F, idle and walk,
   exactly (maximum difference 0); the ear strays at most 0.5 px, within the core's 1 px. Its values got their own
   config schema, and the Python call with its answer check moved beside the runner, each adapter naming its own key.
@@ -138,8 +143,8 @@ frames numbered with two digits from 00.
 | 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | 8bc100f, 31784e7 |
 | 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | 2c1b4f4 |
 | 8 | Frame measurer and cutter, Python internals | adapter spec; integration spec on synthetic frames | d8076bd |
-| 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | this commit |
-| 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | open |
+| 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | 350b45e |
+| 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, this commit |
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | open |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |

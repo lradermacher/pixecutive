@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { packageName as dependencyName } from '@pixecutive/core';
 import {
+	AssetStoreFilesAdapter,
 	FrameCutterOpencvAdapter,
 	FrameMeasurerOpencvAdapter,
 	HeadTrackerOpencvAdapter,
@@ -30,5 +31,9 @@ describe('@pixecutive/infrastructure', () => {
 
 	it('exposes the head tracker through its entry', () => {
 		expect(typeof HeadTrackerOpencvAdapter.prototype.track).toBe('function');
+	});
+
+	it('exposes the asset store through its entry', () => {
+		expect(typeof AssetStoreFilesAdapter.prototype.putMotion).toBe('function');
 	});
 });

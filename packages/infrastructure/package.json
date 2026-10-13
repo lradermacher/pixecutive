@@ -8,6 +8,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@pixecutive/core": "workspace:*"
+    "@pixecutive/core": "workspace:*",
+    "@pixecutive/protocol": "workspace:*"
   }
 }
