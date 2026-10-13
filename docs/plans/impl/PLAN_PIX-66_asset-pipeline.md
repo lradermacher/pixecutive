@@ -10,7 +10,7 @@ figures reach `apps/office-ui/assets/` through it. The scratchpad scripts were t
 
 - [ ] Each step of the motion chain (clip, frames, head track, export) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters
 - [ ] Every core decision has unit tests with in-memory fakes, every adapter its own spec
-- [ ] The asset layout under `apps/office-ui/assets/` is decided with the maintainer as one PNG of the folder tree before the first asset lands
+- [x] The asset layout under `apps/office-ui/assets/` is decided with the maintainer as one PNG of the folder tree before the first asset lands — sheet `pix66-layout` F1 = yes (2026-10-13), PIX-66 comment 14084
 - [ ] The base figures M and F with idle and walk reach `apps/office-ui/assets/` through the commands, and the maintainer compares them with the room page
 - [ ] The skill `animate-figure` names the commands
 - [ ] Every gate and verify-full is green, and an independent review checked the diff
@@ -67,6 +67,13 @@ Commands (names final in the step that builds them):
 - `pnpm assets export <figure>` writes the frames, the face parts at the motion's scale and the manifest into
   `apps/office-ui/assets/` in the agreed layout.
 
+**Asset layout** (agreed on sheet `pix66-layout`, 2026-10-13): `apps/office-ui/assets/figures/` holds a generated
+`manifest.json` (per figure and motion the frame order, holds, scale, head origin per frame, face part offsets) and per
+figure `m/` and `f/` the folders `body/<motion>/NN.png` and `face/<motion>/<part>.png` (`blank`, `brows`, `eyes`,
+`eyes-half`, `eyes-closed`, `nose`, `mouth`) at that motion's scale. Front-right is mirrored at draw time, not stored.
+`parts/` is kept for PIX-70; rooms and furniture beside `figures/` come with PIX-25. Names are lowercase with hyphens,
+frames numbered with two digits from 00.
+
 ## Test plan
 
 - Core: every decision with unit tests on numbers, every service with `InMemory<Port>` fakes; the cycle choice and
@@ -96,7 +103,7 @@ Commands (names final in the step that builds them):
 
 - **Decided by the maintainer:** the approval of this plan and the split of the parts into PIX-70 (sheet
   `pix66-plan`, F1 and F2).
-- **The maintainer decides:** the asset layout as one PNG of the folder tree (acceptance line 3, step 1).
+- **Decided by the maintainer:** the asset layout (sheet `pix66-layout`, F1).
 - **I decide:** the TypeScript/Python cut above, the shared guard, the Python environment (uv 0.12.12 with
   Python 3.10, OpenCV 4.14.0, NumPy 2.2.6, Pillow 12.3.0, the versions the proof of concept ran with, measured
   2026-10-13), because they follow from ADR 0019 and the core rule.
@@ -105,8 +112,8 @@ Commands (names final in the step that builds them):
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | The asset layout under `apps/office-ui/assets/` as one PNG of the folder tree | the maintainer's yes on the card | open |
-| 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | open |
+| 1 | The asset layout under `apps/office-ui/assets/` as one PNG of the folder tree | the maintainer's yes on the card | sheet `pix66-layout` F1 = yes, PIX-66 comment 14084 |
+| 2 | Python environment for adapter internals: `pyproject.toml` and lock, a runner the adapters call | `uv run` imports the measured versions; check-english and the image gate green | this commit |
 | 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | open |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | open |
 | 5 | Core ports and services: clip, frames, track, export; the figure exception and its keys | service specs with in-memory fakes | open |

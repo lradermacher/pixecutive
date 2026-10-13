@@ -82,3 +82,6 @@ keyframed
 despill
 LFS
 pyproject
+numpy
+PIL
+venv

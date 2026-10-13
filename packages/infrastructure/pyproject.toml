@@ -1,0 +1,14 @@
+# The Python environment of the adapters' pixel steps (ADR 0019: Python only as an adapter's internals, started as a
+# process). Versions are the ones the PIX-65 proof of concept ran with, measured on 2026-10-13.
+[project]
+name = "pixecutive-pixel-steps"
+version = "0.0.0"
+requires-python = "==3.10.*"
+dependencies = [
+  "numpy==2.2.6",
+  "opencv-python==4.14.0.94",
+  "pillow==12.3.0",
+]
+
+[tool.uv]
+package = false
