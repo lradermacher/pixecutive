@@ -4,6 +4,8 @@ import {
 	clipConfigSchema,
 	clipJobSchema,
 	cutResultSchema,
+	exportConfigSchema,
+	FacePart,
 	FigureName,
 	frameCutConfigSchema,
 	headTrackConfigSchema,
@@ -59,5 +61,9 @@ describe('@pixecutive/core', () => {
 
 	it('exposes the head-tracking values through its entry', () => {
 		expect(headTrackConfigSchema.parse({}).border).toBe(12);
+	});
+
+	it('exposes the export through its entry', () => {
+		expect([FacePart.EyesClosed, exportConfigSchema.parse({}).face.blankDilate]).toEqual(['eyes-closed', 7]);
 	});
 });
