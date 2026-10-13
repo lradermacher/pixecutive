@@ -46,8 +46,9 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
   open in a speaking rhythm; no hand gesture. The half and open mouth states of M and F are drawn to match the closed
   mouth and go to the maintainer as one PNG first. Check: each state compared zoomed with the closed mouth and placed
   on every idle frame by the head origin.
-- **wave** (loop): the near arm rises to shoulder height, the hand waves three times, the arm lowers; everything else
-  as idle. Check: torso and legs within 1.5/255 of an idle frame.
+- **wave** (slow loop, 97 frames): the arm away from the head rises out to the side to shoulder height, the open hand
+  waves three times, the arm lowers; everything else as idle, the body may follow the arm slightly. Check: torso and
+  legs within 3/255 of a rest frame, the hand inside the clip and the head blank in every frame.
 - **sit** (loop on a seated still): sitting upright on an office chair, breathing and blinking as idle. The seated
   still comes from the last frame of a sit-down clip and goes to the maintainer as one PNG first.
 - **type** (loop on the seated still at a desk): both forearms on the desk, fingers tapping, small head movements
@@ -68,6 +69,12 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 - Real-time blending between gestures.
 
 ## Changed on the way
+
+- 2026-10-13, decided by the maintainer (sheet `pix58-wave`): F1 = a, the arm away from the head waves (the near arm
+  passes the head: F's tries melted, painted a face, left the clip, rested on the forehead); F2 = a, torso and legs
+  within 3/255 of a rest frame (a raised arm leans the body by up to 2.8); F3 = a, M's slow wave accepted (clip of
+  the earlier near-arm wording, which raised the far arm anyway); F4 = yes, `data/prompts/talk.txt` deleted (no file
+  named it).
 
 - 2026-10-13, decided by the maintainer (sheet `pix58-hands`): F1 = a, talk is the idle body with drawn mouth states,
   not a clip; a hand gesture while speaking becomes its own motion later. F2 = a, the head track's ear limit is 2 px
@@ -123,7 +130,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | --- | --- | --- | --- |
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
 | 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | redefined on sheet `pix58-hands` F1 = a; the clip candidates rejected |
-| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | rendered; ear limit and verdict on sheet `pix58-talk-wave` F1, F3; ear search fixed in 4ab91d4 |
+| 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M accepted on sheet `pix58-wave` F3; F next with the arm away from the head |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | open |
