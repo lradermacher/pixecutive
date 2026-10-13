@@ -98,4 +98,16 @@ describe('cutFramesHandler', () => {
 		expect(work.cuts[0]?.[2].plan.sprites.map((s) => s.source)).toEqual([1, 2, 3, 4, 3, 2]);
 		expect(lines).toEqual(['cut f idle: 6 sprites of 90x200']);
 	});
+
+	it('cuts a motion with a sprite height of its own at that height', async () => {
+		const work = new InMemoryMotionWork();
+		const sit = { ...setup, figures: { f: { ...setup.figures.f, motions: { idle: { ...idle, height: 183 } } } } };
+		await cutFramesHandler(
+			['f', 'idle'],
+			sit as unknown as FigureSetup,
+			new CutFramesService(new InMemoryFrameMeasurer(), new InMemoryFrameCutter()),
+			work,
+		);
+		expect(work.cuts[0]?.[2].plan.height).toBe(183);
+	});
 });

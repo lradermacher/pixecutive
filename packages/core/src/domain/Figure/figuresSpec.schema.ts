@@ -28,6 +28,11 @@ const motionSpecSchema = z.object({
 	forward: z.boolean().optional(),
 	/** The sprites the office uses, when not all. */
 	use: range.optional(),
+	/**
+	 * The sprite height when not the cut's default: a pose that is not standing (sitting) is lower, so it gets the
+	 * height at which its head comes out as large as in the standing motions.
+	 */
+	height: z.int().min(16).max(1024).optional(),
 	/** The still the head is tracked against: the one the face parts were drawn on for this motion. */
 	trackStill: png,
 });
