@@ -8,12 +8,12 @@ maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 
 ## Acceptance
 
-- [ ] Wave, sit and type exist for M and F front-left, each made by the video model from the approved still; talk is the idle body with drawn mouth states
-- [ ] Each gesture's definition stands in this card before its first render, and its check is measured before it is shown
-- [ ] Front-right exists for every animation by mirroring
+- [x] Wave, sit and type exist for M and F front-left, each made by the video model from the approved still; talk is the idle body with drawn mouth states — `apps/office-ui/assets/figures/{m,f}/body/{wave,sit,type}` from `pnpm assets clip|frames|track|export` (c3f1eeb, 23b1a06, 13980a0, 7053777); talk: mouth states as face parts on every motion (64e91fc) and the speaking mouth (427119a)
+- [x] Each gesture's definition stands in this card before its first render, and its check is measured before it is shown — card description and comments 14089 to 14095; each check measured before its sheet (talk, wave, sit, type rows of the order)
+- [x] Front-right exists for every animation by mirroring — the playground mirrors the whole figure (PIX-71 `tileTransform.ts`); measured for idle, walk, wave, sit and type of M and F with the speaking mouth, 12 frames each: front-right equals front-left flipped, 0 differing bytes
 - [ ] Every face, hair, garment and accessory layer follows each gesture by the per-frame head origin
-- [ ] Every gesture is checked in the room page, frames overlaid and zoomed at the joints, before the maintainer sees it
-- [ ] The maintainer approves each gesture with a verdict
+- [x] Every gesture is checked in the room page, frames overlaid and zoomed at the joints, before the maintainer sees it — in the playground of PIX-71, which takes the room page's place (sheet `pix71-plan` F2 = a): contact sheets with consecutive overlays, hands, feet and mouth zoomed, the figure's stillness on the page measured
+- [x] The maintainer approves each gesture with a verdict — wave: sheets `pix58-wave` F3, `pix58-f-body` F1; talk: chat 2026-10-13; sit: `pix58-sit-type` F1; type: chat 2026-10-13
 
 ## Inventory
 
@@ -49,10 +49,13 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 - **wave** (slow loop, 97 frames): the arm away from the head rises out to the side to shoulder height, the open hand
   waves three times, the arm lowers; the upper body may follow the arm, the feet stay. Check: legs and feet within
   3/255 of a rest frame, the hand inside the clip and the head blank in every frame.
-- **sit** (loop on a seated still): sitting upright on an office chair, breathing and blinking as idle. The seated
-  still comes from the last frame of a sit-down clip and goes to the maintainer as one PNG first.
-- **type** (loop on the seated still at a desk): both forearms on the desk, fingers tapping, small head movements
-  towards the screen. Check: back and legs still.
+- **sit** (loop on a seated still without the chair): sitting upright, breathing and blinking as idle, the hands on
+  the thighs, the feet flat on the floor. The chair is office furniture. The seated still comes from the last frame of
+  a sit-down clip, the chair removed by Astra, and goes to the maintainer as one PNG first.
+- **type** (loop on the typing still at desk height, the desk is office furniture): both forearms level where the desk
+  is, fingers tapping, small head movements towards the screen. The fingers are drawn finger states (lifted, pressed)
+  painted into the sprites in a typing rhythm, because moving fingers melt in the video model. Check: back and legs
+  still, the forearms at desk height, every state's fingers separate.
 - Front-right of every animation, idle and walk included, is front-left mirrored.
 
 ## Test plan
@@ -160,6 +163,6 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | mouth states accepted (sheet `pix58-mouth`), 64e91fc; speaking mouth 427119a, wobble fixed 13a9983; accepted by the maintainer in chat (2026-10-13) |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M c3f1eeb (sheet `pix58-wave` F3), F 23b1a06 (sheet `pix58-f-body` F1) |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | sheets `pix58-seated`, `pix58-m-legs`; chair removed by Astra |
-| 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
-| 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | open |
-| 7 | Every layer on every gesture by the head origin; front-right of every gesture | the full matrix in the room page | open |
+| 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | 13980a0 (sheet `pix58-sit-type` F1) |
+| 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | fc6a8a0, 7053777 (accepted in chat) |
+| 7 | Every layer on every gesture by the head origin; front-right of every gesture | the full matrix in the room page | front-right and face parts done (playground, 0 differing bytes); hair, garment and accessory layers: question on the card |
