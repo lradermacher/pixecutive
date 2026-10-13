@@ -20,17 +20,23 @@ there. Why motion comes only from the video model is decided in
 1. **Define the motion** — what moves, what stays still, the timing, and the measurement that is checked before it
    is shown, on a [decision sheet](../decision-sheet/SKILL.md). *Done when the definition stands in the card with
    the maintainer's yes.*
-2. **Choose the mode** — `cycle` for a motion that repeats a stride or a stroke (walk, run, type): a free clip, one
-   cycle cut out of it. `loop` for a motion on the spot (idle, wave, sit): the same approved still anchors the
-   first and the last frame, so the loop closes and the figure cannot drift. *Done when the mode stands in the card.*
+2. **Choose the mode** — `cycle` for a motion that repeats a stride (walk, run): a free clip, one cycle cut out of it.
+   `loop` for a motion on the spot (idle, wave, sit, type): the same approved still anchors the first and the last
+   frame, so the loop closes and the figure cannot drift. A pose that is not standing gets its own sprite `height` in
+   the figures' data file, chosen so its head scale matches the standing motions. *Done when the mode stands in the
+   card.*
 3. **Write the prompt** — it states how little moves and what stays still, in the definition's words. A word that
-   turns the body, a head motion next to a blink, or a shifting weight each start a motion nobody asked for.
+   turns the body, a head motion next to a blink, or a shifting weight each start a motion nobody asked for. Name a
+   side by the picture (the arm on the right side of the picture), and ask for slow movement: fast hands melt.
    *Done when every sentence of the prompt maps to a line of the definition.*
 4. **Render one clip** — `pnpm assets clip <figure> <motion>` renders it from the approved still the figures' data
    file names, one job at a time under the memory guard, its progress streamed into the chat. *Done when the clip
    exists.*
 5. **Cut the frames** — `pnpm assets frames <figure> <motion>`: a cycle is cut where the stride repeats, each unique
-   pose kept with its hold; a loop keeps its frames between the anchors. `pnpm assets track <figure> <motion>` places
+   pose kept with its hold; a loop keeps its frames between the anchors. What the video model cannot move without
+   melting it (a speaking mouth, typing fingers) comes as drawn states by the skill
+   [figure-part](../figure-part/SKILL.md): mouth states are face parts on every motion, finger states are named under
+   the motion's `hands` and painted into its sprites by this command. `pnpm assets track <figure> <motion>` places
    the head per frame and refuses a track whose ear strays; `pnpm assets export <figure> <motion>` writes the sprites,
    the face parts and the manifest into the office's asset folder. *Done when the frame set plays without a jump in
    the player.*
