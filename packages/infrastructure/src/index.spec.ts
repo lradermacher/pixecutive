@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { packageName as dependencyName } from '@pixecutive/core';
-import { packageName, VideoRendererLtxAdapter } from './index.ts';
+import { FrameCutterOpencvAdapter, FrameMeasurerOpencvAdapter, packageName, VideoRendererLtxAdapter } from './index.ts';
 
 describe('@pixecutive/infrastructure', () => {
 	it('exposes its workspace name through its entry', () => {
@@ -13,5 +13,12 @@ describe('@pixecutive/infrastructure', () => {
 
 	it('exposes the video adapter through its entry', () => {
 		expect(typeof VideoRendererLtxAdapter.prototype.render).toBe('function');
+	});
+
+	it('exposes the frame adapters through its entry', () => {
+		expect([
+			typeof FrameMeasurerOpencvAdapter.prototype.measure,
+			typeof FrameCutterOpencvAdapter.prototype.cut,
+		]).toEqual(['function', 'function']);
 	});
 });

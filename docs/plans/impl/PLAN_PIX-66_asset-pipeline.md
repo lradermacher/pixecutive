@@ -99,6 +99,11 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 8: the frame measurer and cutter reproduce the shipped sprites of M and F, idle and walk, pixel
+  for pixel (maximum difference 0, measured on the backed-up clips, the core planning in between). The edge clean-up
+  moves to the export: the proof of concept applied it when packing the page, and the head was tracked on the raw
+  sprites. The idle sprites are cut over the whole clip (0 to 47) and the export uses M 11 to 34 and F 9 to 28, as
+  the page did; crop and scale depend on every frame cut.
 - 2026-10-13, step 7: a clip leaves no row in the image render log, whose columns (seed, steps) are the image
   model's; the shared lock still names the running clip in the status.
 - 2026-10-13, step 5: the export use case moves to step 10, where the manifest it fills is defined.
@@ -128,10 +133,10 @@ frames numbered with two digits from 00.
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | 3fdab47 |
 | 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | 80a9e59 |
 | 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | 8bc100f, 31784e7 |
-| 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | this commit |
-| 8 | Frame measurer and cutter with the edge clean-up, Python internals | adapter spec; integration spec on synthetic frames | open |
+| 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | 2c1b4f4 |
+| 8 | Frame measurer and cutter, Python internals | adapter spec; integration spec on synthetic frames | this commit |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | open |
-| 10 | Figure manifest schema in `packages/protocol`, the export use case and the file asset store | protocol, service and adapter specs; the 256 KB limit | open |
+| 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | open |
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | open |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |

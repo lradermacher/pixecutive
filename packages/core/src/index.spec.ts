@@ -3,6 +3,7 @@ import {
 	ClipMode,
 	clipConfigSchema,
 	clipJobSchema,
+	cutResultSchema,
 	FigureName,
 	frameCutConfigSchema,
 	headTrackJobSchema,
@@ -49,5 +50,9 @@ describe('@pixecutive/core', () => {
 	it('exposes the clip settings through its entry', () => {
 		const config = clipConfigSchema.parse({ rendersDir: '/r', ltxProject: '/ltx', model: '/m' });
 		expect([config.frameRate, config.size]).toEqual([24, 768]);
+	});
+
+	it('exposes the cut result through its entry', () => {
+		expect(cutResultSchema.safeParse({ frames: ['00.png'], scale: 1, width: 1, height: 1 }).success).toBe(true);
 	});
 });

@@ -86,3 +86,9 @@ numpy
 PIL
 venv
 denoising
+dstack
+BGR
+cvt
+fromarray
+ptp
+fourcc

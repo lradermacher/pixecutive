@@ -24,7 +24,7 @@ export { FigureException } from './application/exception/figure.exception.ts';
 export { FigureExceptionKey } from './application/exception/figureExceptionKey.enum.ts';
 export { PlanFramesService, type FrameRange } from './application/service/planFrames.service.ts';
 export type { ClipResult } from './domain/Figure/clipResult.interface.ts';
-export type { CutResult } from './domain/Figure/cutResult.interface.ts';
+export { cutResultSchema, type CutResult } from './domain/Figure/cutResult.schema.ts';
 export { headTrackJobSchema, type HeadTrackJob } from './domain/Figure/headTrackJob.schema.ts';
 export { CutFramesService, type CutFrames } from './application/service/cutFrames.service.ts';
 export type { CutFramesCommand } from './application/service/cutFramesCommand.ts';

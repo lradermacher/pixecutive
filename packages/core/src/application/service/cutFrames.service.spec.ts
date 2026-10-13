@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ClipMode } from '../../domain/Figure/clipMode.enum.ts';
-import type { CutResult } from '../../domain/Figure/cutResult.interface.ts';
+import type { CutResult } from '../../domain/Figure/cutResult.schema.ts';
 import { type FrameCutConfig, frameCutConfigSchema } from '../../domain/Figure/frameCutConfig.schema.ts';
 import type { FrameMeasure } from '../../domain/Figure/frameMeasure.schema.ts';
 import type { FramePlan } from '../../domain/Figure/framePlan.schema.ts';
