@@ -8,11 +8,14 @@ import {
 	type FrameMeasure,
 	type FramePlan,
 	frameCutConfigSchema,
+	type HandPaintJob,
 	type HeadTrack,
 	type IFrameCutter,
+	type IHandPainter,
 	type IFrameMeasurer,
 	type IMotionWork,
 	type Motion,
+	PaintHandsService,
 } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
 import type { FigureSetup } from '../figureConfig.ts';
@@ -78,8 +81,18 @@ const idle = {
 	forward: false,
 	trackStill: 'o.png',
 };
+/** Keeps every job it was handed. */
+class InMemoryHandPainter implements IHandPainter {
+	readonly jobs: HandPaintJob[] = [];
+	paint(job: HandPaintJob): Promise<void> {
+		this.jobs.push(job);
+		return Promise.resolve();
+	}
+}
+
 const setup = {
 	rendersDir: '/r',
+	sources: '/src',
 	figures: { f: { ear: { left: 1, top: 1, right: 9, bottom: 9 }, face: {}, motions: { idle } } },
 	cut: frameCutConfigSchema.parse({}),
 } as unknown as FigureSetup;
@@ -93,6 +106,7 @@ describe('cutFramesHandler', () => {
 			setup,
 			new CutFramesService(measurer, new InMemoryFrameCutter()),
 			work,
+			new PaintHandsService(new InMemoryHandPainter()),
 		);
 		expect(measurer.clips).toEqual(['/r/clips/f-idle.mp4']);
 		expect(work.cuts[0]?.[2].plan.sprites.map((s) => s.source)).toEqual([1, 2, 3, 4, 3, 2]);
@@ -107,7 +121,27 @@ describe('cutFramesHandler', () => {
 			sit as unknown as FigureSetup,
 			new CutFramesService(new InMemoryFrameMeasurer(), new InMemoryFrameCutter()),
 			work,
+			new PaintHandsService(new InMemoryHandPainter()),
 		);
 		expect(work.cuts[0]?.[2].plan.height).toBe(183);
+	});
+
+	it('paints the motion finger states into its sprites, from the figure sources', async () => {
+		const painter = new InMemoryHandPainter();
+		const hands = { box: { left: 1, top: 1, right: 9, bottom: 9 }, states: ['f/type-a.png'], ticks: 1 };
+		const typing = { ...setup, figures: { f: { ...setup.figures.f, motions: { idle: { ...idle, hands } } } } };
+		const lines = await cutFramesHandler(
+			['f', 'idle'],
+			typing as unknown as FigureSetup,
+			new CutFramesService(new InMemoryFrameMeasurer(), new InMemoryFrameCutter()),
+			new InMemoryMotionWork(),
+			new PaintHandsService(painter),
+		);
+		expect([painter.jobs[0]?.still, painter.jobs[0]?.states, painter.jobs[0]?.sequence, lines[1]]).toEqual([
+			'/src/s.png',
+			['/src/f/type-a.png'],
+			[null, 0, null, 0, null, 0],
+			'painted finger states into 3 sprites',
+		]);
 	});
 });

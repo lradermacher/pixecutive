@@ -3,6 +3,8 @@
 #   frames.py measure <clip> <values json>            -> stdout: one measure per video frame (JSON list)
 #   frames.py cut <clip> <plan json> <values json> <out dir>
 #                                                     -> sprites 00.png ...; stdout: {frames, scale, width, height}
+#   frames.py hands <job json>                        -> paints the job's finger states into its sprites in place;
+#                                                        stdout: {positions: [[x, y] of the hands per sprite]}
 import json
 import os
 import sys
@@ -110,12 +112,72 @@ def cut(clip, plan, values, out_dir):
     return {"frames": written, "scale": float(scale), "width": width, "height": height}
 
 
+def scaled_premultiplied(rgb, alpha, scale):
+    """An RGB image with its alpha scaled by area, the colour weighted by the alpha so edges keep their colour."""
+    size = (max(1, int(round(rgb.shape[1] * scale))), max(1, int(round(rgb.shape[0] * scale))))
+    weighted = cv2.resize(rgb * alpha[..., None], size, interpolation=cv2.INTER_AREA)
+    a = cv2.resize(alpha, size, interpolation=cv2.INTER_AREA)
+    return np.clip(weighted / np.maximum(a[..., None], 1e-6), 0, 255), np.clip(a, 0, 1)
+
+
+def hands(job):
+    """Finds the hands of the still in every sprite and, where the job says, paints a state's hands there: only the
+    pixels where some state differs from the still change, so the forearms and everything else stay the sprite's."""
+    still = np.asarray(Image.open(job["still"]).convert("RGB")).astype(np.float32)
+    background = np.median(still[:4].reshape(-1, 3), 0)
+    b = job["box"]
+    crop = (slice(b["top"], b["bottom"]), slice(b["left"], b["right"]))
+    states = [np.asarray(Image.open(p).convert("RGB")).astype(np.float32)[crop] for p in job["states"]]
+    if any(s.shape != still[crop].shape for s in states):
+        sys.stderr.write("a state drawing is not the size of the still")
+        sys.exit(2)
+    changed = np.zeros(still[crop].shape[:2], bool)
+    for s in states:
+        changed |= np.abs(s - still[crop]).sum(2) > 45
+    region = cv2.dilate(changed.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(np.float32)
+    scale = job["scale"]
+    template = cv2.resize(still[crop], None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    region = cv2.resize(region, (template.shape[1], template.shape[0]), interpolation=cv2.INTER_AREA) > 0.5
+    painted = []
+    for s in states:
+        alpha = np.clip(np.abs(s - background).sum(2) / 120, 0, 1)
+        painted.append(scaled_premultiplied(s, alpha, scale))
+    th, tw = template.shape[:2]
+    border, reach = max(th, tw), 6
+    positions, previous = [], None
+    for path, state in zip(job["frames"], job["sequence"]):
+        sprite = np.asarray(Image.open(path).convert("RGBA")).astype(np.float32)
+        flat = sprite[..., :3] * sprite[..., 3:] / 255 + background * (1 - sprite[..., 3:] / 255)
+        flat = cv2.copyMakeBorder(flat, border, border, border, border, cv2.BORDER_CONSTANT, value=background.tolist())
+        x0 = y0 = 0
+        if previous is not None:
+            x0, y0 = max(0, previous[0] - reach), max(0, previous[1] - reach)
+            flat = flat[y0:previous[1] + th + reach, x0:previous[0] + tw + reach]
+        _, _, (x, y), _ = cv2.minMaxLoc(cv2.matchTemplate(flat, template, cv2.TM_SQDIFF))
+        previous = (x0 + x, y0 + y)
+        px, py = previous[0] - border, previous[1] - border
+        positions.append([px, py])
+        if state is None:
+            continue
+        rgb, alpha = painted[state]
+        h, w = sprite.shape[:2]
+        ys, xs = np.nonzero(region)
+        ty, tx = ys + py, xs + px
+        inside = (ty >= 0) & (ty < h) & (tx >= 0) & (tx < w)
+        sprite[ty[inside], tx[inside], :3] = rgb[ys[inside], xs[inside]]
+        sprite[ty[inside], tx[inside], 3] = alpha[ys[inside], xs[inside]] * 255
+        Image.fromarray(np.clip(sprite, 0, 255).astype(np.uint8)).save(path)
+    return {"positions": positions}
+
+
 if __name__ == "__main__":
     command = sys.argv[1] if len(sys.argv) > 1 else ""
     if command == "measure" and len(sys.argv) == 4:
         print(json.dumps(measure(sys.argv[2], json.loads(sys.argv[3]))))
     elif command == "cut" and len(sys.argv) == 6:
         print(json.dumps(cut(sys.argv[2], json.loads(sys.argv[3]), json.loads(sys.argv[4]), sys.argv[5])))
+    elif command == "hands" and len(sys.argv) == 3:
+        print(json.dumps(hands(json.loads(sys.argv[2]))))
     else:
-        sys.stderr.write("usage: frames.py measure <clip> <values> | cut <clip> <plan> <values> <out dir>")
+        sys.stderr.write("usage: frames.py measure <clip> <values> | cut <clip> <plan> <values> <out dir> | hands <job>")
         sys.exit(64)

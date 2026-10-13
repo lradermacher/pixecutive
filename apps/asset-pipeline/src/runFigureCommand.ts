@@ -4,6 +4,7 @@ import type { EventEmitter } from 'node:events';
 import {
 	CutFramesService,
 	ExportMotionService,
+	PaintHandsService,
 	type IRenderMachine,
 	RenderClipService,
 	TrackHeadService,
@@ -12,6 +13,7 @@ import {
 	AssetStoreFilesAdapter,
 	FrameCutterOpencvAdapter,
 	FrameMeasurerOpencvAdapter,
+	HandPainterOpencvAdapter,
 	HeadTrackerOpencvAdapter,
 	MotionWorkFilesAdapter,
 	VideoRendererLtxAdapter,
@@ -62,6 +64,7 @@ export async function runFigureCommand(
 				setup,
 				new CutFramesService(new FrameMeasurerOpencvAdapter(frames), new FrameCutterOpencvAdapter(frames)),
 				work,
+				new PaintHandsService(new HandPainterOpencvAdapter(frames)),
 			);
 		case PipelineCommand.Track:
 			return trackHeadHandler(

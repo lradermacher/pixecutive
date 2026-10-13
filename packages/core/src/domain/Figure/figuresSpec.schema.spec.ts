@@ -24,6 +24,12 @@ describe('figuresSpecSchema', () => {
 		expect(figuresSpecSchema.parse(spec)).toEqual(spec);
 	});
 
+	it('accepts a motion with drawn finger states', () => {
+		const hands = { box: { left: 387, top: 372, right: 566, bottom: 450 }, states: ['m/type-lifted.png'] };
+		const typing = { m: { ...spec.m, motions: { type: { ...idle, hands } } } };
+		expect(figuresSpecSchema.parse(typing).m?.motions.type?.hands?.ticks).toBe(4);
+	});
+
 	it('accepts a motion with a sprite height of its own', () => {
 		const sit = { m: { ...spec.m, motions: { sit: { ...idle, height: 183 } } } };
 		expect(figuresSpecSchema.parse(sit).m?.motions.sit?.height).toBe(183);

@@ -7,6 +7,7 @@ import { earBoxSchema } from './earBox.schema.ts';
 import { FacePart } from './facePart.enum.ts';
 import { FigureName } from './figureName.enum.ts';
 import { frameCountSchema } from './frameCount.schema.ts';
+import { handStatesSchema } from './handStates.schema.ts';
 import { Motion } from './motion.enum.ts';
 
 const png = z.string().endsWith('.png');
@@ -33,6 +34,8 @@ const motionSpecSchema = z.object({
 	 * height at which its head comes out as large as in the standing motions.
 	 */
 	height: z.int().min(16).max(1024).optional(),
+	/** Drawn finger states painted into the sprites, for a motion whose fingers move. */
+	hands: handStatesSchema.optional(),
 	/** The still the head is tracked against: the one the face parts were drawn on for this motion. */
 	trackStill: png,
 });

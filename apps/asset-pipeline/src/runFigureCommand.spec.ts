@@ -61,6 +61,14 @@ describe('runFigureCommand', () => {
 		PYTHON_START_MS,
 	);
 
+	it(
+		'wires the frames command of a motion with finger states, which cuts before it paints and so names the missing clip first',
+		async () => {
+			expect((await failure(PipelineCommand.Frames, ['m', 'type']))?.[0]).toBe(FigureExceptionKey.FramesFailed);
+		},
+		PYTHON_START_MS,
+	);
+
 	it.each<[FigureCommand, string]>([
 		[PipelineCommand.Track, 'no cut of m walk: run `pnpm assets frames m walk` first'],
 		[PipelineCommand.Export, 'no cut of m walk: run `pnpm assets frames m walk` first'],
