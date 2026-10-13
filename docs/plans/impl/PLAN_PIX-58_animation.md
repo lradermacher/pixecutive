@@ -1,8 +1,9 @@
 # PLAN PIX-58 — Animate the base figures from the video model: talk, wave, sit and type
 
-Card: PIX-58 (feature), built after PIX-66 on its own branch from `main`, through the asset pipeline's commands. Goal:
-the base figures M and F talk, wave, sit and type in the office the way idle and walk were made in PIX-65, each motion
-made by the local video model from the approved still, defined before its first render and accepted by the
+Card: PIX-58 (feature), a series with PIX-7, PIX-56, PIX-57, PIX-66 and PIX-71 on `feat/pix-7-skeleton-toolchain`,
+after PIX-66 and PIX-71 (maintainer, sheet `pix71-plan` F2 = a, 2026-10-13), through the asset pipeline's commands.
+Goal: the base figures M and F talk, wave, sit and type in the office the way idle and walk were made in PIX-65, each
+motion made by the local video model from the approved still, defined before its first render and accepted by the
 maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 
 ## Acceptance
@@ -18,20 +19,20 @@ maintainer. Decided on sheet `pix57-clean-branch` F7 and F8 (2026-10-12).
 
 | Part | State | File |
 | --- | --- | --- |
-| Approved stills of M and F with a blank face | exists, outside the repo until PIX-66 | session scratchpad, `renders/` |
-| Video clip in `cycle` or `loop` mode, frame cut, unique poses with holds | exists, outside the repo until PIX-66 | session scratchpad pipeline |
-| Per-frame placement of face, hair, garment and accessory layers by the head origin | exists, outside the repo until PIX-66 | session scratchpad export |
-| Room page with the office's draw functions | exists, outside the repo until PIX-66 | session scratchpad |
-| One video render at a time under the memory guard (pressure level and swap, like `pnpm assets render` for images) | exists, outside the repo until PIX-66 | session scratchpad `anim.sh` |
+| Approved stills of M and F; the standing still with a blank face | exists, outside the repo (images live only in the asset folder) | figure sources folder `renders/figures/{m,f}/walk-start.png`, `blank2.png` |
+| Video clip in `loop` or `cycle` mode under the memory guard | exists (PIX-66) | `pnpm assets clip`, `adapter/Video/` |
+| Frame cut, head track, export with face parts and manifest | exists (PIX-66) | `pnpm assets frames`, `track`, `export` |
+| The figures' motions, their clip values and prompts | extend | `apps/asset-pipeline/data/figures.json`, `data/prompts/` |
+| The motions the core knows | extend | core `domain/Figure/motion.enum.ts` |
+| Mirroring to front-right | exists (PIX-71) | the playground mirrors the whole figure at draw time; the asset layout stores no front-right |
+| The office's draw functions for the check | exists (PIX-71) | `pnpm playground` |
 | The steps and their checks | exists | skill `animate-figure` |
-| Mirroring to front-right | new | the export of the pipeline |
 | Seated still for sit and type | new | the last frame of a sit-down clip |
 
 ## Placement
 
-The frames are assets made by the pipeline; the steps are the skill `animate-figure`; a tool the pipeline needs
-arrives in the repo as an adapter behind a core port with PIX-66 (ADR 0019). Nothing in this card is code in the repo
-before PIX-66.
+The frames are assets made by the pipeline's commands; a motion is data (`figures.json`, a prompt) plus its name in
+the core's motion enum, so the figures' specs accept it; the steps are the skill `animate-figure`.
 
 ## Standards the build follows
 
@@ -66,6 +67,17 @@ before PIX-66.
 
 ## Changed on the way
 
+- 2026-10-13, decided by the maintainer (sheet `pix71-plan` F2 = a): the card joins the series branch and starts with
+  talk and wave for M and F, rendered through the new commands one at a time under the guard and shown in the
+  playground of PIX-71, which takes over the room page's part: the office's own draw functions. Talk is body only:
+  its open and half mouth states do not exist yet, so the mouth part stays still. Sit, type and the mouth states wait
+  for the maintainer; the seated still needs its PNG first.
+- 2026-10-13, before the first render: talk and wave are rendered from the standing still with a blank face
+  (`walk-start.png`, the walk's still), so the video model cannot move a face and the face parts follow by the head
+  origin as in the walk; the head is tracked against `blank2.png` as in the walk. Front-right is the playground's
+  mirroring of the whole figure (step 1, done by PIX-71). Wave gets 73 frames (3 s), since rising, three waves and
+  lowering do not fit 2 s; talk gets 49 like idle.
+
 - 2026-10-05 to 2026-10-09: swapping key drawings, a part rig of cut pixel parts, a figure LoRA (PIX-64), a 3D rig
   rendered as pixel art and parts turned with RotSprite were each measured and dropped; they broke the look or jumped
   between drawings. The reasons stand in ADR 0022 under Rejected.
@@ -86,7 +98,7 @@ before PIX-66.
 
 | Step | What | Check | Status |
 | --- | --- | --- | --- |
-| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the room page, zoomed | open |
+| 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
 | 2 | talk for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
