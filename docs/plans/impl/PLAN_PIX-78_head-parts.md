@@ -119,7 +119,7 @@ folder, which is not in git.
 | 2 | Protocol: manifest head layers with variants, hide, lift, skull top and order | protocol spec green, old manifest still parses | 9921684 |
 | 3 | Port and adapter `IImageEditor` / `imageEditor-codex.adapter.ts`, the binary path from the local config | adapter spec against a stub `codex` green | 65ba227 |
 | 4 | Port and adapter `IPartCutter` / `partCutter-opencv.adapter.ts` with `Parts/parts.py`: grid, split, key cut, hat cut with hide, glasses cut, face-variant cut, skull top and first row | adapter spec on synthetic scenes green | d897df7 |
-| 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | open |
+| 5 | Services and commands `grid`, `draw`, `split`, `cut`, `hair-under-hat`, and the data: prompts, variant lists, green sources | handler specs green; `pnpm assets grid m head` equals BK `m_green_head.png` | ee17a18 |
 | 6 | Line 3: cut m hair 1, m hat 4, m glasses 1 from the backup's renders and compare; one fresh draw per kind | pixel and alpha difference reported; zoomed PNG to the maintainer | open |
 | 7 | Export extended; import every head part of M and F from the backup's renders through split and cut | lift 75/75 equal to BK; manifest parses; assets folder holds every head part | open |
 | 8 | Playground: head layers, pickers, hide by `destination-out`, hat lift | playground specs green; every head part on all five motions, both facings, zoomed, checked in the browser | open |
@@ -199,3 +199,9 @@ folder, which is not in git.
     Both are only what the model draws on. The cuts that count are exact (step 4).
   - **Output folders:** the commands make the folders they write into. The first real `grid` run failed without them,
     and a spec now covers it.
+- 2026-10-13, step 6:
+  - **Through the commands, exact:** `split m hair 1`, then `cut m hair 1`, `cut m hat 4` and `cut m glasses 1`, run
+    on the backup's own drawings, write the backup's layers and the hat's hide with a difference of 0.
+  - **Fresh drawings:** the first fresh run failed in Codex with "No such file or directory", because the CLI starts
+    in the output's folder, which a first drawing of a kind has not made. The image editor makes that folder now, and
+    a spec covers it. The three fresh drawings then came through: hair 12,700 pixels, hat 14,647, glasses 1,561.

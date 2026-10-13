@@ -69,6 +69,16 @@ describe('ImageEditorCodexAdapter', () => {
 		]);
 	});
 
+	it('makes the output folder before codex is started in it', async () => {
+		const codex = fakeCodex(
+			'[ -d "$dir" ] || { echo "Error: No such file or directory (os error 2)" >&2; exit 1; }; cp "$in" "$dir/1.png"',
+		);
+		const edit = job();
+		const deeper = { ...edit, output: join(dirname(edit.output), 'hair', '1.png') };
+		await new ImageEditorCodexAdapter(codex.binary).edit(deeper);
+		expect(readFileSync(deeper.output, 'utf8')).toBe('template');
+	});
+
 	it('answers the quota key when codex says the usage limit is reached', async () => {
 		const codex = fakeCodex('echo "ERROR: You\'ve hit your usage limit." >&2; exit 1');
 		expect(await failureKey(new ImageEditorCodexAdapter(codex.binary).edit(job()))).toBe(FigureExceptionKey.DrawQuota);
