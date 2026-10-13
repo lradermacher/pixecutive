@@ -3,3 +3,5 @@
 pnpm-lock.yaml
 node_modules/
 .claude/skills/**/*.html
+# The figure manifest keeps the form the asset pipeline writes it in.
+apps/office-ui/assets/
