@@ -227,3 +227,11 @@ folder, which is not in git.
     over hair was cut at the top. The playground now grows the canvas by the headroom the head parts need in any
     frame (`headroom.ts`), measured in the browser with the chef hat over long hair on M and F.
   - **The skill** names the commands, its prompt folder as a link.
+- 2026-10-13, the manifest's size:
+  - **The problem:** with every head part on every motion the manifest grew to 444 KB, and the pre-commit holds every
+    file under `apps/office-ui/assets/` to 256 KB.
+  - **The fix:** the asset store now writes it on one line, with every placement and head origin at four decimals (a
+    ten-thousandth of a sprite pixel). It is now 216 KB, and `shippedFigures.spec.ts` holds the manifest to the limit
+    too.
+  - **For PIX-70:** garments placed per frame would pass the limit again. That card has to keep the parts per figure,
+    or split the manifest.
