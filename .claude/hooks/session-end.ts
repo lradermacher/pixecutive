@@ -19,4 +19,9 @@ export const contract = {
 const { readHookInput } = await import('../../scripts/lib/hooks/read-hook-input.ts');
 const session = readHookInput()?.sessionId ?? '';
 const root = process.env['CLAUDE_PROJECT_DIR'] ?? process.cwd();
-if (session !== '') spawnSync('node', [join(root, 'scripts/ticket.ts'), 'close', session], { cwd: root, stdio: 'ignore', env: { ...process.env, CLAUDE_PROJECT_DIR: root } });
+if (session !== '')
+	spawnSync('node', [join(root, 'scripts/ticket.ts'), 'close', session], {
+		cwd: root,
+		stdio: 'ignore',
+		env: { ...process.env, CLAUDE_PROJECT_DIR: root },
+	});

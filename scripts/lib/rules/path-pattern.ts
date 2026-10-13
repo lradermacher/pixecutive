@@ -17,7 +17,11 @@ function toRegex(pattern: string): RegExp {
 export function normalizePatterns(raw: unknown): string[] {
 	const list = typeof raw === 'string' ? [raw] : Array.isArray(raw) ? raw : [];
 	const patterns = list
-		.map((entry) => String(entry).trim().replace(/^["']|["']$/g, ''))
+		.map((entry) =>
+			String(entry)
+				.trim()
+				.replace(/^["']|["']$/g, ''),
+		)
 		.map((entry) => (entry.endsWith('/**') ? entry.slice(0, -3) : entry))
 		.filter((entry) => entry !== '');
 	return patterns.every((entry) => entry === '**') ? [] : patterns;

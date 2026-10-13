@@ -3,8 +3,8 @@ adr: docs/ADR/0002-feature-flow.md
 summary: >
   No build without ticket and implementation plan; a missing prerequisite is reported first and stops the work.
   Questions go to the maintainer as decision sheets. One open card per session; the branch carries the card key.
-  Commits stay local, the branch is pushed once when the pull request is ready, the maintainer checks locally and
-  merges.
+  Commits stay local; a branch is pushed once per card, into its draft in a collecting series; the maintainer checks
+  locally and merges.
 ---
 
 # Workflow — what applies regardless of the open file
@@ -55,6 +55,13 @@ none is dropped silently. `[Gate ticket boxes]`
 ## Cards go through a session one after another, exactly one is open
 A series shares branch and pull request. `[Gate ticket open · Hook require-ticket]`
 
+## A series collects on its branch until its milestone can be shown
+Its pull request stays a draft until then and is merged once; finished cards wait in In Review until that merge.
+`[Prose: whether a milestone can be shown is a judgment · Skill code]`
+
+## A visual is agreed as one cheap PNG before it is built
+Screens, scenes, props and figures alike; the work starts with the maintainer's yes. `[Prose: agreement is a judgment]`
+
 ## A pass over many files goes file by file
 Each file is opened once, checked against every criterion and ticked off. `[Skill review]`
 
@@ -73,7 +80,8 @@ Was the error in the repo before the session? No means build cycle: correct it a
 The message says what and why, never the history of the work. `[Hook commit-msg]`
 
 ## Commits stay local until the pull request is ready
-Each green step is committed; the branch is pushed once, when its pull request is ready for review.
+Each green step is committed; the branch is pushed once, when its pull request is ready for review, and in a
+collecting series once per card into its draft.
 `[Hook pre-push · push-window]`
 
 ## Before a pull request an independent run checks the diff in a fresh context

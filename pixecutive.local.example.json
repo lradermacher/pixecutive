@@ -19,9 +19,7 @@
         "pattern": "EXAMPLE-[0-9]+"
       }
     ],
-    "authors": [
-      "jane.doe@example.org"
-    ]
+    "authors": ["jane.doe@example.org"]
   },
   "tracker": {
     "site": "example.atlassian.net",

@@ -1,0 +1,15 @@
+// renderMachine.interface.ts — what this machine offers a local render before the configuration is parsed.
+
+/**
+ * Where the repo lies, where the model's command and its weights usually are, and whether a configured path is a file;
+ * which model and which weights stays the adapter's knowledge.
+ */
+export interface IRenderMachine {
+	repoRoot(): string;
+	usualModelCommand(): string;
+	/** The weights in `cache` when given, otherwise in the machine's usual cache; none when neither holds them. */
+	cachedWeights(cache?: string): string | undefined;
+	/** The local video model's weights folder in `cache` when given, otherwise in the usual cache; none without it. */
+	cachedVideoModel(cache?: string): string | undefined;
+	isFile(path: string): boolean;
+}

@@ -21,7 +21,8 @@ const maxBodyLines = 3;
 const declaration =
 	/^(export\s|default\s|function\s|async\s+function\s|class\s|abstract\s|interface\s|type\s|enum\s|@|(const|let|var)\s+|[\w-]+\s*\(\)\s*\{)/;
 const dataEntry = /^(\{|\[|\.\.\.|["'`]|[\w$]+\??\s*:|\[[^\]]+\]\s*:)/;
-const exportedFunction = /^export\s+(default\s+)?(async\s+)?(function|class|abstract\s+class)\b|^export\s+const\s+\w+\s*(:[^=]+)?=\s*(async\s*)?\(/;
+const exportedFunction =
+	/^export\s+(default\s+)?(async\s+)?(function|class|abstract\s+class)\b|^export\s+const\s+\w+\s*(:[^=]+)?=\s*(async\s*)?\(/;
 const requiredHeadPaths = [/^scripts\/(check|probe|install|generate)-/, /^\.claude\/hooks\//, /^\.githooks\//];
 
 function usesHashComments(path: string): boolean {
@@ -162,7 +163,8 @@ export function findViolations(
 					line: index + 1,
 					rule: 'jsdoc',
 					label: 'export without JSDoc',
-					message: 'An exported function, method or class carries a JSDoc block: what it does and what the caller must know.',
+					message:
+						'An exported function, method or class carries a JSDoc block: what it does and what the caller must know.',
 					severity: 'error',
 					text: line.trim(),
 				});

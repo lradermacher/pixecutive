@@ -10,7 +10,7 @@ Measured in the binary of CLI 2.1.288 and observed in a running session of it:
 
 | Capability | Who needs it |
 | --- | --- |
-| `PreToolUse` with exit 2 blocking the tool call | require-ticket, protect-env, guard-shell, guard-state, gate-before-pr, guard-inprogress, guard-done, agent-guard |
+| `PreToolUse` with exit 2 blocking the tool call | require-ticket, protect-env, guard-shell, guard-state, gate-before-pr, guard-inprogress, guard-done, agent-guard, architecture-guard |
 | `PostToolUse` with exit 2 returning the findings | quality-guard, memory-guard |
 | A `PreToolUse` matcher on an MCP tool name | guard-inprogress and guard-done on `mcp__atlassian__transitionJiraIssue` |
 | `UserPromptSubmit` seeing the prompt text | push-window and unblock-window; without it the maintainer's `/push` and `/unblock` open nothing |

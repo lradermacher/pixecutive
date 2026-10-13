@@ -13,9 +13,10 @@ export interface Statement {
 
 const triggerWords = 3;
 const fillerWords = new Set(
-	('a an the and or but nor never only also in on at to of for from with by into is are be was were will who what ' +
-		'where how when if then that this these those it its as not no so each every any all one its their our we you')
-		.split(' '),
+	(
+		'a an the and or but nor never only also in on at to of for from with by into is are be was were will who what ' +
+		'where how when if then that this these those it its as not no so each every any all one its their our we you'
+	).split(' '),
 );
 const quoted = /“[^”]*”|"[^"]*"|‘[^’]*’/g;
 

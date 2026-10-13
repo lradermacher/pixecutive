@@ -18,12 +18,20 @@ try {
 	const input = readHookInput();
 	const name = input?.filePath.split('/').pop() ?? '';
 	const tool = input?.toolName ?? '';
-	if (contract.matcher.split('|').includes(tool) && (name === '.env' || name.startsWith('.env.')) && !name.endsWith('.example')) {
+	if (
+		contract.matcher.split('|').includes(tool) &&
+		(name === '.env' || name.startsWith('.env.')) &&
+		!name.endsWith('.example')
+	) {
 		const verb = tool === 'Read' || tool === 'Grep' ? 'read' : 'written';
-		process.stderr.write(`⛔ ${input?.filePath} is not ${verb}: credentials are asked for, never read. A new variable goes into .env.example.\n`);
+		process.stderr.write(
+			`⛔ ${input?.filePath} is not ${verb}: credentials are asked for, never read. A new variable goes into .env.example.\n`,
+		);
 		process.exit(2);
 	}
 } catch (error) {
-	process.stderr.write(`⛔ protect-env could not judge (${String(error)}); a guard that passes on its own failure is none.\n`);
+	process.stderr.write(
+		`⛔ protect-env could not judge (${String(error)}); a guard that passes on its own failure is none.\n`,
+	);
 	process.exit(2);
 }

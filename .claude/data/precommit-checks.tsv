@@ -39,3 +39,9 @@ generated: no
 ^(scripts/check-memory\.ts|scripts/lib/memory/|scripts/lib/rules/|scripts/lib/frontmatter\.ts|scripts/lib/hooks/|\.claude/rules/|CLAUDE\.md$|\.claude/hooks/memory-guard\.ts|scripts/probe-memory\.sh)	bash scripts/probe-memory.sh
 ^(scripts/find-references\.ts|scripts/lib/references/|scripts/lib/comments/|scripts/lib/shell/command-lexer\.ts|scripts/lib/data-rows\.ts|scripts/probe-find-references\.sh)	bash scripts/probe-find-references.sh
 ^(docs/ADR/|\.claude/(rules|hooks|skills|agents|data)/|scripts/check-carriers\.ts$|scripts/[^/]+\.(ts|sh)$|\.githooks/)	node scripts/check-carriers.ts
+^(packages/|apps/|eslint\.config\.ts$|vitest\.config\.ts$|tsconfig\.base\.json$)	node_modules/.bin/eslint --max-warnings 0 packages apps eslint.config.ts vitest.config.ts
+^(packages/|apps/|vitest\.config\.ts$|tsconfig\.base\.json$)	node_modules/.bin/vitest run
+^(eslint\.config\.ts|scripts/probe-lint\.sh)$	bash scripts/probe-lint.sh
+^(\.claude/hooks/architecture-guard\.ts|scripts/lib/architecture/|scripts/lib/hooks/|scripts/probe-architecture\.sh)	bash scripts/probe-architecture.sh
+^(packages|apps)/	node scripts/check-tests.ts --staged
+^(scripts/check-tests\.ts|scripts/probe-tests\.sh)$	bash scripts/probe-tests.sh

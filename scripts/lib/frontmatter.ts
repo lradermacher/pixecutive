@@ -22,7 +22,10 @@ export function parseFrontmatter(text: string): { data: Record<string, Frontmatt
 	if (!text.startsWith('---')) return { data, body: text };
 	const end = text.indexOf('\n---', 3);
 	if (end === -1) return { data, body: text };
-	const body = text.slice(end + 4).replace(/^[^\n]*\n/, '').replace(/^\n+/, '');
+	const body = text
+		.slice(end + 4)
+		.replace(/^[^\n]*\n/, '')
+		.replace(/^\n+/, '');
 	let key = '';
 	let block: string[] | null = null;
 	for (const raw of text.slice(3, end).split('\n')) {
@@ -43,7 +46,12 @@ export function parseFrontmatter(text: string): { data: Record<string, Frontmatt
 			continue;
 		}
 		const nested = /^\s+([A-Za-z_][\w-]*):\s*(.*)$/.exec(line);
-		if (nested && current !== undefined && typeof current !== 'string' && (!Array.isArray(current) || current.length === 0)) {
+		if (
+			nested &&
+			current !== undefined &&
+			typeof current !== 'string' &&
+			(!Array.isArray(current) || current.length === 0)
+		) {
 			const map = Array.isArray(current) ? {} : current;
 			map[nested[1] ?? ''] = scalar(nested[2] ?? '');
 			data[key] = map;

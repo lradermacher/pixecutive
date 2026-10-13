@@ -29,10 +29,7 @@
                 "description": "JavaScript regular expression, matched case-insensitively."
               }
             },
-            "required": [
-              "category",
-              "pattern"
-            ],
+            "required": ["category", "pattern"],
             "additionalProperties": false
           }
         },
@@ -91,10 +88,7 @@
               "pattern": "^[0-9]+$"
             }
           },
-          "required": [
-            "inProgress",
-            "done"
-          ],
+          "required": ["inProgress", "done"],
           "additionalProperties": false
         },
         "statuses": {
@@ -156,9 +150,7 @@
           "additionalProperties": false
         }
       },
-      "required": [
-        "transitions"
-      ],
+      "required": ["transitions"],
       "additionalProperties": false
     }
   }

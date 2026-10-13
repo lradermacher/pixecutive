@@ -1,0 +1,85 @@
+// @aggregate the package entry re-exports the core's public surface for the apps and adapters.
+
+/** The name under which this package is published in the workspace. */
+export const packageName: string = '@pixecutive/core';
+export { renderConfigSchema, type RenderConfig } from './domain/Render/renderConfig.schema.ts';
+export { renderJobSchema, type RenderJob } from './domain/Render/renderJob.schema.ts';
+export type { RenderResult } from './domain/Render/renderResult.interface.ts';
+export type { RenderStatus } from './domain/Render/renderStatus.interface.ts';
+export { RenderException } from './application/exception/render.exception.ts';
+export { RenderExceptionKey } from './application/exception/renderExceptionKey.enum.ts';
+export { RenderImageService } from './application/service/renderImage.service.ts';
+export type { RenderImageCommand } from './application/service/renderImageCommand.ts';
+export type { ILocalRenderer } from './port/outgoing/localRenderer.interface.ts';
+export type { IRenderMachine } from './port/outgoing/renderMachine.interface.ts';
+export { ClipMode } from './domain/Figure/clipMode.enum.ts';
+export { clipJobSchema, type ClipJob } from './domain/Figure/clipJob.schema.ts';
+export { FigureName } from './domain/Figure/figureName.enum.ts';
+export { frameMeasureSchema, type FrameMeasure } from './domain/Figure/frameMeasure.schema.ts';
+export { framePlanSchema, type FramePlan } from './domain/Figure/framePlan.schema.ts';
+export { headTrackSchema, type HeadTrack } from './domain/Figure/headTrack.schema.ts';
+export { Motion } from './domain/Figure/motion.enum.ts';
+export { frameCutConfigSchema, type FrameCutConfig } from './domain/Figure/frameCutConfig.schema.ts';
+export { FigureException } from './application/exception/figure.exception.ts';
+export { FigureExceptionKey } from './application/exception/figureExceptionKey.enum.ts';
+export { PlanFramesService, type FrameRange } from './application/service/planFrames.service.ts';
+export type { ClipResult } from './domain/Figure/clipResult.interface.ts';
+export { cutResultSchema, type CutResult } from './domain/Figure/cutResult.schema.ts';
+export { headTrackJobSchema, type HeadTrackJob } from './domain/Figure/headTrackJob.schema.ts';
+export { CutFramesService } from './application/service/cutFrames.service.ts';
+export { PaintHandsService } from './application/service/paintHands.service.ts';
+export type { PaintHandsCommand } from './application/service/paintHandsCommand.ts';
+export type { IHandPainter } from './port/outgoing/handPainter.interface.ts';
+export type { HandPaintJob } from './domain/Figure/handPaintJob.interface.ts';
+export { handStatesSchema, type HandStates } from './domain/Figure/handStates.schema.ts';
+export { stillBoxSchema, type StillBox } from './domain/Figure/stillBox.schema.ts';
+export type { CutFrames } from './domain/Figure/cutFrames.interface.ts';
+export type { CutFramesCommand } from './application/service/cutFramesCommand.ts';
+export { RenderClipService } from './application/service/renderClip.service.ts';
+export type { RenderClipCommand } from './application/service/renderClipCommand.ts';
+export { TrackHeadService } from './application/service/trackHead.service.ts';
+export type { TrackHeadCommand } from './application/service/trackHeadCommand.ts';
+export type { IFrameCutter } from './port/outgoing/frameCutter.interface.ts';
+export type { IFrameMeasurer } from './port/outgoing/frameMeasurer.interface.ts';
+export type { IHeadTracker } from './port/outgoing/headTracker.interface.ts';
+export type { IVideoRenderer } from './port/outgoing/videoRenderer.interface.ts';
+export { clipConfigSchema, type ClipConfig } from './domain/Figure/clipConfig.schema.ts';
+export { headTrackConfigSchema, type HeadTrackConfig } from './domain/Figure/headTrackConfig.schema.ts';
+export { exportConfigSchema, type ExportConfig } from './domain/Figure/exportConfig.schema.ts';
+export { FacePart } from './domain/Figure/facePart.enum.ts';
+export type { FaceSource } from './domain/Figure/faceSource.interface.ts';
+export type { FacePlacement, MotionAsset } from './domain/Figure/motionAsset.interface.ts';
+export { ExportMotionService } from './application/service/exportMotion.service.ts';
+export type { ExportMotionCommand } from './application/service/exportMotionCommand.ts';
+export type { IAssetStore } from './port/outgoing/assetStore.interface.ts';
+export { figuresSpecSchema, type FiguresSpec } from './domain/Figure/figuresSpec.schema.ts';
+export { figurePathsSchema } from './domain/Figure/figurePaths.schema.ts';
+export type { IMotionWork } from './port/outgoing/motionWork.interface.ts';
+export { HeadPartKind } from './domain/Figure/headPartKind.enum.ts';
+export { gridLayoutSchema, type GridLayout } from './domain/Figure/gridLayout.schema.ts';
+export { headPartsSpecSchema, type HeadPartsSpec } from './domain/Figure/headPartsSpec.schema.ts';
+export { headCutConfigSchema, type HeadCutConfig } from './domain/Figure/headCutConfig.schema.ts';
+export { HeadPartsService } from './application/service/headParts.service.ts';
+export type { ImageEditJob } from './domain/Figure/imageEditJob.interface.ts';
+export type { IImageEditor } from './port/outgoing/imageEditor.interface.ts';
+export type {
+	FitJob,
+	GlassesCutJob,
+	GridJob,
+	HatCutJob,
+	KeyCutJob,
+	PartCutResult,
+	SplitJob,
+	UnderHatJob,
+	VariantCutJob,
+} from './domain/Figure/partCutJob.interface.ts';
+export type { IPartCutter } from './port/outgoing/partCutter.interface.ts';
+export { MakeHeadPartService } from './application/service/makeHeadPart.service.ts';
+export type {
+	CutHeadPartCommand,
+	DrawHeadPartCommand,
+	HeadSources,
+	SplitHeadPartCommand,
+} from './application/service/makeHeadPartCommand.ts';
+export type { HeadPartSource } from './domain/Figure/headPartSource.interface.ts';
+export type { HeadPlacement, Placement } from './domain/Figure/motionAsset.interface.ts';

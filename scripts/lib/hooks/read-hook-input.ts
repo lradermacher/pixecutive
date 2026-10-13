@@ -13,6 +13,10 @@ export interface HookInput {
 	transitionId: string;
 	subagentType: string;
 	model: string;
+	/** What a Write puts into the file. */
+	content: string;
+	/** The replacements of an Edit or MultiEdit, in the order the tool applies them. */
+	edits: Array<{ oldString: string; newString: string; replaceAll: boolean }>;
 }
 
 function text(value: unknown): string {
@@ -32,8 +36,12 @@ export function readHookInput(): HookInput | null {
 	}
 	if (typeof data !== 'object' || data === null || Array.isArray(data)) return null;
 	const record = data as Record<string, unknown>;
-	const tool = (typeof record['tool_input'] === 'object' && record['tool_input'] !== null ? record['tool_input'] : {}) as Record<string, unknown>;
-	const transition = (typeof tool['transition'] === 'object' && tool['transition'] !== null ? tool['transition'] : {}) as Record<string, unknown>;
+	const tool = (
+		typeof record['tool_input'] === 'object' && record['tool_input'] !== null ? record['tool_input'] : {}
+	) as Record<string, unknown>;
+	const transition = (
+		typeof tool['transition'] === 'object' && tool['transition'] !== null ? tool['transition'] : {}
+	) as Record<string, unknown>;
 	return {
 		toolName: text(record['tool_name']),
 		sessionId: text(record['session_id']),
@@ -44,5 +52,15 @@ export function readHookInput(): HookInput | null {
 		transitionId: text(transition['id']),
 		subagentType: text(tool['subagent_type']),
 		model: text(tool['model']),
+		content: text(tool['content']),
+		edits: (Array.isArray(tool['edits']) ? (tool['edits'] as unknown[]) : [tool])
+			.filter(
+				(edit): edit is Record<string, unknown> => typeof edit === 'object' && edit !== null && 'new_string' in edit,
+			)
+			.map((edit) => ({
+				oldString: text(edit['old_string']),
+				newString: text(edit['new_string']),
+				replaceAll: edit['replace_all'] === true,
+			})),
 	};
 }

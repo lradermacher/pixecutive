@@ -8,7 +8,11 @@ const valueExport = /^export (?:const|let|function|async function|class|abstract
 const aggregateMarker = /@aggregate\s+[A-Za-z]/;
 
 const files = filesToCheck(process.argv.slice(2)).filter(
-	(path) => path.endsWith('.ts') && !path.endsWith('.d.ts') && !path.endsWith('.spec.ts') && !path.startsWith('apps/web/'),
+	(path) =>
+		path.endsWith('.ts') &&
+		!path.endsWith('.d.ts') &&
+		!path.endsWith('.spec.ts') &&
+		!path.startsWith('apps/office-ui/'),
 );
 
 let failed = false;
@@ -20,7 +24,9 @@ for (const path of files) {
 	failed = true;
 }
 if (failed) {
-	console.log('   Split the file, or mark one concept that needs several values with: @aggregate <reason in one sentence>');
+	console.log(
+		'   Split the file, or mark one concept that needs several values with: @aggregate <reason in one sentence>',
+	);
 	process.exit(1);
 }
 console.log(`✅ check-one-export: ${files.length} TypeScript files`);

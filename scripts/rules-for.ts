@@ -37,8 +37,8 @@ function budget(): number {
 function probe(): number {
 	const cases: Array<[string, string, boolean]> = [
 		['packages/core/src/domain/office.ts', 'core', true],
-		['apps/server/src/main.ts', 'core', true],
-		['apps/web/src/app.tsx', 'core', false],
+		['apps/company-server/src/main.ts', 'core', true],
+		['apps/office-ui/src/app.tsx', 'core', false],
 		['scripts/check-rules.ts', 'ops', true],
 		['.claude/hooks/rule-context.ts', 'ops', true],
 		['packages/core/scripts/seed.ts', 'ops', false],
@@ -52,12 +52,18 @@ function probe(): number {
 		if (got !== want) failed += 1;
 		console.log(`${got === want ? '✅' : '⛔'} ${path.padEnd(40)} ${got ? 'loads' : 'does not load'} ${rule}`);
 	}
-	const always = loadRules(root).filter((rule) => rule.patterns.length === 0).map((rule) => rule.name);
+	const always = loadRules(root)
+		.filter((rule) => rule.patterns.length === 0)
+		.map((rule) => rule.name);
 	for (const name of ['basis', 'workflow']) {
 		if (!always.includes(name)) failed += 1;
 		console.log(`${always.includes(name) ? '✅' : '⛔'} ${name} has no paths: and is always loaded`);
 	}
-	for (const path of ['packages/core/scripts/seed.ts', 'apps/server/src/main.ts', 'scripts/lib/rules/load-rules.ts']) {
+	for (const path of [
+		'packages/core/scripts/seed.ts',
+		'apps/company-server/src/main.ts',
+		'scripts/lib/rules/load-rules.ts',
+	]) {
 		const loaded = rulesForPath(path, root);
 		const total = tokens(claudeChars + loaded.reduce((sum, rule) => sum + rule.chars, 0));
 		if (total > limitTokens) failed += 1;

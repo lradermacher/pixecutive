@@ -35,7 +35,8 @@ let carriesCommits = false;
 for (const row of readFileSync(0, 'utf8').split('\n')) {
 	const [localRef = '', localSha = '', remoteRef = '', remoteSha = ''] = row.trim().split(/\s+/);
 	if (localSha === '' || zero.test(localSha)) continue;
-	const range = remoteSha === '' || zero.test(remoteSha) ? [localSha, '--not', '--remotes'] : [`${remoteSha}..${localSha}`];
+	const range =
+		remoteSha === '' || zero.test(remoteSha) ? [localSha, '--not', '--remotes'] : [`${remoteSha}..${localSha}`];
 	if (git(['rev-list', '-1', ...range]).trim() !== '') carriesCommits = true;
 
 	const lines: ScanLine[] = [];
@@ -44,21 +45,34 @@ for (const row of readFileSync(0, 'utf8').split('\n')) {
 	for (const line of git(['log', '-p', '--no-color', '--no-ext-diff', '--format=commit %h', ...range]).split('\n')) {
 		if (line.startsWith('commit ')) commit = line.slice(7);
 		else if (line.startsWith('+++ ')) file = line.slice(6);
-		else if (line.startsWith('+') && !secretPatterns.skip.test(file)) lines.push({ location: `${commit} ${file}`, text: line.slice(1) });
+		else if (line.startsWith('+') && !secretPatterns.skip.test(file))
+			lines.push({ location: `${commit} ${file}`, text: line.slice(1) });
 	}
-	for (const block of git(['log', '--format=%x00%h%n%B', ...range]).split('\0').filter(Boolean)) {
+	for (const block of git(['log', '--format=%x00%h%n%B', ...range])
+		.split('\0')
+		.filter(Boolean)) {
 		const [sha = '', ...message] = block.split('\n');
 		message.forEach((text, index) => lines.push({ location: `${sha} message:${index + 1}`, text }));
 	}
-	const paths = [...new Set(git(['log', '--format=', '--name-only', ...range]).split('\n').filter(Boolean))];
+	const paths = [
+		...new Set(
+			git(['log', '--format=', '--name-only', ...range])
+				.split('\n')
+				.filter(Boolean),
+		),
+	];
 	// Every blob a pushed commit adds counts, also one a later commit shrinks or deletes again.
 	const blobs = git(['log', '--raw', '--no-abbrev', '--no-renames', '--format=', ...range])
 		.split('\n')
 		.map((row) => /^:\S+ \S+ \S+ (\S+) [AM]\t(.+)$/.exec(row))
-		.flatMap((match) => (match ? [{ path: match[2] ?? '', bytes: Number(git(['cat-file', '-s', match[1] ?? '']).trim()) }] : []));
+		.flatMap((match) =>
+			match ? [{ path: match[2] ?? '', bytes: Number(git(['cat-file', '-s', match[1] ?? '']).trim()) }] : [],
+		);
 	const findings = [...scanText(lines, config), ...forbiddenPaths(paths), ...checkImages(blobs)];
 	if (findings.length > 0) {
-		console.error(`⛔ ${localRef.replace('refs/heads/', '')} → ${remoteRef.replace('refs/heads/', '')}: not allowed in the history`);
+		console.error(
+			`⛔ ${localRef.replace('refs/heads/', '')} → ${remoteRef.replace('refs/heads/', '')}: not allowed in the history`,
+		);
 		for (const finding of findings) console.error(`  ⛔ ${finding}`);
 		failed = true;
 	}

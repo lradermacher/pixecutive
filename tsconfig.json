@@ -3,9 +3,7 @@
     "target": "esnext",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -18,8 +16,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": [
-    "scripts/**/*.ts",
-    ".claude/hooks/**/*.ts"
-  ]
+  "include": ["scripts/**/*.ts", ".claude/hooks/**/*.ts", "vitest.config.ts", "eslint.config.ts"]
 }

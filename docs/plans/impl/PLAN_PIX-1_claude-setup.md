@@ -14,8 +14,8 @@ them, so work never again happens without ticket, plan or rules.
   and example committed) or `.env`.
 - Hooks and gates are TypeScript run directly by Node; shell stays only for thin git hook entry points and the
   black-box probes that drive them (2026-10-04, F3).
-- The architecture is hexagonal (`packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/server`,
-  `apps/client`, `apps/web` outside the hexagon); the core rule describes it before any package exists.
+- The architecture is hexagonal (`packages/core`, `packages/infrastructure`, `packages/protocol`, `apps/company-server`,
+  `apps/companion`, `apps/office-ui` outside the hexagon); the core rule describes it before any package exists.
 - Commits stay local while the branch is in progress; it is pushed once, when the pull request is ready.
 
 ## Acceptance
@@ -81,7 +81,7 @@ Taken verbatim from the cards; changes against the cards are listed under "Chang
 | PIX-4 template `hook.sh` | `hook.ts` with the contract as a typed object | Hooks are TypeScript (F3) |
 | PIX-6 tracker IDs in the local config | The local config schema gains a `tracker` section | Self-sufficient public repo, operator values outside it |
 | PIX-4 rules without a mechanism | Every rule gets a bracket: a real mechanism, `[Prose: reason]`, or `[Planned PIX-NNN: mechanism]`; `check-rules mechanism` enforces it, and `guard-done` (step 5) keeps a card out of Done while a rule names it as planned | Sheet rule-mechanisms F1, F2, 2026-10-04 |
-| PIX-2 forbidden paths | Images and videos only as PNG or SVG assets under `apps/web/assets/`, at most 256 KB, checked in pre-commit and pre-push; the ops rule is scoped to screenshots, recordings and photos | Sheet rule-mechanisms F3, 2026-10-04 |
+| PIX-2 forbidden paths | Images and videos only as PNG or SVG assets under `apps/office-ui/assets/`, at most 256 KB, checked in pre-commit and pre-push; the ops rule is scoped to screenshots, recordings and photos | Sheet rule-mechanisms F3, 2026-10-04 |
 | PIX-4 `paths:` of `core` and `ops` | `x/**` written as `x/*` for one-segment directories, so the pattern stays anchored at the root | `check-rules structure`: `x/**` shrinks to `x` and would match at every level |
 | PIX-3 `ticket.sh` is the only writer of `.claude/state/` | `scripts/ticket.ts` writes through `scripts/lib/ticket/state-store.ts`; a hook that changes state calls `ticket.ts`, none imports the writer | ADR 0003 point 1, with hooks in TypeScript (F3) |
 | PIX-6 tracker IDs in the local config (step 8) | The `tracker.transitions` part comes forward into step 5 | The transition hooks of PIX-3 need the IDs, and they may come only from the local config |

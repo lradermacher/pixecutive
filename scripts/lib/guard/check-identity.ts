@@ -7,7 +7,10 @@ const machineDomains = /(\.local|\.lan|\.home|\.internal|\.localdomain|\.fritz\.
 
 function identity(role: 'AUTHOR' | 'COMMITTER'): string {
 	try {
-		const ident = execFileSync('git', ['var', `GIT_${role}_IDENT`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+		const ident = execFileSync('git', ['var', `GIT_${role}_IDENT`], {
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore'],
+		});
 		return (/<([^>]*)>/.exec(ident)?.[1] ?? '').toLowerCase();
 	} catch {
 		return '';
@@ -27,11 +30,16 @@ export function checkIdentity(allowed: readonly string[]): string[] {
 		const name = role.toLowerCase();
 		const mail = identity(role);
 		const domain = mail.split('@')[1] ?? '';
-		if (mail === '' || domain === '') findings.push(`${name} mail is missing — set it: git config user.email <address>`);
-		else if (!domain.includes('.')) findings.push(`${name} mail <${mail}> has no real domain — set it: git config user.email <address>`);
-		else if (machineDomains.test(domain)) findings.push(`${name} mail <${mail}> was derived from the machine — set it: git config user.email <address>`);
-		else if (domain === host || domain.split('.')[0] === shortHost) findings.push(`${name} mail <${mail}> carries this machine's host name`);
-		else if (allowed.length > 0 && !allowed.includes(mail)) findings.push(`${name} mail <${mail}> is not listed in historyGuard.authors`);
+		if (mail === '' || domain === '')
+			findings.push(`${name} mail is missing — set it: git config user.email <address>`);
+		else if (!domain.includes('.'))
+			findings.push(`${name} mail <${mail}> has no real domain — set it: git config user.email <address>`);
+		else if (machineDomains.test(domain))
+			findings.push(`${name} mail <${mail}> was derived from the machine — set it: git config user.email <address>`);
+		else if (domain === host || domain.split('.')[0] === shortHost)
+			findings.push(`${name} mail <${mail}> carries this machine's host name`);
+		else if (allowed.length > 0 && !allowed.includes(mail))
+			findings.push(`${name} mail <${mail}> is not listed in historyGuard.authors`);
 	}
 	return findings;
 }

@@ -1,5 +1,7 @@
 # Dependencies and build output
 node_modules/
+.venv/
+__pycache__/
 dist/
 build/
 coverage/
@@ -27,3 +29,5 @@ graphify-out/
 .idea/
 .vscode/
 *.swp
+renders/
+apps/asset-pipeline/dist/

@@ -12,5 +12,7 @@ import { dataRows } from '../data-rows.ts';
 export function ticketTypes(root: string): Map<string, boolean> {
 	const path = join(root, '.claude', 'data', 'ticket-types.tsv');
 	if (!existsSync(path)) throw new Error('.claude/data/ticket-types.tsv is missing');
-	return new Map(dataRows(path, 'type').flatMap(({ cells }) => (cells[0] ? [[cells[0], cells[1] !== 'no'] as const] : [])));
+	return new Map(
+		dataRows(path, 'type').flatMap(({ cells }) => (cells[0] ? [[cells[0], cells[1] !== 'no'] as const] : [])),
+	);
 }

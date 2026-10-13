@@ -13,7 +13,9 @@ import { existsSync } from 'node:fs';
  */
 export function filesToCheck(args: readonly string[]): string[] {
 	const git = (gitArgs: readonly string[]): string[] =>
-		execFileSync('git', ['-c', 'core.quotePath=false', ...gitArgs], { encoding: 'utf8' }).split('\n').filter(Boolean);
+		execFileSync('git', ['-c', 'core.quotePath=false', ...gitArgs], { encoding: 'utf8' })
+			.split('\n')
+			.filter(Boolean);
 	let paths: string[];
 	if (args.includes('--staged')) {
 		paths = git(['diff', '--cached', '--name-only', '--no-renames', '--diff-filter=ACM']);

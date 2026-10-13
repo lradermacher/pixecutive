@@ -75,7 +75,7 @@ probe "a pattern not anchored at the root" red "rule 'paths:' '  - \"probe/**\"'
 probe "a root file with a leading slash" green "rule 'paths:' '  - \"/probe.json\"' \"$adr\" 'summary: short'; $check structure"
 probe "a negated pattern" red "rule 'paths:' '  - \"!probe/*\"' \"$adr\" 'summary: short'; $check structure"
 probe "a rule without a mechanism" red "printf '%s\n' '' '## A rule without its bracket' 'Text.' >> .claude/rules/core.md; $check mechanism"
-probe "a path set copied into the rule tooling" red "echo '// apps/server/**' >> scripts/rules-for.ts; $check globs"
+probe "a path set copied into the rule tooling" red "echo '// apps/company-server/**' >> scripts/rules-for.ts; $check globs"
 probe "an unknown gate name stops with exit 2" green "$check dupes; [ \$? -eq 2 ]"
 
 echo

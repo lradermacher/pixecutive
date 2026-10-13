@@ -19,7 +19,10 @@ const fail = (finding: string): void => {
 	console.log(`⛔ ${finding}`);
 };
 const listed = (prefix: string): string[] =>
-	execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', prefix], { cwd: root, encoding: 'utf8' })
+	execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', prefix], {
+		cwd: root,
+		encoding: 'utf8',
+	})
 		.split('\n')
 		.filter((path) => path !== '' && existsSync(join(root, path)));
 const records = listed('docs/ADR').filter((path) => /^docs\/ADR\/\d{4}-.*\.md$/.test(path));
@@ -41,16 +44,22 @@ function recordFields(): void {
 	for (const path of records) {
 		const { data } = parseFrontmatter(read(path));
 		for (const field of required) if (!(field in data)) fail(`${path}: the frontmatter field ${field}: is missing`);
-		if (!statuses.has(String(data['status']))) fail(`${path}: status '${String(data['status'])}' is none of ${[...statuses].join(' · ')}`);
-		if (!kinds.has(String(data['kind']))) fail(`${path}: kind '${String(data['kind'])}' is none of ${[...kinds].join(' · ')}`);
+		if (!statuses.has(String(data['status'])))
+			fail(`${path}: status '${String(data['status'])}' is none of ${[...statuses].join(' · ')}`);
+		if (!kinds.has(String(data['kind'])))
+			fail(`${path}: kind '${String(data['kind'])}' is none of ${[...kinds].join(' · ')}`);
 	}
-	if (findings.length === before) console.log(`✅ adr: ${records.length} ADRs with the required fields, a valid status and kind`);
+	if (findings.length === before)
+		console.log(`✅ adr: ${records.length} ADRs with the required fields, a valid status and kind`);
 }
 
 function rejected(): void {
 	const before = findings.length;
 	for (const path of records.filter((adr) => status(adr) === 'accepted')) {
-		const body = section(read(path), /^## Rejected\s*$/)?.replace(/<!--[\s\S]*?-->/g, '').trim() ?? '';
+		const body =
+			section(read(path), /^## Rejected\s*$/)
+				?.replace(/<!--[\s\S]*?-->/g, '')
+				.trim() ?? '';
 		if (body === '') fail(`${path}: the Rejected section is missing or empty; an ADR names what did not survive`);
 	}
 	if (findings.length === before) console.log('✅ rejected: every accepted ADR names what was rejected');
@@ -58,13 +67,20 @@ function rejected(): void {
 
 function mechanics(): void {
 	const before = findings.length;
-	const workflow = records.filter((adr) => status(adr) === 'accepted' && parseFrontmatter(read(adr)).data['kind'] === 'workflow');
+	const workflow = records.filter(
+		(adr) => status(adr) === 'accepted' && parseFrontmatter(read(adr)).data['kind'] === 'workflow',
+	);
 	for (const path of workflow) {
 		// A comment or an empty diagram fence is no mechanics.
-		const body = section(read(path), /^## Mechanics\s*$/)?.replace(/<!--[\s\S]*?-->/g, '').replace(/```\w*\s*```/g, '').trim() ?? '';
+		const body =
+			section(read(path), /^## Mechanics\s*$/)
+				?.replace(/<!--[\s\S]*?-->/g, '')
+				.replace(/```\w*\s*```/g, '')
+				.trim() ?? '';
 		if (body === '') fail(`${path}: a workflow ADR needs a Mechanics section (TEMPLATE.md)`);
 	}
-	if (findings.length === before) console.log(`✅ mechanics: ${workflow.length} workflow ADRs, each with its Mechanics`);
+	if (findings.length === before)
+		console.log(`✅ mechanics: ${workflow.length} workflow ADRs, each with its Mechanics`);
 }
 
 function mechanism(): void {
@@ -75,7 +91,8 @@ function mechanism(): void {
 		for (const point of decision.split(/^(?=\d+\. \*\*)/m).filter((part) => /^\d+\. \*\*/.test(part))) {
 			points += 1;
 			const item = point.split(/\n(?=\S)/)[0] ?? point;
-			if (!/`\[[^\]]+\]`/.test(item)) fail(`${path}: decision point "${item.slice(0, 60).replace(/\s+/g, ' ')}…" names no mechanism in brackets`);
+			if (!/`\[[^\]]+\]`/.test(item))
+				fail(`${path}: decision point "${item.slice(0, 60).replace(/\s+/g, ' ')}…" names no mechanism in brackets`);
 		}
 	}
 	if (findings.length === before) console.log(`✅ mechanism: ${points} decision points, each names its mechanism`);
@@ -91,7 +108,9 @@ function classes(): void {
 	const rows = dataRows(table, 'prefix').map(({ cells }) => ({ prefix: cells[0] ?? '', name: cells[1] ?? '' }));
 	const canonSection = section(read('CLAUDE.md'), /^## Authoritative documents/);
 	if (canonSection === null) fail('CLAUDE.md has no section "Authoritative documents", so canon is unknown');
-	const canon = [...(canonSection ?? '').matchAll(/\]\(([^)#\s]+)/g)].map((match) => (match[1] ?? '').replace(/\/README\.md$/, '/').replace(/^\.\//, ''));
+	const canon = [...(canonSection ?? '').matchAll(/\]\(([^)#\s]+)/g)].map((match) =>
+		(match[1] ?? '').replace(/\/README\.md$/, '/').replace(/^\.\//, ''),
+	);
 	const docs = listed('docs').filter((path) => path.endsWith('.md'));
 	for (const path of docs) {
 		if (canon.some((entry) => path === entry || (entry.endsWith('/') && path.startsWith(entry)))) continue;
@@ -101,7 +120,8 @@ function classes(): void {
 		if (names.size === 0) fail(`${path} falls into no class of .claude/data/document-classes.tsv and is not canon`);
 		if (names.size > 1) fail(`${path} falls into ${[...names].join(' and ')} at once`);
 	}
-	if (findings.length === before) console.log(`✅ classes: ${docs.length} documents under docs/, each canon or in exactly one class`);
+	if (findings.length === before)
+		console.log(`✅ classes: ${docs.length} documents under docs/, each canon or in exactly one class`);
 }
 
 const checks: Record<string, () => void> = { adr: recordFields, rejected, mechanics, mechanism, classes };

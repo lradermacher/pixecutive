@@ -20,6 +20,8 @@ try {
 	if (verdict.message !== '') process.stderr.write(`${verdict.message}\n`);
 	process.exit(verdict.code);
 } catch (error) {
-	process.stderr.write(`⛔ guard-done could not judge (${String(error)}); a guard that passes on its own failure is none.\n`);
+	process.stderr.write(
+		`⛔ guard-done could not judge (${String(error)}); a guard that passes on its own failure is none.\n`,
+	);
 	process.exit(2);
 }

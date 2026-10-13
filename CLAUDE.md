@@ -5,8 +5,9 @@ source (MIT), one instance per company, a local client per person started with `
 
 ## Where the rules are
 
-Every rule lives in `.claude/rules/` and only there. `basis` and `workflow` are always loaded; `core` and `ops` load
-through their `paths:` when a file of their area is opened, and a hook injects their summary on the first write.
+Every rule lives in `.claude/rules/` and only there. `basis` and `workflow` are always loaded; `core`, `ops` and
+`assets` load through their `paths:` when a file of their area is opened, and a hook injects their summary on the
+first write.
 What a rule is and where it belongs: [ADR 0001](docs/ADR/0001-one-carrier-per-rule.md).
 
 ## Authoritative documents

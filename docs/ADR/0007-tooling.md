@@ -25,7 +25,7 @@ implementation: docs/plans/impl/PLAN_PIX-1_claude-setup.md
 | **Superseded by**   | —                                                                      |
 | **Analysis**        | —                                                                      |
 | **Implementation**  | [PLAN_PIX-1_claude-setup.md](../plans/impl/PLAN_PIX-1_claude-setup.md) |
-| **Cards**           | —                                                                      |
+| **Cards**           | PIX-7                                                                  |
 
 <!-- STATE:END -->
 
@@ -65,10 +65,10 @@ TypeScript is 7. The lint rules decided in [ADR 0006](0006-typing-and-import-zon
 Chosen: **A**, because it is the only measured stack in which the type-aware rules Pixecutive needs are stable today.
 
 1. **The stack, measured on 2026-10-03:** pnpm 12.9.1, `tsc` from TypeScript 7 (7.0.2), ESLint 10 with flat config
-   and typescript-eslint 8, Prettier 3.9.9, Vitest 5.0.3. `[Config package.json · Planned PIX-7: Lint]`
+   and typescript-eslint 8, Prettier 3.9.9, Vitest 5.0.3. `[Config package.json · Lint]`
 2. **Lint runs on TypeScript 6 through the official side-by-side install**: `"typescript":
    "npm:@typescript/typescript6"` for the lint plugin, `"@typescript/native": "npm:typescript@7"` for `tsc`.
-   `[Planned PIX-7: Config package.json]`
+   `[Config package.json]`
 3. **Development runs on Node 26**, which becomes LTS on 2026-10-28 according to the official schedule; the
    published `npx` client supports Node 24 and newer. `[Config package.json]`
 4. **Hooks and gates are TypeScript run directly by Node.** Measured on 2026-10-04: Node 26.5 runs a `.ts` file

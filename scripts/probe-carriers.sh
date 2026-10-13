@@ -54,6 +54,10 @@ echo "── hooks ────────────────────�
 probe "a hook with its contract" green "$check hooks"
 probe "a hook without a contract" red "printf '%s\n' '// x.ts — probe' > .claude/hooks/x.ts && $check hooks"
 probe "a contract without its probe field" red "perl -ni -e 'print unless /^\\tprobe: /' .claude/hooks/agent-guard.ts && $check hooks"
+probe "a contract value on the line after its key" green \
+	"perl -pi -e \"s/^\\texit: '/\\texit:\\n\\t\\t'/\" .claude/hooks/agent-guard.ts && grep -q '^.exit:\$' .claude/hooks/agent-guard.ts && $check hooks"
+probe "a contract key with an empty value on the next line" red \
+	"perl -pi -e \"s/^\\texit: '.*',\$/\\texit:\\n\\t\\t'',/\" .claude/hooks/agent-guard.ts && $check hooks"
 probe "an empty matcher on a prompt event" green \
 	"cp .claude/hooks/agent-guard.ts .claude/hooks/prompt.ts && perl -pi -e \"s/event: 'PreToolUse'/event: 'UserPromptSubmit'/; s/matcher: 'Agent'/matcher: ''/\" .claude/hooks/prompt.ts && $check hooks"
 probe "an empty matcher on a tool event" red \

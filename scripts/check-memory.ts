@@ -108,7 +108,8 @@ function duplicate(): void {
 	const rules = loadRules(root);
 	const carriers: Statement[] = [];
 	const claude = join(root, 'CLAUDE.md');
-	if (existsSync(claude)) carriers.push(...statements('CLAUDE.md', parseFrontmatter(readFileSync(claude, 'utf8')).body));
+	if (existsSync(claude))
+		carriers.push(...statements('CLAUDE.md', parseFrontmatter(readFileSync(claude, 'utf8')).body));
 	for (const rule of rules) carriers.push(...statements(rule.path, rule.body));
 	const seen = new Map<string, Statement>();
 	const triggers = new Map<string, Statement>();

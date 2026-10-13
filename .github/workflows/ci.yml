@@ -1,0 +1,51 @@
+# CI — the secret scan, lint, format, types, tests and the spec check on each pull request, forks included
+# (ADR 0004, ADR 0008).
+# Actions are pinned by commit and gitleaks by version and checksum, so a moved tag cannot change what runs.
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks 8.30.1
+        run: |
+          curl -sSfL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tar.gz" | sha256sum -c -
+          tar --extract --gzip --file gitleaks.tar.gz gitleaks
+      - name: Scan the whole history
+        run: ./gitleaks git --no-banner --redact --log-opts="--all" .
+
+  checks:
+    name: Lint, format, types and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          cache: pnpm
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: '0.12.12'
+      - run: pnpm install --frozen-lockfile
+      - name: The adapters' Python environment, pinned by its lock
+        run: uv sync --frozen --project packages/infrastructure
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: A changed unit carries its changed spec
+        run: node scripts/check-tests.ts --all

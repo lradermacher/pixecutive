@@ -1,0 +1,1554 @@
+{
+  "m": {
+    "ear": {
+      "left": 184,
+      "top": 215,
+      "right": 216,
+      "bottom": 260
+    },
+    "face": {
+      "blank": {
+        "image": "m/blank2.png",
+        "mask": "m/blank2_mask.png"
+      },
+      "brows": {
+        "image": "m/part_brows.png"
+      },
+      "eyes": {
+        "image": "m/part_eyes.png"
+      },
+      "eyes-half": {
+        "image": "m/part_eyes_half.png"
+      },
+      "eyes-closed": {
+        "image": "m/part_eyes_closed.png"
+      },
+      "nose": {
+        "image": "m/part_nose.png"
+      },
+      "mouth": {
+        "image": "m/part_mouth.png"
+      },
+      "mouth-half": {
+        "image": "m/part_mouth_half.png"
+      },
+      "mouth-open": {
+        "image": "m/part_mouth_open.png"
+      }
+    },
+    "head": {
+      "open": "m/open.png",
+      "green": "m/green.png",
+      "greenAccessory": "m/green-accessory.png",
+      "greenOpen": "m/green-open.png",
+      "grids": {
+        "head": {
+          "columns": 3,
+          "rows": 3,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 120,
+            "top": 60,
+            "right": 400,
+            "bottom": 340
+          },
+          "still": "m/green.png"
+        },
+        "tall": {
+          "columns": 3,
+          "rows": 2,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 110,
+            "top": 60,
+            "right": 390,
+            "bottom": 480
+          },
+          "still": "m/green.png"
+        },
+        "face": {
+          "columns": 3,
+          "rows": 3,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 150,
+            "top": 90,
+            "right": 380,
+            "bottom": 320
+          },
+          "still": "m/open.png"
+        }
+      },
+      "kinds": {
+        "hair": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+          "draws": [
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+              "fill": {
+                "who": "man",
+                "styles": "a short crop, a side part, a curly top, a quiff, a buzz cut with a fade, messy medium hair, shoulder-length hair, a man bun, and long hair tied in a low ponytail. All hair is the same natural dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18],
+              "fill": {
+                "who": "man",
+                "styles": "a round afro, a short coily crop, a high-top fade, short locs, cornrows, two-strand twists, a straight black fringe, a straight black two-block undercut, and straight black hair parted in the middle. Hair is natural black or very dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [19, 20, 21, 22, 23, 24, 25, 26, 27],
+              "fill": {
+                "who": "man",
+                "styles": "a mohawk, an undercut with a shaved line on the side, a modern mullet, tall messy spikes, a long-top undercut swept to one side, a textured crop with a sharp fade, a slicked-back pompadour, a buzz cut with a shaved stripe, and an asymmetric side-shaved cut. All hair is the same natural dark brown"
+              }
+            }
+          ]
+        },
+        "beard": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+          "draws": [
+            {
+              "prompt": "head/beard.txt",
+              "grid": "head",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            }
+          ]
+        },
+        "hat": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+          "openTop": [12, 14, 15],
+          "draws": [
+            {
+              "prompt": "head/hat.txt",
+              "ids": [1],
+              "fill": {
+                "who": "a bald man",
+                "what": "a red baseball cap worn forward"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [2],
+              "fill": {
+                "who": "a bald man",
+                "what": "a blue baseball cap worn backwards"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [3],
+              "fill": {
+                "who": "a bald man",
+                "what": "a black flat-brim snapback cap with a red brim"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [4],
+              "fill": {
+                "who": "a bald man",
+                "what": "a plain grey knit beanie"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [5],
+              "fill": {
+                "who": "a bald man",
+                "what": "a navy knit beanie with a white pompom"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [6],
+              "fill": {
+                "who": "a bald man",
+                "what": "a beige bucket hat"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [7],
+              "fill": {
+                "who": "a bald man",
+                "what": "a brown fedora with a black band"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [8],
+              "fill": {
+                "who": "a bald man",
+                "what": "a brown tweed flat cap"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [9],
+              "fill": {
+                "who": "a bald man",
+                "what": "a black beret"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [10],
+              "fill": {
+                "who": "a bald man",
+                "what": "a brown leather cowboy hat"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [11],
+              "fill": {
+                "who": "a bald man",
+                "what": "a wide straw sun hat with a navy band"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [12],
+              "fill": {
+                "who": "a bald man",
+                "what": "a white sports headband with blue stripes"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [13],
+              "fill": {
+                "who": "a bald man",
+                "what": "a propeller beanie cap in red, blue and yellow with a blue propeller"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [14],
+              "fill": {
+                "who": "a bald man",
+                "what": "a purple cone party hat with yellow stars and a red pompom"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [15],
+              "fill": {
+                "who": "a bald man",
+                "what": "a golden crown with red and blue jewels"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [16],
+              "fill": {
+                "who": "a bald man",
+                "what": "a tall white chef hat"
+              }
+            }
+          ]
+        },
+        "glasses": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+          "draws": [
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [1],
+              "fill": {
+                "who": "a bald man",
+                "what": "round thin gold metal glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [2],
+              "fill": {
+                "who": "a bald man",
+                "what": "rectangular dark brown office glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [3],
+              "fill": {
+                "who": "a bald man",
+                "what": "thick black rectangular nerd glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [4],
+              "fill": {
+                "who": "a bald man",
+                "what": "red cat-eye glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [5],
+              "fill": {
+                "who": "a bald man",
+                "what": "gold aviator sunglasses with dark grey lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [6],
+              "fill": {
+                "who": "a bald man",
+                "what": "classic black square sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [7],
+              "fill": {
+                "who": "a bald man",
+                "what": "small round black sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [8],
+              "fill": {
+                "who": "a bald man",
+                "what": "black sporty wraparound sunglasses with a blue mirrored lens"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [9],
+              "fill": {
+                "who": "a bald man",
+                "what": "a wide mirrored shield visor sunglasses in blue, purple and orange"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [10],
+              "fill": {
+                "who": "a bald man",
+                "what": "pink heart-shaped sunglasses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [11],
+              "fill": {
+                "who": "a bald man",
+                "what": "gold star-shaped party sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [12],
+              "fill": {
+                "who": "a bald man",
+                "what": "black pixelated meme sunglasses (thug life style)"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [13],
+              "fill": {
+                "who": "a bald man",
+                "what": "joke glasses: black frames with a big pink plastic nose, bushy black eyebrows and a black moustache"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [14],
+              "fill": {
+                "who": "a bald man",
+                "what": "white cardboard 3D glasses with one red and one blue lens"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [15],
+              "fill": {
+                "who": "a bald man",
+                "what": "huge oversized round black glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [16],
+              "fill": {
+                "who": "a bald man",
+                "what": "blue swimming goggles with a strap around the head"
+              }
+            }
+          ]
+        },
+        "hair-under-hat": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+          "hat": 4,
+          "shrink": 17,
+          "draws": [
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [1],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [2],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [3],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [4],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [5],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [6],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [7],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [8],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [9],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [10],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [11],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [12],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [13],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [14],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [15],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [16],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [17],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [18],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [19],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [20],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [21],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [22],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [23],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [24],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [25],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [26],
+              "fill": {
+                "who": "man"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [27],
+              "fill": {
+                "who": "man"
+              }
+            }
+          ]
+        },
+        "brows": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/m-brows.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/m-brows-mod.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        },
+        "eyes": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+          "draws": [
+            {
+              "prompt": "head/m-eyes.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/m-eyes-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            },
+            {
+              "prompt": "head/m-eyes-asia.txt",
+              "grid": "face",
+              "ids": [19, 20, 21, 22, 23, 24, 25, 26, 27]
+            }
+          ]
+        },
+        "nose": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/m-nose.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/m-nose-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        },
+        "mouth": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/m-mouth.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/m-mouth-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        }
+      }
+    },
+    "motions": {
+      "idle": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/idle.txt",
+        "still": "m/idle-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "step": 1,
+        "forward": true,
+        "use": {
+          "first": 11,
+          "last": 34
+        },
+        "trackStill": "m/open.png"
+      },
+      "walk": {
+        "mode": "cycle",
+        "frames": 49,
+        "endStrength": 1,
+        "prompt": "prompts/walk.txt",
+        "still": "m/walk-start.png",
+        "trackStill": "m/blank2.png"
+      },
+      "wave": {
+        "mode": "loop",
+        "frames": 97,
+        "endStrength": 0.8,
+        "prompt": "prompts/wave.txt",
+        "still": "m/walk-start.png",
+        "range": {
+          "first": 0,
+          "last": 95
+        },
+        "step": 1,
+        "forward": true,
+        "trackStill": "m/blank2.png"
+      },
+      "sit": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/sit.txt",
+        "still": "m/sit-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "height": 177,
+        "step": 1,
+        "forward": true,
+        "trackStill": "m/blank2.png"
+      },
+      "type": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/type.txt",
+        "still": "m/type-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "height": 177,
+        "hands": {
+          "box": {
+            "left": 387,
+            "top": 372,
+            "right": 566,
+            "bottom": 450
+          },
+          "states": ["m/type-lifted.png", "m/type-pressed.png"]
+        },
+        "step": 1,
+        "forward": true,
+        "trackStill": "m/blank2.png"
+      }
+    }
+  },
+  "f": {
+    "ear": {
+      "left": 188,
+      "top": 203,
+      "right": 218,
+      "bottom": 243
+    },
+    "face": {
+      "blank": {
+        "image": "f/blank2.png",
+        "mask": "f/blank2_mask.png"
+      },
+      "brows": {
+        "image": "f/part_brows.png"
+      },
+      "eyes": {
+        "image": "f/part_eyes.png"
+      },
+      "eyes-half": {
+        "image": "f/part_eyes_half.png"
+      },
+      "eyes-closed": {
+        "image": "f/part_eyes_closed.png"
+      },
+      "nose": {
+        "image": "f/part_nose.png"
+      },
+      "mouth": {
+        "image": "f/part_mouth.png"
+      },
+      "mouth-half": {
+        "image": "f/part_mouth_half.png"
+      },
+      "mouth-open": {
+        "image": "f/part_mouth_open.png"
+      }
+    },
+    "head": {
+      "open": "f/open.png",
+      "green": "f/green.png",
+      "greenAccessory": "f/green-accessory.png",
+      "greenOpen": "f/green-open.png",
+      "grids": {
+        "head": {
+          "columns": 3,
+          "rows": 3,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 120,
+            "top": 60,
+            "right": 400,
+            "bottom": 340
+          },
+          "still": "f/green.png"
+        },
+        "tall": {
+          "columns": 3,
+          "rows": 2,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 110,
+            "top": 60,
+            "right": 390,
+            "bottom": 480
+          },
+          "still": "f/green.png"
+        },
+        "face": {
+          "columns": 3,
+          "rows": 3,
+          "width": 1024,
+          "height": 1024,
+          "box": {
+            "left": 150,
+            "top": 90,
+            "right": 370,
+            "bottom": 310
+          },
+          "still": "f/open.png"
+        }
+      },
+      "kinds": {
+        "hair": {
+          "ids": [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48
+          ],
+          "hidden": [3, 11, 16, 18, 25, 26, 28, 30, 34, 35, 36, 41, 42, 43],
+          "draws": [
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+              "fill": {
+                "who": "woman",
+                "styles": "a pixie cut, a chin-length bob, shoulder-length hair with a fringe, a high ponytail with face-framing strands, a messy bun with loose strands, curly shoulder-length hair, a side-swept fringe, a sleek low bun, and a half-up half-down style. All hair is the same natural dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18],
+              "fill": {
+                "who": "woman",
+                "styles": "a big round afro, an afro puff, bantu knots, a short coily twist-out, short locs, a straight black bob with a blunt fringe, straight black hair with a side part, a straight black shoulder-length cut, and a sleek black high bun. Hair is natural black or very dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "head",
+              "ids": [19, 20, 21, 22, 23, 24, 25, 26, 27],
+              "fill": {
+                "who": "woman",
+                "styles": "a side-shaved undercut with long hair on top, an asymmetric bob, a short spiky pixie, a mohawk, space buns, a wolf cut, a curtain-fringe shag, a sharp blunt bob with a very short fringe, and a buzz cut. All hair is the same natural dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "tall",
+              "ids": [28, 29, 30, 31, 32, 33],
+              "fill": {
+                "who": "woman",
+                "styles": "LONG styles that fall onto the shoulders, back and chest and end fully inside their grid cell: long straight hair, long wavy hair, a high ponytail, a long braid over the shoulder, long hair with a fringe, and long curly hair. The grid has three columns and two rows. All hair is the same natural dark brown"
+              }
+            },
+            {
+              "prompt": "head/hair.txt",
+              "grid": "tall",
+              "ids": [34, 35, 36, 37, 38, 39],
+              "fill": {
+                "who": "woman",
+                "styles": "LONG styles that fall onto the shoulders, back and chest and end fully inside their grid cell: long box braids, long locs, long faux locs tied half up, long straight black hair, long straight black hair with a blunt fringe, and long black hair in a low ponytail. The grid has three columns and two rows. Hair is natural black or very dark brown"
+              }
+            }
+          ]
+        },
+        "hat": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+          "openTop": [12, 14, 15],
+          "draws": [
+            {
+              "prompt": "head/hat.txt",
+              "ids": [1],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a red baseball cap worn forward"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [2],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a blue baseball cap worn backwards"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [3],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a black flat-brim snapback cap with a red brim"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [4],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a plain grey knit beanie"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [5],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a navy knit beanie with a white pompom"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [6],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a beige bucket hat"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [7],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a brown fedora with a black band"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [8],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a brown tweed flat cap"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [9],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a black beret"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [10],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a brown leather cowboy hat"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [11],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a wide straw sun hat with a navy band"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [12],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a white sports headband with blue stripes"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [13],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a propeller beanie cap in red, blue and yellow with a blue propeller"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [14],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a purple cone party hat with yellow stars and a red pompom"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [15],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a golden crown with red and blue jewels"
+              }
+            },
+            {
+              "prompt": "head/hat.txt",
+              "ids": [16],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a tall white chef hat"
+              }
+            }
+          ]
+        },
+        "glasses": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+          "draws": [
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [1],
+              "fill": {
+                "who": "a bald woman",
+                "what": "round thin gold metal glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [2],
+              "fill": {
+                "who": "a bald woman",
+                "what": "rectangular dark brown office glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [3],
+              "fill": {
+                "who": "a bald woman",
+                "what": "thick black rectangular nerd glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [4],
+              "fill": {
+                "who": "a bald woman",
+                "what": "red cat-eye glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [5],
+              "fill": {
+                "who": "a bald woman",
+                "what": "gold aviator sunglasses with dark grey lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [6],
+              "fill": {
+                "who": "a bald woman",
+                "what": "classic black square sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [7],
+              "fill": {
+                "who": "a bald woman",
+                "what": "small round black sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [8],
+              "fill": {
+                "who": "a bald woman",
+                "what": "black sporty wraparound sunglasses with a blue mirrored lens"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [9],
+              "fill": {
+                "who": "a bald woman",
+                "what": "a wide mirrored shield visor sunglasses in blue, purple and orange"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [10],
+              "fill": {
+                "who": "a bald woman",
+                "what": "pink heart-shaped sunglasses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [11],
+              "fill": {
+                "who": "a bald woman",
+                "what": "gold star-shaped party sunglasses with black lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [12],
+              "fill": {
+                "who": "a bald woman",
+                "what": "black pixelated meme sunglasses (thug life style)"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [13],
+              "fill": {
+                "who": "a bald woman",
+                "what": "joke glasses: black frames with a big pink plastic nose, bushy black eyebrows and a black moustache"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [14],
+              "fill": {
+                "who": "a bald woman",
+                "what": "white cardboard 3D glasses with one red and one blue lens"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [15],
+              "fill": {
+                "who": "a bald woman",
+                "what": "huge oversized round black glasses with clear lenses"
+              }
+            },
+            {
+              "prompt": "head/glasses.txt",
+              "ids": [16],
+              "fill": {
+                "who": "a bald woman",
+                "what": "blue swimming goggles with a strap around the head"
+              }
+            }
+          ]
+        },
+        "hair-under-hat": {
+          "ids": [
+            1, 2, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 17, 19, 20, 21, 22, 23, 24, 27, 29, 31, 32, 33, 37, 38, 39, 40,
+            41, 44, 45, 46, 47, 48
+          ],
+          "hat": 4,
+          "shrink": 17,
+          "draws": [
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [1],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [2],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [4],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [5],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [6],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [7],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [8],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [9],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [10],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [12],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [13],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [14],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [15],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [17],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [19],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [20],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [21],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [22],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [23],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [24],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [27],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [29],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [31],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [32],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [33],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [37],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [38],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [39],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [40],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [41],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [44],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [45],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [46],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [47],
+              "fill": {
+                "who": "woman"
+              }
+            },
+            {
+              "prompt": "head/hair-under-hat.txt",
+              "ids": [48],
+              "fill": {
+                "who": "woman"
+              }
+            }
+          ],
+          "hidden": [41]
+        },
+        "brows": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/f-brows.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/f-brows-mod.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        },
+        "eyes": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27],
+          "draws": [
+            {
+              "prompt": "head/f-eyes.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/f-eyes-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            },
+            {
+              "prompt": "head/f-eyes-asia.txt",
+              "grid": "face",
+              "ids": [19, 20, 21, 22, 23, 24, 25, 26, 27]
+            }
+          ]
+        },
+        "nose": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/f-nose.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/f-nose-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        },
+        "mouth": {
+          "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+          "draws": [
+            {
+              "prompt": "head/f-mouth.txt",
+              "grid": "face",
+              "ids": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            },
+            {
+              "prompt": "head/f-mouth-div.txt",
+              "grid": "face",
+              "ids": [10, 11, 12, 13, 14, 15, 16, 17, 18]
+            }
+          ]
+        }
+      }
+    },
+    "motions": {
+      "idle": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/idle.txt",
+        "still": "f/idle-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "step": 1,
+        "forward": true,
+        "use": {
+          "first": 9,
+          "last": 28
+        },
+        "trackStill": "f/open.png"
+      },
+      "walk": {
+        "mode": "cycle",
+        "frames": 73,
+        "endStrength": 1,
+        "prompt": "prompts/walk.txt",
+        "still": "f/walk-start.png",
+        "range": {
+          "first": 29,
+          "last": 56
+        },
+        "trackStill": "f/blank2.png"
+      },
+      "wave": {
+        "mode": "loop",
+        "frames": 97,
+        "endStrength": 0.8,
+        "prompt": "prompts/wave.txt",
+        "still": "f/walk-start.png",
+        "range": {
+          "first": 0,
+          "last": 95
+        },
+        "step": 1,
+        "forward": true,
+        "trackStill": "f/blank2.png"
+      },
+      "sit": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/sit.txt",
+        "still": "f/sit-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "height": 193,
+        "step": 1,
+        "forward": true,
+        "trackStill": "f/blank2.png"
+      },
+      "type": {
+        "mode": "loop",
+        "frames": 49,
+        "endStrength": 0.8,
+        "prompt": "prompts/type.txt",
+        "still": "f/type-start.png",
+        "range": {
+          "first": 0,
+          "last": 47
+        },
+        "height": 193,
+        "hands": {
+          "box": {
+            "left": 215,
+            "top": 367,
+            "right": 362,
+            "bottom": 442
+          },
+          "states": ["f/type-lifted.png", "f/type-pressed.png"]
+        },
+        "step": 1,
+        "forward": true,
+        "trackStill": "f/blank2.png"
+      }
+    }
+  }
+}

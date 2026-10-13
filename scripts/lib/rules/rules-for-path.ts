@@ -25,6 +25,8 @@ function relativeToRoot(path: string, root: string): string | null {
 export function rulesForPath(path: string, root: string, rules: readonly Rule[] = loadRules(root)): Rule[] {
 	const target = relativeToRoot(path, root);
 	return rules.filter(
-		(rule) => rule.patterns.length === 0 || (target !== null && rule.patterns.some((pattern) => patternMatches(pattern, target))),
+		(rule) =>
+			rule.patterns.length === 0 ||
+			(target !== null && rule.patterns.some((pattern) => patternMatches(pattern, target))),
 	);
 }
