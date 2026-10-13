@@ -1,18 +1,18 @@
-# PLAN PIX-66 — Bring the proven asset pipeline into the repo under the hexagon
+# PLAN PIX-66 — Bring the asset pipeline's motion chain into the repo under the hexagon
 
 Card: PIX-66 (feature), a series with PIX-7, PIX-56 and PIX-57 on `feat/pix-7-skeleton-toolchain`; the pull request
-comes once this card is built and tested (maintainer, 2026-10-13). Goal: the chain that made the PIX-65 figures runs
-as commands of `apps/asset-pipeline`, its decisions as tested core code, its tools behind adapters, and the base
+comes once this card is built and tested (maintainer, 2026-10-13). Goal: the motion chain that made the PIX-65 base figures
+runs as commands of `apps/asset-pipeline`, its decisions as tested core code, its tools behind adapters, and the base
 figures reach `apps/office-ui/assets/` through it. The scratchpad scripts were the proof of concept; their backup
 (named in the card's comment 14074, with `ASSEMBLY.md`) is the source this plan rewrites, never copies.
 
 ## Acceptance
 
-- [ ] Each step of the proven flow runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters
+- [ ] Each step of the motion chain (clip, frames, head track, export) runs as a command of `apps/asset-pipeline`, with its decisions in the core and its tools behind adapters
 - [ ] Every core decision has unit tests with in-memory fakes, every adapter its own spec
 - [ ] The asset layout under `apps/office-ui/assets/` is decided with the maintainer as one PNG of the folder tree before the first asset lands
 - [ ] The base figures M and F with idle and walk reach `apps/office-ui/assets/` through the commands, and the maintainer compares them with the room page
-- [ ] The skills name the commands
+- [ ] The skill `animate-figure` names the commands
 - [ ] Every gate and verify-full is green, and an independent review checked the diff
 
 ## Inventory
@@ -32,8 +32,8 @@ Measured on 2026-10-13 (repo by `git ls-files`, `git grep` and reading; the proo
 | Face parts scaled per motion with the head origin | new | core decision of the scale and offsets; adapter for the pixel resize |
 | Asset store and figure manifest | new | port `assetStore`; infrastructure `adapter/Asset/`; manifest schema in `packages/protocol` |
 | Python environment for adapter internals | new | `packages/infrastructure/python/` (`pyproject.toml`, `uv.lock`) |
-| Parts by green key (Astra via the Codex CLI, key cut, despill, grey layer, main-color mark, trousers per shoe class, belts, hoods, hats, glasses, hair, face variants, in-place fixes) | new | phase B below |
-| Skills `animate-figure`, `figure-part` | extend | name the commands |
+| Parts by green key (Astra via the Codex CLI, key cut, despill, grey layer, main-color mark, trousers per shoe class, belts, hoods, hats, glasses, hair, face variants, in-place fixes) | not this card | PIX-70 |
+| Skill `animate-figure` | extend | names the commands |
 | Office drawing of a dressed figure (layer order, recolor, tucking) | not this card | the office cards (PIX-23 and on); kept described in `ASSEMBLY.md` |
 
 ## Placement
@@ -82,20 +82,20 @@ Commands (names final in the step that builds them):
 - Drawing a dressed figure in the office: the office cards; `office-ui` may import only the protocol, so the runtime
   rules need their own design there.
 - New gestures: PIX-58, made through these commands afterwards.
-- Phase B (parts by green key): in this card as the second half of the order, unless the maintainer splits it off
-  (open question F1).
+- The parts by green key (wardrobe, hair, face variants, accessories): PIX-70, split off by the maintainer.
 
 ## Changed on the way
 
 - 2026-10-13, decided by the maintainer: the card joins the series on `feat/pix-7-skeleton-toolchain`; no pull request
   before something is properly implemented and tested in the hexagon. The finished figure assets (about 15 MB of PNG,
   each under 256 KB) may enter the public history, without Git LFS.
+- 2026-10-13, sheet `pix66-plan`: the maintainer approved this plan (F1 = yes) and split the parts by green key into
+  PIX-70 (F2 = a); the card's first and fifth acceptance lines narrowed to the motion chain and `animate-figure`.
 
 ## Open questions
 
-- **The maintainer decides (F1):** split phase B into its own card. I would: phase A is a complete, tested hexagon
-  slice and exactly what PIX-58 needs next; phase B is about fifteen Astra-driven steps with gaps the inventory found
-  (producers of the pose grid and green templates not traced). Why not me: it changes the card's scope.
+- **Decided by the maintainer:** the approval of this plan and the split of the parts into PIX-70 (sheet
+  `pix66-plan`, F1 and F2).
 - **The maintainer decides:** the asset layout as one PNG of the folder tree (acceptance line 3, step 1).
 - **I decide:** the TypeScript/Python cut above, the shared guard, the Python environment (uv 0.12.12 with
   Python 3.10, OpenCV 4.14.0, NumPy 2.2.6, Pillow 12.3.0, the versions the proof of concept ran with, measured
@@ -118,8 +118,4 @@ Commands (names final in the step that builds them):
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | open |
 | 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |
-| 14 | Phase B: the green-key template and the Astra adapter (Codex CLI) under the image quota | adapter spec | open |
-| 15 | Phase B: key cut with despill, post pass and main-color mark, grey layer | specs; the proof-of-concept layers reproduced | open |
-| 16 | Phase B: trousers per shoe class, belts, hoods, hats with hide masks, glasses, hair and hair under hats, face variants | specs; zoomed checks through the page's draw functions | open |
-| 17 | Phase B: the wardrobe and face parts into the asset store and manifest; the skill `figure-part` names the commands | manifest spec; check-skills | open |
-| 18 | Full gate and independent review | verify-full; review record | open |
+| 14 | Full gate and independent review | verify-full; review record | open |
