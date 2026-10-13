@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	ClipMode,
+	clipConfigSchema,
 	clipJobSchema,
 	FigureName,
 	frameCutConfigSchema,
@@ -43,5 +44,10 @@ describe('@pixecutive/core', () => {
 	it('exposes the head-tracking job through its entry', () => {
 		const ear = { left: 1, top: 1, right: 9, bottom: 9 };
 		expect(headTrackJobSchema.safeParse({ still: 'm.png', frames: ['00.png'], ear }).success).toBe(true);
+	});
+
+	it('exposes the clip settings through its entry', () => {
+		const config = clipConfigSchema.parse({ rendersDir: '/r', ltxProject: '/ltx', model: '/m' });
+		expect([config.frameRate, config.size]).toEqual([24, 768]);
 	});
 });

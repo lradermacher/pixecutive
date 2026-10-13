@@ -5,3 +5,4 @@ export const packageName: string = '@pixecutive/infrastructure';
 export { LocalRendererMfluxAdapter, type MfluxRenderConfig } from './adapter/Render/localRenderer-mflux.adapter.ts';
 export { readMemory } from './adapter/Guard/readMemory.ts';
 export { RenderMachineLocalAdapter } from './adapter/Render/renderMachine-local.adapter.ts';
+export { VideoRendererLtxAdapter, type LtxClipConfig } from './adapter/Video/videoRenderer-ltx.adapter.ts';

@@ -85,3 +85,4 @@ pyproject
 numpy
 PIL
 venv
+denoising

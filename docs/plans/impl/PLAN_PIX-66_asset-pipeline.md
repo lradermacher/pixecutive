@@ -99,6 +99,8 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 7: a clip leaves no row in the image render log, whose columns (seed, steps) are the image
+  model's; the shared lock still names the running clip in the status.
 - 2026-10-13, step 5: the export use case moves to step 10, where the manifest it fills is defined.
 - 2026-10-13, step 4: the core decides the sprites, holds, shifts, margin and height; the cutter measures the
   shifted frames and applies them, so the crop is measured on the shifted masks as in the proof of concept. The F walk
@@ -125,8 +127,8 @@ frames numbered with two digits from 00.
 | 3 | Core `domain/Figure/`: figure, motion, clip mode, clip job, frame measures, frame plan, head track as schemas and enums | core specs | 5ce1f65 |
 | 4 | Core decisions of the motion chain: loop range, cycle by leg spread, unique poses with holds, drift line, frames used | specs pinned on the proof-of-concept `cycle.json` | 3fdab47 |
 | 5 | Core ports and services: clip, frames, track; the figure exception and its keys | service specs with in-memory fakes | 80a9e59 |
-| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | 8bc100f; the guarded run of the model process in this commit |
-| 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | open |
+| 6 | Shared memory guard and lock for image and video | the existing render specs stay green, the guard's own spec | 8bc100f, 31784e7 |
+| 7 | Video adapter (LTX-2.3 via `ltx-2-mlx`) under the guard, with its config | adapter spec with process and file fakes | this commit |
 | 8 | Frame measurer and cutter with the edge clean-up, Python internals | adapter spec; integration spec on synthetic frames | open |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | open |
 | 10 | Figure manifest schema in `packages/protocol`, the export use case and the file asset store | protocol, service and adapter specs; the 256 KB limit | open |
