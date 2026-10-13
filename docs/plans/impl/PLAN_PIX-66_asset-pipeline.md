@@ -12,7 +12,7 @@ figures reach `apps/office-ui/assets/` through it. The scratchpad scripts were t
 - [ ] Every core decision has unit tests with in-memory fakes, every adapter its own spec
 - [x] The asset layout under `apps/office-ui/assets/` is decided with the maintainer as one PNG of the folder tree before the first asset lands — sheet `pix66-layout` F1 = yes (2026-10-13), PIX-66 comment 14084
 - [ ] The base figures M and F with idle and walk reach `apps/office-ui/assets/` through the commands, and the maintainer compares them with the room page
-- [ ] The skill `animate-figure` names the commands
+- [x] The skill `animate-figure` names the commands — `.claude/skills/animate-figure/SKILL.md` steps 4 and 5 name `pnpm assets clip`, `frames`, `track` and `export` (step 13)
 - [ ] Every gate and verify-full is green, and an independent review checked the diff
 
 ## Inventory
@@ -156,6 +156,6 @@ frames numbered with two digits from 00.
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | 350b45e |
 | 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, 4a25d08 |
 | 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, 6880a57 |
-| 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames (this commit); the maintainer's comparison | this commit |
-| 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |
+| 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | 3d54265, 5f62ab0 |
+| 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | this commit |
 | 14 | Full gate and independent review | verify-full; review record | open |

@@ -26,11 +26,14 @@ there. Why motion comes only from the video model is decided in
 3. **Write the prompt** — it states how little moves and what stays still, in the definition's words. A word that
    turns the body, a head motion next to a blink, or a shifting weight each start a motion nobody asked for.
    *Done when every sentence of the prompt maps to a line of the definition.*
-4. **Render one clip** — from the approved still with a blank face, one job at a time under the memory guard, its
-   progress streamed into the chat. *Done when the clip and its log row exist.*
-5. **Cut the frames** — a cycle is cut where the stride repeats, each unique pose kept with its hold; a loop keeps
-   its frames between the anchors. Face parts are placed per frame by that frame's head. *Done when the frame set
-   plays without a jump in the player.*
+4. **Render one clip** — `pnpm assets clip <figure> <motion>` renders it from the approved still the figures' data
+   file names, one job at a time under the memory guard, its progress streamed into the chat. *Done when the clip
+   exists.*
+5. **Cut the frames** — `pnpm assets frames <figure> <motion>`: a cycle is cut where the stride repeats, each unique
+   pose kept with its hold; a loop keeps its frames between the anchors. `pnpm assets track <figure> <motion>` places
+   the head per frame and refuses a track whose ear strays; `pnpm assets export <figure> <motion>` writes the sprites,
+   the face parts and the manifest into the office's asset folder. *Done when the frame set plays without a jump in
+   the player.*
 6. **Check before showing** — a contact sheet; the definition's measurement per frame; the seam of the loop; every
    frame zoomed; consecutive frames overlaid at shoulders, hips and joints; in the office player at the pinned
    angles, never in a re-implementation of it. *Done when every check is measured and passed.*
