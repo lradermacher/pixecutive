@@ -99,6 +99,10 @@ frames numbered with two digits from 00.
 - 2026-10-13, decided by the maintainer: the clock port and its adapter go. The core never used them; only the image
   adapter read its log time through them while reading `Date.now()` itself elsewhere. An adapter reads the time
   directly; the core rule (no clock in the core) stays, and a port comes once the core needs time.
+- 2026-10-13, step 12: `pnpm assets frames|track|export` for M and F, idle and walk, from the backed-up clips put the
+  base figures into `apps/office-ui/assets/figures/` (95 files, 1.7 MB, the largest 27 KB). Measured against the room
+  page: body frames and face parts without a pixel's difference, face placements, head origins, scales, the walks'
+  holds and advance identical.
 - 2026-10-13, step 11: the commands read the figures' specs from `apps/asset-pipeline/data/figures.json` (the proof of
   concept's values: loop ranges, the F walk's cycle bounds, the sprites used, ear boxes, stills, face parts) and the
   prompts from `data/prompts/`. The stills and face parts stay outside the repo in the figure sources folder
@@ -151,7 +155,7 @@ frames numbered with two digits from 00.
 | 8 | Frame measurer and cutter, Python internals | adapter spec; integration spec on synthetic frames | d8076bd |
 | 9 | Head tracker, Python internals | adapter spec; integration spec on synthetic frames | 350b45e |
 | 10 | Figure manifest schema in `packages/protocol`, the export use case with the edge clean-up, and the file asset store | protocol, service and adapter specs; the 256 KB limit | 04519ae, 3a4aad6, 4a25d08 |
-| 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, this commit |
-| 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames; the maintainer's comparison | open |
+| 11 | Commands `clip`, `frames`, `track`, `export` with config and exit code table | handler and composition root specs | 9fa56c7, 6880a57 |
+| 12 | Base figures M and F with idle and walk through the commands into `apps/office-ui/assets/` | pixel comparison with the room page frames (this commit); the maintainer's comparison | this commit |
 | 13 | The skill `animate-figure` names the commands; the skills register regenerated | check-skills | open |
 | 14 | Full gate and independent review | verify-full; review record | open |
