@@ -53,6 +53,13 @@ describe('TrackHeadService', () => {
 		]);
 	});
 
+	it('takes the ear limit from the values', async () => {
+		const service = new TrackHeadService(new InMemoryHeadTracker([1.5]));
+		const strict = await failureOf(service.track(job, values));
+		const loose = await service.track(job, { ...values, earLimit: 2 });
+		expect([strict instanceof FigureException && strict.key, loose.earOffset]).toEqual([FigureExceptionKey.HeadDrift, [1.5]]);
+	});
+
 	it('refuses a wrong job with the invalid job key and never starts the tracker', async () => {
 		const tracker = new InMemoryHeadTracker([0]);
 		const failure = await failureOf(new TrackHeadService(tracker).track({ ...job, frames: [] }, values));
