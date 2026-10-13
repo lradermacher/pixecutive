@@ -33,10 +33,17 @@ export class MakeHeadPartService {
 		private readonly cutter: IPartCutter,
 	) {}
 
-	/** The still a kind is drawn on when it draws no grid: a hat on the open green still, glasses on the accessory one. */
-	template(kind: HeadPartKind, stills: { green: string; greenAccessory: string; greenOpen: string }): string {
-		if (kind === HeadPartKind.Hat) return stills.greenOpen;
-		return kind === HeadPartKind.Glasses ? stills.greenAccessory : stills.green;
+	/**
+	 * The image a kind is drawn on when it draws no grid: a hat on the open green still, glasses on the accessory one,
+	 * hair under a hat on the input made for its hairstyle, every other kind on the green still.
+	 */
+	template(
+		kind: HeadPartKind,
+		images: { green: string; greenAccessory: string; greenOpen: string; underHat: string },
+	): string {
+		if (kind === HeadPartKind.Hat) return images.greenOpen;
+		if (kind === HeadPartKind.HairUnderHat) return images.underHat;
+		return kind === HeadPartKind.Glasses ? images.greenAccessory : images.green;
 	}
 
 	/** Every offered variant of every kind as its layer, a hat with its hide; hidden variants are not offered. */

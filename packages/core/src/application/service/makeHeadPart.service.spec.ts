@@ -179,12 +179,11 @@ describe('MakeHeadPartService', () => {
 		]);
 	});
 
-	it('draws a hat on the open green still, glasses on the accessory still and every other kind on the green still', () => {
+	it('draws a hat on the open green still, glasses on the accessory still, hair under a hat on its input, the rest on green', () => {
 		const service = new MakeHeadPartService(new InMemoryImageEditor(), new InMemoryPartCutter());
-		const stills = { green: 'g.png', greenAccessory: 'a.png', greenOpen: 'o.png' };
-		expect(
-			[HeadPartKind.Hat, HeadPartKind.Glasses, HeadPartKind.Beard].map((k) => service.template(k, stills)),
-		).toEqual(['o.png', 'a.png', 'g.png']);
+		const images = { green: 'g.png', greenAccessory: 'a.png', greenOpen: 'o.png', underHat: 'u.png' };
+		const kinds = [HeadPartKind.Hat, HeadPartKind.Glasses, HeadPartKind.HairUnderHat, HeadPartKind.Beard];
+		expect(kinds.map((k) => service.template(k, images))).toEqual(['o.png', 'a.png', 'u.png', 'g.png']);
 	});
 
 	it('offers every variant but the hidden ones, a hat with its hide, and lifts each offered hairstyle', async () => {

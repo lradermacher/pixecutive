@@ -2,14 +2,14 @@
 // by its place in the data file's list.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { FigureException, FigureExceptionKey, HeadPartKind, type MakeHeadPartService } from '@pixecutive/core';
+import { FigureException, FigureExceptionKey, type MakeHeadPartService } from '@pixecutive/core';
 import type { FigureSetup } from '../figureConfig.ts';
 import { type FigureHeadKind, figureHeadKind } from './figureHeadKind.ts';
 import { headPaths } from './headPaths.ts';
 
 /**
  * The image the model edits and where its drawing lands: a drawing in a grid edits the grid and lands numbered; else
- * the still its kind is drawn on, as the core decides, or for hair under a hat the hairstyle's input, and it lands as
+ * the image the core picks for the kind, and it lands as
  * the variant's own still, `first` being the variant drawn.
  */
 function drawingFiles(
@@ -22,14 +22,18 @@ function drawingFiles(
 	const { figure, head, kind, number } = named;
 	const paths = headPaths(setup.rendersDir, figure);
 	if (grid !== undefined) return { input: paths.grid(grid), output: paths.drawing(kind, number) };
-	const input =
-		kind === HeadPartKind.HairUnderHat ? paths.underHatInput(first) : join(setup.sources, service.template(kind, head));
-	return { input, output: paths.still(kind, first) };
+	const at = (file: string): string => join(setup.sources, file);
+	const images = {
+		green: at(head.green),
+		greenAccessory: at(head.greenAccessory),
+		greenOpen: at(head.greenOpen),
+		underHat: paths.underHatInput(first),
+	};
+	return { input: service.template(kind, images), output: paths.still(kind, first) };
 }
 
 /**
- * Has the model draw the kind's drawing: on its grid when it has one, else on the still its kind is drawn on,
- * and for hair under a hat on that hairstyle's input.
+ * Has the model draw the kind's drawing: on its grid when it has one, else on the image the core picks for the kind.
  * @throws {FigureException} the invalid job key for an unknown drawing or a prompt that cannot be read; the editor's
  * keys.
  */

@@ -59,7 +59,7 @@ export class ImageEditorCodexAdapter implements IImageEditor {
 				}
 				const last = said.trim().split('\n').slice(-3).join(' | ');
 				const key = quota.test(said) ? FigureExceptionKey.DrawQuota : FigureExceptionKey.DrawFailed;
-				reject(new FigureException(key, `exit ${String(code)}, no ${basename(job.output)}: ${last}`));
+				reject(new FigureException(key, `exit ${String(code)}, no new ${basename(job.output)}: ${last}`));
 			});
 		});
 	}

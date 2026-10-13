@@ -89,7 +89,13 @@ describe('ImageEditorCodexAdapter', () => {
 		const edit = job();
 		writeFileSync(edit.output, 'an earlier drawing');
 		utimesSync(edit.output, new Date(Date.now() - 60_000), new Date(Date.now() - 60_000));
-		expect(await failureKey(new ImageEditorCodexAdapter(codex.binary).edit(edit))).toBe(FigureExceptionKey.DrawQuota);
+		const failure: unknown = await new ImageEditorCodexAdapter(codex.binary)
+			.edit(edit)
+			.catch((caught: unknown) => caught);
+		expect([
+			failure instanceof FigureException && failure.key,
+			failure instanceof FigureException && failure.detail.includes('no new hair-natural.png'),
+		]).toEqual([FigureExceptionKey.DrawQuota, true]);
 	});
 
 	it('answers the draw-failed key when codex ends without the drawing, also with exit 0', async () => {

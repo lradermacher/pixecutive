@@ -29,6 +29,7 @@ interface Scene {
 	readonly mouth: string;
 	readonly browsDrawn: string;
 	readonly beard: string;
+	readonly hairExtra: string;
 }
 
 /**
@@ -71,9 +72,13 @@ async function scene(): Promise<Scene> {
 			'    a = np.zeros((200, 200, 4), np.uint8); l, t, r, b = box; a[t:b, l:r] = (20, 20, 20, 255)',
 			'    Image.fromarray(a).save(f"{d}/{name}.png")',
 			'part((80, 96, 90, 103), "eyes"); part((80, 88, 90, 91), "brows"); part((98, 106, 102, 114), "nose"); part((92, 122, 108, 125), "mouth")',
-			'thick = head((230, 170, 130)); thick[86:92, 78:92] = (20, 20, 20); Image.fromarray(thick).save(f"{d}/brows-drawn.png")',
+			'thick = head((230, 170, 130)); thick[86:92, 78:92] = (20, 20, 20); thick[106:115, 96:105] = (20, 20, 20)',
+			'Image.fromarray(thick).save(f"{d}/brows-drawn.png")',
 			'beard = green.copy(); cv2.ellipse(beard, (100, 128), (30, 12), 0, 0, 180, (70, 45, 25), -1)',
+			'beard[98:103, 80:90] = (70, 45, 25); beard[106:114, 98:102] = (70, 45, 25); beard[70:120, 120:125] = (70, 45, 25)',
 			'Image.fromarray(beard).save(f"{d}/beard.png")',
+			'extra = hair.copy(); cv2.rectangle(extra, (160, 55), (172, 70), (90, 55, 30), -1)',
+			'cv2.rectangle(extra, (160, 55), (172, 70), (25, 15, 10), 1); Image.fromarray(extra).save(f"{d}/hair-extra.png")',
 		].join('\n'),
 	);
 	await runPythonStep(python, maker, [dir]);
@@ -94,6 +99,7 @@ async function scene(): Promise<Scene> {
 		mouth: at('mouth.png'),
 		browsDrawn: at('brows-drawn.png'),
 		beard: at('beard.png'),
+		hairExtra: at('hair-extra.png'),
 	};
 }
 
@@ -113,6 +119,24 @@ async function opacity(layer: string, box: readonly number[]): Promise<{ inside:
 	);
 	const out = await runPythonStep(python, script, [layer, JSON.stringify(box)]);
 	return JSON.parse(out.stdout) as { inside: number; outside: number };
+}
+
+/** The pixels of an image that are flat magenta, and those with any opacity. */
+async function pixels(image: string): Promise<{ magenta: number; opaque: number }> {
+	const dir = mkdtempSync(join(tmpdir(), 'pixels-'));
+	const script = join(dir, 'pixels.py');
+	writeFileSync(
+		script,
+		[
+			'import sys, json, numpy as np',
+			'from PIL import Image',
+			'a = np.asarray(Image.open(sys.argv[1]).convert("RGBA")).astype(int)',
+			'magenta = (a[..., 0] > 200) & (a[..., 1] < 80) & (a[..., 2] > 200)',
+			'print(json.dumps({"magenta": int(magenta.sum()), "opaque": int((a[..., 3] > 0).sum())}))',
+		].join('\n'),
+	);
+	const out = await runPythonStep(python, script, [image]);
+	return JSON.parse(out.stdout) as { magenta: number; opaque: number };
 }
 
 const failureKey = (running: Promise<unknown>): Promise<unknown> =>
@@ -260,9 +284,12 @@ describe('PartCutterOpencvAdapter measuring and preparing', () => {
 				out,
 				features: [s.eyes, s.brows, s.nose],
 			});
-			// the beard drawn at rows 116 to 140, with its outline and soft ring
+			// the beard drawn at rows 116 to 140, with its outline and soft ring; the strokes over the eye and the nose go
 			const seen = await opacity(out, [66, 112, 136, 146]);
-			expect([seen.inside > 300, seen.outside]).toEqual([true, 0]);
+			const [eye, nose] = [await opacity(out, [80, 98, 90, 103]), await opacity(out, [98, 106, 102, 114])];
+			// a stroke from the beard up the forehead keeps only its part in the lower face
+			const forehead = await opacity(out, [118, 66, 127, 92]);
+			expect([seen.inside > 300, eye.inside, nose.inside, forehead.inside]).toEqual([true, 0, 0, 0]);
 		},
 		PYTHON_START_MS,
 	);
@@ -296,15 +323,16 @@ describe('PartCutterOpencvAdapter measuring and preparing', () => {
 				values: values.key,
 				green: s.green,
 				mask: s.mask,
-				drawing: s.hair,
+				drawing: s.hairExtra,
 				out,
 				hairless: hair,
 				hat,
 				open: s.open,
 			});
-			// the hairstyle's own area grown by 7 pixels, and the band just below the hat
+			// the hairstyle's own area grown by 7 pixels, and the band just below the hat; the strand beside it goes
 			const seen = await opacity(out, [48, 42, 154, 86]);
-			expect([seen.inside > 1000, seen.outside]).toEqual([true, 0]);
+			const strand = await opacity(out, [158, 52, 175, 73]);
+			expect([seen.inside > 1000, seen.outside, strand.inside]).toEqual([true, 0, 0]);
 		},
 		PYTHON_START_MS,
 	);
@@ -312,7 +340,7 @@ describe('PartCutterOpencvAdapter measuring and preparing', () => {
 
 describe('PartCutterOpencvAdapter on face variants and fits', () => {
 	it(
-		'cuts a face variant as the features nearest the wanted default part, the thicker brows here',
+		'cuts a face variant as the features nearest the wanted default part: the thicker brows, not the new nose',
 		async () => {
 			const s = await scene();
 			const out = join(s.dir, 'brows-1.png');
@@ -351,7 +379,13 @@ describe('PartCutterOpencvAdapter on face variants and fits', () => {
 			await cutter.underHat({ hair: s.hair, hat, shrink: 5, out: input });
 			await cutter.fit({ part: hat, scale: 0.5, dx: 0, dy: 40, out: fitted });
 			const moved = await opacity(fitted, [0, 0, 200, 60]);
-			expect([existsSync(input), moved.inside, moved.outside > 100]).toEqual([true, 0, true]);
+			const [painted, original, half] = [await pixels(input), await pixels(hat), await pixels(fitted)];
+			expect([painted.magenta > 100, moved.inside, half.opaque < original.opaque * 0.4, half.opaque > 0]).toEqual([
+				true,
+				0,
+				true,
+				true,
+			]);
 		},
 		PYTHON_START_MS,
 	);

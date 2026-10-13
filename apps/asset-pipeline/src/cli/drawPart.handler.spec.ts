@@ -2,42 +2,26 @@ import {
 	FigureException,
 	FigureExceptionKey,
 	headCutConfigSchema,
-	type MakeHeadPartService,
-	type PartCutResult,
+	type IImageEditor,
+	type ImageEditJob,
+	type IPartCutter,
+	MakeHeadPartService,
 } from '@pixecutive/core';
 import { describe, expect, it } from 'vitest';
 import type { FigureSetup } from '../figureConfig.ts';
 import { drawPartHandler } from './drawPart.handler.ts';
 
-/** Keeps every call to the head-part use cases by name and arguments; a cut answers 120 pixels at scale 1. */
-class RecordingHeadParts {
-	readonly calls: [string, unknown[]][] = [];
-	private keep(name: string, args: unknown[]): Promise<void> {
-		this.calls.push([name, args]);
+/** Keeps every drawing it is asked for. */
+class InMemoryImageEditor implements IImageEditor {
+	readonly jobs: ImageEditJob[] = [];
+	edit(job: ImageEditJob): Promise<void> {
+		this.jobs.push(job);
 		return Promise.resolve();
 	}
-	template(kind: string, stills: { green: string; greenAccessory: string; greenOpen: string }): string {
-		return kind === 'hat' ? stills.greenOpen : kind === 'glasses' ? stills.greenAccessory : stills.green;
-	}
-	grid(...args: unknown[]): Promise<void> {
-		return this.keep('grid', args);
-	}
-	draw(...args: unknown[]): Promise<void> {
-		return this.keep('draw', args);
-	}
-	split(...args: unknown[]): Promise<void> {
-		return this.keep('split', args);
-	}
-	cut(...args: unknown[]): Promise<PartCutResult> {
-		return this.keep('cut', args).then(() => ({ pixels: 120, scale: 1, dx: 0, dy: -2 }));
-	}
-	underHat(...args: unknown[]): Promise<void> {
-		return this.keep('underHat', args);
-	}
-	fit(...args: unknown[]): Promise<void> {
-		return this.keep('fit', args);
-	}
 }
+
+/** A cutter the drawing never asks. */
+const cutter = {} as IPartCutter;
 
 const head = {
 	columns: 3,
@@ -106,29 +90,25 @@ const failureKey = (running: () => Promise<unknown>): Promise<unknown> =>
 describe('drawPartHandler', () => {
 	const read = (path: string): string => `prompt of ${path}`;
 
-	it('draws a grid kind on its grid into the numbered drawing, with the prompt and its fill', async () => {
-		const parts = new RecordingHeadParts();
-		await drawPartHandler(['m', 'hair', '1'], setup, parts as unknown as MakeHeadPartService, read);
-		expect(parts.calls).toEqual([
-			[
-				'draw',
-				[
-					{
-						input: '/r/head/m/grid-head.png',
-						prompt: 'prompt of /data/head/hair.txt',
-						fill: { who: 'man' },
-						output: '/r/head/m/hair/drawing-1.png',
-					},
-				],
-			],
+	it('draws a grid kind on its grid into the numbered drawing, with its prompt', async () => {
+		const editor = new InMemoryImageEditor();
+		const parts = new MakeHeadPartService(editor, cutter);
+		await drawPartHandler(['m', 'hair', '1'], setup, parts, read);
+		expect(editor.jobs).toEqual([
+			{
+				input: '/r/head/m/grid-head.png',
+				prompt: 'prompt of /data/head/hair.txt',
+				output: '/r/head/m/hair/drawing-1.png',
+			},
 		]);
 	});
 
-	it('draws a hat on the open green still and hair under a hat on its input, each straight into its variant', async () => {
-		const parts = new RecordingHeadParts();
-		await drawPartHandler(['m', 'hat', '1'], setup, parts as unknown as MakeHeadPartService, read);
-		await drawPartHandler(['m', 'hair-under-hat', '1'], setup, parts as unknown as MakeHeadPartService, read);
-		expect(parts.calls.map(([, [command]]) => command as { input: string; output: string })).toEqual([
+	it('draws a hat on the image the core picks and hair under a hat on its input, each into its variant', async () => {
+		const editor = new InMemoryImageEditor();
+		const parts = new MakeHeadPartService(editor, cutter);
+		await drawPartHandler(['m', 'hat', '1'], setup, parts, read);
+		await drawPartHandler(['m', 'hair-under-hat', '1'], setup, parts, read);
+		expect(editor.jobs).toEqual([
 			expect.objectContaining({ input: '/src/m/green-open.png', output: '/r/head/m/hat/4.png' }),
 			expect.objectContaining({
 				input: '/r/head/m/hair-under-hat/input-1.png',
@@ -138,8 +118,7 @@ describe('drawPartHandler', () => {
 	});
 
 	it('refuses a drawing the kind does not list and a prompt that cannot be read', async () => {
-		const parts = new RecordingHeadParts();
-		const service = parts as unknown as MakeHeadPartService;
+		const service = new MakeHeadPartService(new InMemoryImageEditor(), cutter);
 		const unreadable = (): string => {
 			throw new TypeError('no such file');
 		};

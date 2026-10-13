@@ -12,7 +12,7 @@ from PIL import Image
 
 
 def rgb(path, size=None):
-    """An image as float RGB, resized with LANCZOS to `size` (width, height) when given: a model may answer in any size."""
+    """An image as float RGB, resized with LANCZOS to `size` (width, height) when given: models answer in any size."""
     image = Image.open(path).convert("RGB")
     if size is not None and image.size != tuple(size):
         image = image.resize(tuple(size), Image.LANCZOS)

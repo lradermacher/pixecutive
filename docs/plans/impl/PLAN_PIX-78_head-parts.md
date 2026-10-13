@@ -13,7 +13,7 @@ Astra adapter and the key cut built so that PIX-70 reuses them for the body part
 - [x] The hair, beards, hats, glasses and face variants of M and F reach `apps/office-ui/assets/` and the manifest through the commands — split, cut and export: 404 of 406 layers equal the backup's (the two others are hidden variants); M 176 and F 181 head parts per motion, lifts 61 of 61 equal to the backup; `shippedFigures.spec.ts` checks every file named and named once
 - [x] Every head part follows each gesture (idle, walk, wave, sit, type) by the per-frame head origin, checked in the playground — the export places every part on every motion by its head origin; checked in `pnpm playground` through the page's own buttons and draw functions on all five motions, both facings, 4× zoom (hair, hats incl. the chef hat over long hair, glasses, beard, eye variant)
 - [x] The skill `figure-part` names the commands — steps 2, 3, 5 and 8 of `.claude/skills/figure-part/SKILL.md`
-- [ ] Every gate and verify-full is green, and an independent review checked the diff
+- [x] Every gate and verify-full is green, and an independent review checked the diff — verify-full STAGE 2 GREEN; review run 1 on the card's whole diff (record f06095c, 17 findings, fixed in 87eb959), run 2 on the rework (9 findings, fixed in the commit its record lies on)
 
 ## Inventory
 
@@ -124,7 +124,7 @@ folder, which is not in git.
 | 7 | Export extended; import every head part of M and F from the backup's renders through split and cut | lift 75/75 equal to BK; manifest parses; assets folder holds every head part | 3c7993c and the assets commit; lifts 61/61 (the offered hairstyles) |
 | 8 | Playground: head layers, pickers, hide by `destination-out`, hat lift | playground specs green; every head part on all five motions, both facings, zoomed, checked in the browser | 3c7993c and the headroom in the assets commit |
 | 9 | Skill `figure-part` names the commands, the assets rule if a line changes | check-skills, check-rules green | the assets commit |
-| 10 | verify-full, the boxes, the review | verify-full green, `ticket.ts boxes` with no open box, review record on the head | open |
+| 10 | verify-full, the boxes, the review | verify-full green, `ticket.ts boxes` with no open box, review record on the head | the commit review run 2's record lies on |
 
 ## Out of scope
 
@@ -260,3 +260,17 @@ folder, which is not in git.
     - Long comment lines are rewrapped.
   - **Note, not changed:** `pnpm assets export` needs the offered head layers in the renders folder, as it needs the face
     sources. Exporting a body motion on a fresh machine needs both.
+- 2026-10-13, review run 2 (9 findings: 4 should, 5 notes):
+  - **The cutter specs could not fail.** The reviewer's six mutants of `parts.py` showed that four specs stayed green
+    with the behavior they name removed. The scene now has:
+    - strokes over the eye and the nose, and a stroke from the beard up the forehead;
+    - a strand beside the hairstyle;
+    - a second change at the nose for the brows;
+    - a count of the magenta pixels and of the fitted layer's pixels.
+
+    All six mutants turn the specs red now.
+  - **The image for hair under a hat** is picked by `template` too, so the handler keeps no choice.
+  - **The draw handler's spec** runs the real service, not a copy of its logic.
+  - **Smaller fixes:** the editor's message says "no new" drawing, and a docstring is rewrapped.
+  - **Not changed:** `template` and `offered` decide without touching anything and sit in the use-case service beside
+    the calls they feed. The core rule allows domain or application.
