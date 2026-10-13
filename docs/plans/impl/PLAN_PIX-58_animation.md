@@ -72,6 +72,12 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 
 ## Changed on the way
 
+- 2026-10-13, sit (sheets `pix58-seated` F1 = a, F2 = a "definitely furniture"; `pix58-m-legs` F1 = a): the chair is
+  office furniture. Two masks left the chair's outline, so the input changed: Astra removed the chair from the seated
+  stills (figure within 7/255). M's chair had been too high, so his feet hung and one tipped down (the maintainer saw
+  it); Astra set his feet flat on the floor. A motion may set its own sprite height (M sit 177, F sit 193), so the
+  seated head is as large as when standing.
+
 - 2026-10-13, talk: the video model gave no mouth states (M's mouth stayed closed in a speaking clip, F turned her
   head), so Astra drew the half and open mouth on each face still, one call per state, the way the brow and eye
   variants were made; they were cut by what Astra changed around the mouth, without nose and outline. The first cut
@@ -145,7 +151,7 @@ the core's motion enum, so the figures' specs accept it; the steps are the skill
 | 1 | Front-right of idle and walk by mirroring, for M and F | both directions in the playground, zoomed | PIX-71 (`tileTransform.ts`; review run 1: mirrored equals flipped, 0 differing bytes) |
 | 2 | talk for M and F: the half and open mouth states, then the idle body with a speaking mouth | one PNG of the mouth states, the maintainer's yes; the definition's check | mouth states accepted (sheet `pix58-mouth`), 64e91fc; speaking mouth 427119a, wobble fixed 13a9983; accepted by the maintainer in chat (2026-10-13) |
 | 3 | wave for M and F | the definition's check on every frame; the maintainer's verdict | M c3f1eeb (sheet `pix58-wave` F3), F 23b1a06 (sheet `pix58-f-body` F1) |
-| 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | open |
+| 4 | Seated still from a sit-down clip, for M and F | one PNG per figure, the maintainer's yes | sheets `pix58-seated`, `pix58-m-legs`; chair removed by Astra |
 | 5 | sit for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 6 | type for M and F | the definition's check on every frame; the maintainer's verdict | open |
 | 7 | Every layer on every gesture by the head origin; front-right of every gesture | the full matrix in the room page | open |

@@ -51,7 +51,7 @@
         "prompt": "prompts/sit.txt",
         "still": "m/sit-start.png",
         "range": { "first": 0, "last": 47 },
-        "height": 173,
+        "height": 177,
         "step": 1,
         "forward": true,
         "trackStill": "m/blank2.png"
