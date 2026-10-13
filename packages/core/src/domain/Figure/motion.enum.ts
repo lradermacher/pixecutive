@@ -4,4 +4,6 @@
 export enum Motion {
 	Idle = 'idle',
 	Walk = 'walk',
+	Talk = 'talk',
+	Wave = 'wave',
 }

@@ -28,7 +28,7 @@ describe('figureMotion', () => {
 	});
 
 	it('refuses an unknown figure or motion with the invalid job key and the choices', () => {
-		expect(failure(['x', 'idle'])).toBe('expected <figure> <motion>, one of m|f and idle|walk');
+		expect(failure(['x', 'idle'])).toBe('expected <figure> <motion>, one of m|f and idle|walk|talk|wave');
 	});
 
 	it('refuses a motion the data file does not hold', () => {
