@@ -112,7 +112,11 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 	): Promise<{ files: string[]; width: number; height: number }> {
 		const folder = this.fresh(join(figure, 'body', motion));
 		const pairs = sprites.map((sprite, k) => [sprite, join(folder, `${String(k).padStart(2, '0')}.png`)]);
-		const written = await this.step(['clean', JSON.stringify(pairs), JSON.stringify(values.edge)], writtenFiles);
+		const written = await this.step(
+			['clean', JSON.stringify(pairs), JSON.stringify(values.edge)],
+			writtenFiles,
+			folder,
+		);
 		const [width, height] = pngSize(written[0] ?? '');
 		return { files: written.map((file) => this.within(file)), width, height };
 	}
@@ -130,10 +134,15 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		const placed = await this.step(
 			['face', JSON.stringify(parts), String(scale), JSON.stringify(values.face)],
 			placedParts,
+			folder,
 		);
 		const blank = parts.find((p) => p.part === FacePart.Blank);
 		if (blank)
-			await this.step(['clean', JSON.stringify([[blank.out, blank.out]]), JSON.stringify(values.edge)], writtenFiles);
+			await this.step(
+				['clean', JSON.stringify([[blank.out, blank.out]]), JSON.stringify(values.edge)],
+				writtenFiles,
+				folder,
+			);
 		return placed.map((p, k) => ({
 			part: sources[k]?.part ?? FacePart.Blank,
 			file: this.within(p.file),
@@ -172,12 +181,13 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 			});
 			if (!after.success)
 				throw new FigureException(FigureExceptionKey.StorageFailed, `manifest: ${after.error.message}`);
-			this.ship(figure, motion);
+			const staged = motionFolders(figure, motion).filter((sub) => existsSync(join(this.config.staging, sub)));
 			const missing = [...asset.frames, ...asset.face]
 				.map((f) => f.file)
-				.filter((file) => !existsSync(join(this.config.root, file)));
+				.filter((file) => !existsSync(join(this.after(file, staged), file)));
 			if (missing.length > 0)
 				throw new FigureException(FigureExceptionKey.StorageFailed, `missing ${missing.join(', ')}`);
+			this.ship(staged);
 			onDisk('write the manifest', () => {
 				writeFileSync(path, `${JSON.stringify(after.data, null, '\t')}\n`);
 			});
@@ -198,11 +208,15 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return parsed.data;
 	}
 
-	/** Moves what is staged for the motion over its shipped folders; a folder nothing was staged for stays. */
-	private ship(figure: FigureName, motion: Motion): void {
-		for (const sub of motionFolders(figure, motion)) {
+	/** The folder a file of the manifest lies in once the staged folders are shipped: staging or the asset folder. */
+	private after(file: string, staged: readonly string[]): string {
+		return staged.some((sub) => file.startsWith(`${sub}/`)) ? this.config.staging : this.config.root;
+	}
+
+	/** Moves the staged folders over their shipped ones; a folder nothing was staged for stays. */
+	private ship(subs: readonly string[]): void {
+		for (const sub of subs) {
 			const staged = join(this.config.staging, sub);
-			if (!existsSync(staged)) continue;
 			onDisk(`ship ${sub}`, () => {
 				const shipped = join(this.config.root, sub);
 				rmSync(shipped, { recursive: true, force: true });
@@ -222,8 +236,8 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 		return folder;
 	}
 
-	/** Runs the Python pixel step, then holds every staged file to the size limit. */
-	private async step<T>(args: readonly string[], schema: AnswerSchema<T>): Promise<T> {
+	/** Runs the Python pixel step, then holds every file it staged in `folder` to the size limit. */
+	private async step<T>(args: readonly string[], schema: AnswerSchema<T>, folder: string): Promise<T> {
 		const answer = await pixelStep(
 			this.config.python,
 			this.config.script,
@@ -231,19 +245,18 @@ export class AssetStoreFilesAdapter implements IAssetStore {
 			schema,
 			FigureExceptionKey.StorageFailed,
 		);
-		for (const file of this.files()) {
-			const size = onDisk(`measure ${this.within(file)}`, () => statSync(file).size);
-			if (size > fileLimitBytes) {
-				throw new FigureException(FigureExceptionKey.StorageFailed, `${this.within(file)} has ${String(size)} bytes`);
-			}
+		for (const file of this.files(folder)) {
+			const size = onDisk(`measure staged ${file}`, () => statSync(file).size);
+			if (size > fileLimitBytes)
+				throw new FigureException(FigureExceptionKey.StorageFailed, `staged ${file} has ${String(size)} bytes`);
 		}
 		return answer;
 	}
 
-	/** Every staged file. */
-	private files(): string[] {
-		return onDisk('list the staging folder', () =>
-			readdirSync(this.config.staging, { recursive: true, withFileTypes: true })
+	/** Every file in a staged folder. */
+	private files(folder: string): string[] {
+		return onDisk(`list ${folder}`, () =>
+			readdirSync(folder, { recursive: true, withFileTypes: true })
 				.filter((entry) => entry.isFile())
 				.map((entry) => join(entry.parentPath, entry.name)),
 		);

@@ -68,7 +68,7 @@ const asset = (frames: string[]): MotionAsset => ({
 	face: [{ part: FacePart.Mouth, file: 'm/face/idle/mouth.png', x: 1, y: 2, width: 3, height: 4 }],
 });
 
-describe('AssetStoreFilesAdapter', () => {
+describe('AssetStoreFilesAdapter staging a motion', () => {
 	it(
 		'stages the sprites and answers their files as the asset folder will name them, and their size',
 		async () => {
@@ -140,6 +140,25 @@ describe('AssetStoreFilesAdapter', () => {
 		PYTHON_START_MS,
 	);
 
+	it(
+		'refuses a staged file larger than the office allows, naming it, and still exports another motion after it',
+		async () => {
+			const { adapter, staging } = store();
+			const { big, sprites } = await sources();
+			const failure: unknown = await adapter
+				.putFrames(FigureName.F, Motion.Idle, [big], values)
+				.catch((error: unknown) => error);
+			expect(failure instanceof FigureException && [failure.key, failure.detail]).toEqual([
+				FigureExceptionKey.StorageFailed,
+				expect.stringMatching(new RegExp(`^staged ${staging}/f/body/idle/00\\.png has \\d+ bytes$`)),
+			]);
+			expect((await adapter.putFrames(FigureName.M, Motion.Walk, sprites, values)).files).toHaveLength(2);
+		},
+		PYTHON_START_MS,
+	);
+});
+
+describe('AssetStoreFilesAdapter shipping a motion', () => {
 	it('records motions in the manifest, keeping the others, in a form the protocol accepts', async () => {
 		const { adapter, root, staging } = store();
 		for (const file of ['m/body/idle/00.png', 'm/body/walk/00.png', 'm/body/walk/01.png', 'm/face/idle/mouth.png'])
@@ -157,6 +176,19 @@ describe('AssetStoreFilesAdapter', () => {
 		place(staging, 'm/body/idle/00.png');
 		await adapter.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png']));
 		expect(readFileSync(join(root, 'm/face/idle/mouth.png'), 'utf8')).toBe('shipped');
+	});
+
+	it('ships nothing when the manifest would name a file that is not there', async () => {
+		const { adapter, root, staging } = store();
+		place(staging, 'm/body/idle/00.png', 'new');
+		place(root, 'm/body/idle/00.png', 'shipped');
+		const failure: unknown = await adapter
+			.putMotion(FigureName.M, Motion.Idle, asset(['m/body/idle/00.png', 'm/body/idle/01.png']))
+			.catch((error: unknown) => error);
+		expect([
+			failure instanceof FigureException && failure.key,
+			readFileSync(join(root, 'm/body/idle/00.png'), 'utf8'),
+		]).toEqual([FigureExceptionKey.StorageFailed, 'shipped']);
 	});
 
 	it('refuses a manifest that would name a file that is not there', async () => {
@@ -178,19 +210,4 @@ describe('AssetStoreFilesAdapter', () => {
 			.catch((error: unknown) => error);
 		expect(failure instanceof FigureException && failure.key).toBe(FigureExceptionKey.StorageFailed);
 	});
-
-	it(
-		'refuses a file larger than the office allows',
-		async () => {
-			const { adapter } = store();
-			const failure: unknown = await adapter
-				.putFrames(FigureName.M, Motion.Idle, [(await sources()).big], values)
-				.catch((error: unknown) => error);
-			expect(failure instanceof FigureException && [failure.key, failure.detail.endsWith('bytes')]).toEqual([
-				FigureExceptionKey.StorageFailed,
-				true,
-			]);
-		},
-		PYTHON_START_MS,
-	);
 });
